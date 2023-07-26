@@ -1,7 +1,8 @@
 import device
 
 class Network:
-    def __init__(self, params):
+    def __init__(self, name, params):
+        self.name = name
         self.params = params
         
     @staticmethod
@@ -14,5 +15,5 @@ class Network:
         _networks = Network._enumerate(device)
         networks = []
         for network in _networks:
-            networks.append(Network(network))
+            networks.append(Network(network, networks[network]))
         return networks
