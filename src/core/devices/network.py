@@ -25,6 +25,6 @@ class Interface:
     
     @staticmethod
     def _enumerate(device):
-        interfaces = device.sys_request("net.deviceinfo", "")["error"]
+        interfaces = device.sys_request("net.deviceinfo", [])["error"]
         return interfaces
     
