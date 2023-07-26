@@ -35,3 +35,5 @@ class Device:
         except AttributeError:
             return requests.post(url, data=json.dumps(data))
     
+    def uci_request(self, method, params):
+        return self._api_request("uci", method, params)
