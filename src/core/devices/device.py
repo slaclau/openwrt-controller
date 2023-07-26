@@ -15,7 +15,7 @@ class Device:
         self._base_url = protocol + "://" + ip + "/cgi-bin/luci/rpc/"
         
     def login(self):
-        response = self._api_request("auth", 1, "login", [self.username, self.password])
+        response = self._api_request("auth", "login", [self.username, self.password])
         self.auth = response.json()["result"]
     
     def configure_rpc(self):
