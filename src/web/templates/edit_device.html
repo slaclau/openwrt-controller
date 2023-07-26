@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<form action="save" method="post">
+    <h1><input name="name" placeholder="{{ device['name'] }}"><button type="submit" class="btn btn-link"><h1><i class="bi bi-save"></i></h1></button></h1>
+    ip address: {{ device['ip'] }}
+    </form>
+{% endblock %}

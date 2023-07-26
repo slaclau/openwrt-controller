@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} {{ device['name'] }} <a href="edit"><i class="bi bi-pencil-square"></i></a>{% endblock %}</h1>
+    ip address: {{ device['ip'] }}
+{% endblock %}
