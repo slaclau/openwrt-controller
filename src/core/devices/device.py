@@ -24,7 +24,7 @@ class Device:
         else:
             raise NotImplementedError
 
-    def _api_request(self, path, id, method, params):
+    def _api_request(self, path, method, params):
         url = self._base_url + path
         data = {
             "method": method,
