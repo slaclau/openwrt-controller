@@ -15,5 +15,4 @@ class Network:
         networks = []
         for network in _networks:
             networks.append(Network(network))
-
-    return networks
+        return networks
