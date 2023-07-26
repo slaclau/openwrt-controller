@@ -42,5 +42,11 @@ class Device:
     def sys_request(self, method, params):
         return self._api_request("sys", method, params)
 
-    def call_shell(self, command)
+    def call_shell(self, command):
         return self.sys_request("call", [command])
+
+    def reboot_service(self, service):
+        command = f"/etc/init.d/{service} restart"
+        return self.call_shell(command)
+                    
+    
