@@ -1,4 +1,4 @@
-import .device
+import device
 
 class Network:
     @staticmethod
