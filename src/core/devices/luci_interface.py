@@ -7,7 +7,7 @@ class Device:
     protocol = "http://"
     
     
-    def __init__(self, ip, username, password="", protocol="http"):
+    def __init__(self, ip, username="root", password="", protocol="http"):
         self.ip = ip
         self.username = username
         self.password = password
@@ -27,9 +27,11 @@ class Device:
     def _api_request(self, path, id, method, params):
         url = self._base_url + path
         data = {
-            "id": id,
             "method": method,
             "params": params,
         }
-        return requests.post(url, data=json.dumps(data))
+        try:
+            return requests.post(url, data=json.dumps(data), params={"auth": self.auth})
+        except AttributeError:
+            return requests.post(url, data=json.dumps(data))
     
