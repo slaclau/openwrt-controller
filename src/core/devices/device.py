@@ -41,3 +41,6 @@ class Device:
 
     def sys_request(self, method, params):
         return self._api_request("sys", method, params)
+
+    def call_shell(self, command)
+        return self.sys_request("call", [command])
