@@ -12,7 +12,7 @@ class Wireless:
 
     @staticmethod
     def enumerate(device):
-        _wirelesses = Network._enumerate(device)
+        _wirelesses = Wireless._enumerate(device)
         wirelesses = []
         for wireless in _wirelesses:
             wirelesses.append(Wireless(wireless, _wirelesses[wireless]))
