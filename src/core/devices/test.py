@@ -1,3 +1,5 @@
+#!~/git/openwrt-controller-venv/bin/python
+
 import device
 import network
 dev = device.Device("192.168.1.1")
