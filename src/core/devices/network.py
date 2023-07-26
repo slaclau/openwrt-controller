@@ -15,5 +15,5 @@ class Network:
         _networks = Network._enumerate(device)
         networks = []
         for network in _networks:
-            networks.append(Network(network, networks[network]))
+            networks.append(Network(network, _networks[network]))
         return networks
