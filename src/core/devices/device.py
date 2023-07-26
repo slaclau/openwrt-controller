@@ -37,3 +37,7 @@ class Device:
     
     def uci_request(self, method, params):
         return self._api_request("uci", method, params)
+
+
+    def sys_request(self, method, params):
+        return self._api_request("sys", method, params)
