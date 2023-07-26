@@ -16,7 +16,7 @@ class Device:
         
     def login(self):
         response = self._api_request("auth", "login", [self.username, self.password])
-        self.auth = response.json()["result"]
+        self.auth = response["result"]
     
     def configure_rpc(self):
         if self.password == "":
@@ -31,9 +31,9 @@ class Device:
             "params": params,
         }
         try:
-            return requests.post(url, data=json.dumps(data), params={"auth": self.auth})
+            return requests.post(url, data=json.dumps(data), params={"auth": self.auth}).json()
         except AttributeError:
-            return requests.post(url, data=json.dumps(data))
+            return requests.post(url, data=json.dumps(data)).json()
     
     def uci_request(self, method, params):
         return self._api_request("uci", method, params)
