@@ -11,7 +11,7 @@ class Network:
 
     @staticmethod
     def enumerate(device):
-        _networks = _enumerate(device)
+        _networks = Network._enumerate(device)
         networks = []
         for network in _networks:
             networks.append(Network(network))
