@@ -1,4 +1,4 @@
-#!~/git/openwrt-controller-venv/bin/python
+#!/home/sebastien/git/openwrt-controller-venv/bin/python
 
 import device
 import network
