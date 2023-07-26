@@ -10,7 +10,9 @@ networks = network.Network.enumerate(dev)
 wirelesses = wireless.Wireless.enumerate(dev)
 
 for nw in networks:
+    print(nw.name)
     print(nw.params)
 
 for wl in wirelesses:
+    print(wl.name)
     print(wl.params)
