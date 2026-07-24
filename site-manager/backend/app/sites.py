@@ -8,9 +8,10 @@ from fastapi.datastructures import Address
 from pydantic import computed_field
 from sqlmodel import Field, Relationship, SQLModel, select
 
-from .dependencies import SessionDep, get_session
+from .dependencies import SessionDep
 from .links import SiteAccessRelationship
-from .users import UserInDb, User, get_current_active_user, get_current_user
+from .users.model import UserInDb
+from .auth import get_current_active_user
 from .webrtc import client_websockets, site_websockets
 
 logger = logging.getLogger(f"uvicorn.{__name__}")

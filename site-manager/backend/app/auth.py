@@ -7,13 +7,9 @@ import jwt
 from pwdlib import PasswordHash
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
-from sqlmodel import Field, Relationship, SQLModel, select
 
 from .dependencies import SessionDep
-from .links import SiteAccessRelationship
-
-if TYPE_CHECKING:
-    from .sites import Site
+from .users.model import User, UserInDb
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
@@ -27,7 +23,7 @@ with open("public.pem", "rb") as f:
 
 
 password_hash = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 FAKE_HASH = password_hash.hash("password")
 
@@ -41,21 +37,7 @@ class TokenData(BaseModel):
     username: str | None = None
 
 
-class User(SQLModel, table=False):
-    username: str = Field(primary_key=True)
-    email: str
-    full_name: str
-    disabled: bool
-    permissions: str
-
-
-class UserInDb(User, table=True):
-    hashed_password: str
-
-    sites: list["Site"] = Relationship(link_model=SiteAccessRelationship)
-
-
-users = APIRouter(prefix="/users")
+auth = APIRouter(prefix="/auth")
 
 
 def authenticate_user(username, password, session: SessionDep) -> User:
@@ -125,7 +107,7 @@ async def get_current_active_user(
     return current_user
 
 
-@users.post("/token")
+@auth.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: SessionDep
 ) -> Token:
@@ -194,16 +176,8 @@ class PermissionChecker:
         return True
 
 
-@users.get("/me")
+@auth.get("/info")
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> User:
     return current_user
-
-
-@users.get("/")
-async def get_all_users(
-    session: SessionDep,
-    _: bool = Depends(PermissionChecker(action="read", resource_type="user")),
-) -> list[User]:
-    return [user for user in session.exec(select(UserInDb))]

@@ -5,7 +5,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.datastructures import Address
 
 from .dependencies import create_db_and_tables
-from .users import users
+from .auth import auth
+from .users.router import users
 from .sites import sites
 from .webrtc import webrtc
 
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(auth)
 app.include_router(users)
 app.include_router(sites)
 app.include_router(webrtc)

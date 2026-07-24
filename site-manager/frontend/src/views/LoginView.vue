@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { site_manager_client } from '@/client'
-import { loginForAccessTokenUsersTokenPost } from '@/sdk'
+import { loginForAccessTokenAuthTokenPost } from '@/sdk'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,7 +15,7 @@ const form = reactive({
 
 const handleLogin = async () => {
     if (form.username && form.password) {
-        let response = (await loginForAccessTokenUsersTokenPost({ client: site_manager_client, body: { username: form.username, password: form.password } }))
+        let response = (await loginForAccessTokenAuthTokenPost({ client: site_manager_client, body: { username: form.username, password: form.password } }))
         let token = response.data?.access_token;
         if (!response.error && token) {
             localStorage.setItem('auth_token', token)

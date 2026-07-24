@@ -9,8 +9,7 @@ import {
 } from 'controller/sdk/client'
 import { ref, type Ref } from 'vue'
 import { assert } from '@vueuse/core';
-import { getAuthToken } from './sdk/core/auth.gen';
-import { ElDialog, ElMessage, ElNotification } from 'element-plus';
+import { ElMessage, ElNotification } from 'element-plus';
 import router from './router';
 
 /**
@@ -104,7 +103,7 @@ export const site_manager_client = createClient(
     })
 )
 
-async function myInterceptor(response: Response, request: Request) {
+async function authInterceptor(response: Response, request: Request) {
     if (request.url.includes("/token"))
         return response
 
@@ -150,4 +149,4 @@ async function myInterceptor(response: Response, request: Request) {
     return response
 }
 
-site_manager_client.interceptors.response.use(myInterceptor)
+site_manager_client.interceptors.response.use(authInterceptor)
