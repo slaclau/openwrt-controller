@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { site_manager_client } from '@/client'
 import { loginForAccessTokenAuthTokenPost } from '@/sdk'
 
@@ -20,7 +20,7 @@ const handleLogin = async () => {
         if (!response.error && token) {
             localStorage.setItem('auth_token', token)
             console.log(token)
-            ElMessage.success('Logged in')
+            ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
 
             // Redirect back or to dashboard
             const target = (route.query.redirect as string) || '/'

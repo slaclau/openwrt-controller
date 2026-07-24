@@ -10,8 +10,26 @@ const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
 import { useRoute } from 'vue-router'
+import { logoutAuthLogoutPost } from './sdk';
+import { site_manager_client } from './client';
+import { ElNotification } from 'element-plus';
 
 const route = useRoute()
+
+const logout = () => {
+  logoutAuthLogoutPost({ client: site_manager_client }).then(() => {
+    localStorage.removeItem("auth_token")
+    console.log("logged out")
+    ElNotification.success({
+      title: 'Logged Out',
+      message: 'You have been successfully logged out.'
+    })
+    router.push({
+      name: 'Login',
+      query: { redirect: '/' }
+    })
+  })
+}
 </script>
 
 <template>
@@ -27,6 +45,9 @@ const route = useRoute()
         <span style="float: right">
           <el-button @click="toggleDark()">
             <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
+          </el-button>
+          <el-button @click="logout">
+            Logout
           </el-button>
         </span>
       </h1>

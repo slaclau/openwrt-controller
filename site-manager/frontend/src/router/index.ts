@@ -30,10 +30,9 @@ router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('auth_token') // Or use a Pinia store
 
     if (to.meta.requiresAuth && !token) {
-        ElNotification({
+        ElNotification.error({
             title: 'Access Denied',
             message: 'Please log in to access this page.',
-            type: 'error'
         })
         next({ name: 'Login', query: { redirect: to.fullPath } })
     } else {

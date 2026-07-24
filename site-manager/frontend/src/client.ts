@@ -113,7 +113,7 @@ async function authInterceptor(response: Response, request: Request) {
         case 401:
             // Handle unauthorized / token expired
             localStorage.removeItem('auth_token')
-            ElMessage.error('Session expired. Please log in again.')
+            ElNotification.error({ title: 'Session Expired', message: 'Please log in again.' })
 
             // Bounce them back to login page
             router.push({
@@ -141,7 +141,7 @@ async function authInterceptor(response: Response, request: Request) {
         default:
             // Handle network errors or unhandled status codes
             if (!status) {
-                ElMessage.error('Network error. Please check your internet connection.')
+                ElNotification.error({ title: 'Network Error', message: 'Please check your internet connection.' })
             }
             break
     }
