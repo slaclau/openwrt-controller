@@ -19,7 +19,6 @@ const handleLogin = async () => {
         let token = response.data?.access_token;
         if (!response.error && token) {
             localStorage.setItem('auth_token', token)
-            console.log(token)
             ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
 
             // Redirect back or to dashboard

@@ -7,6 +7,7 @@ import {
     createClient,
     createConfig,
 } from 'controller/sdk/client'
+import { refreshTokenAuthRefreshPost } from './sdk';
 import { ref, type Ref } from 'vue'
 import { assert } from '@vueuse/core';
 import { ElMessage, ElNotification } from 'element-plus';
@@ -103,6 +104,18 @@ export const site_manager_client = createClient(
     })
 )
 
+let activeRefreshPromise: Promise<string> | null = null;
+
+function handleLogout() {
+    localStorage.removeItem('auth_token')
+    ElNotification.error({ title: 'Session Expired', message: 'Please log in again.' })
+
+    router.push({
+        name: 'Login',
+        query: { redirect: router.currentRoute.value.fullPath }
+    })
+}
+
 async function authInterceptor(response: Response, request: Request) {
     if (request.url.includes("/token"))
         return response
@@ -111,15 +124,44 @@ async function authInterceptor(response: Response, request: Request) {
 
     switch (status) {
         case 401:
+            if (request.url.includes("/refresh")) {
+                if (response.ok) return response;
+                handleLogout()
+            }
             // Handle unauthorized / token expired
-            localStorage.removeItem('auth_token')
-            ElNotification.error({ title: 'Session Expired', message: 'Please log in again.' })
+            if (!activeRefreshPromise) {
+                activeRefreshPromise = (async () => {
+                    try {
+                        const result = await refreshTokenAuthRefreshPost({
+                            client: site_manager_client,
+                        });
+                        if (result.error || !result.data) {
+                            throw new Error('Refresh token invalid or expired');
+                        }
 
-            // Bounce them back to login page
-            router.push({
-                name: 'Login',
-                query: { redirect: router.currentRoute.value.fullPath }
-            })
+                        const auth_token = result.data;
+
+                        localStorage.setItem('auth_token', auth_token.access_token);
+
+                        return auth_token.access_token;
+                    } catch (err) {
+                        throw err;
+                    } finally {
+                        activeRefreshPromise = null;
+                    }
+                })();
+            }
+
+            try {
+                const freshToken = await activeRefreshPromise;
+
+                const retriedRequest = request.clone();
+                retriedRequest.headers.set('Authorization', `Bearer ${freshToken}`);
+
+                return await fetch(retriedRequest);
+            } catch (error) {
+                activeRefreshPromise = null;
+            }
             break
 
         case 403:
@@ -142,6 +184,8 @@ async function authInterceptor(response: Response, request: Request) {
             // Handle network errors or unhandled status codes
             if (!status) {
                 ElNotification.error({ title: 'Network Error', message: 'Please check your internet connection.' })
+            } else if (!response.ok) {
+                ElNotification.error({ title: `Network Error (${status})`, message: 'Please check your internet connection.' })
             }
             break
     }
