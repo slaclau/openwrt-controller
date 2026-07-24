@@ -200,6 +200,33 @@ async def refresh_token(
     return await create_token_pair(user, session, response)
 
 
+@auth.post("/logout")
+async def logout(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: SessionDep,
+    response: Response,
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, public_key, algorithms=["EdDSA"])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except jwt.InvalidTokenError:
+        raise credentials_exception
+
+    refresh_token_data = session.get(RefreshTokenData, uuid.UUID(payload.get("jti")))
+    if not refresh_token_data:
+        raise credentials_exception
+    session.delete(refresh_token_data)
+    session.commit()
+    response.delete_cookie("refresh_token")
+
+
 class PermissionChecker:
     def __init__(
         self, action: str, resource_type: str, path_param_name: str | None = None
