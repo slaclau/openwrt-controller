@@ -108,6 +108,11 @@ let activeRefreshPromise: Promise<string> | null = null;
 
 function handleLogout() {
     localStorage.removeItem('auth_token')
+
+    if (router.currentRoute.value.name === 'Login') {
+        return;
+    }
+
     ElNotification.error({ title: 'Session Expired', message: 'Please log in again.' })
 
     router.push({
@@ -125,8 +130,8 @@ async function authInterceptor(response: Response, request: Request) {
     switch (status) {
         case 401:
             if (request.url.includes("/refresh")) {
-                if (response.ok) return response;
                 handleLogout()
+                return response
             }
             // Handle unauthorized / token expired
             if (!activeRefreshPromise) {
@@ -145,6 +150,7 @@ async function authInterceptor(response: Response, request: Request) {
 
                         return auth_token.access_token;
                     } catch (err) {
+                        handleLogout()
                         throw err;
                     } finally {
                         activeRefreshPromise = null;
@@ -161,6 +167,7 @@ async function authInterceptor(response: Response, request: Request) {
                 return await fetch(retriedRequest);
             } catch (error) {
                 activeRefreshPromise = null;
+                return response
             }
             break
 
