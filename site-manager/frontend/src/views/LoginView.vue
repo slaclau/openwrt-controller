@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { onMounted, reactive, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
 import { site_manager_client } from '@/client'
-import { loginForAccessTokenAuthTokenPost } from '@/sdk'
+import { getListOfOidcProvidersAuthProvidersGet, loginForAccessTokenAuthLoginPost, type OidcProvider } from '@/sdk'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,7 +15,7 @@ const form = reactive({
 
 const handleLogin = async () => {
     if (form.username && form.password) {
-        let response = (await loginForAccessTokenAuthTokenPost({ client: site_manager_client, body: { username: form.username, password: form.password } }))
+        let response = (await loginForAccessTokenAuthLoginPost({ client: site_manager_client, body: { username: form.username, password: form.password } }))
         let token = response.data?.access_token;
         if (!response.error && token) {
             localStorage.setItem('auth_token', token)
@@ -32,6 +32,14 @@ const handleLogin = async () => {
 
     }
 }
+
+const auth_providers: Ref<OidcProvider[]> = ref([])
+
+onMounted(async () => {
+    let providers = (await getListOfOidcProvidersAuthProvidersGet({ client: site_manager_client })).data
+    if (providers)
+        auth_providers.value = providers
+})
 </script>
 
 <template>
@@ -50,5 +58,13 @@ const handleLogin = async () => {
                 Login
             </el-button>
         </el-form>
+        <el-divider />
+        <div v-for="provider in auth_providers">
+            <a :href="window.location.origin + `/api/auth/${provider.slug}/login`">
+                <el-button style="width: 100%">
+                    Login with {{ provider.name }}
+                </el-button>
+            </a>
+        </div>
     </div>
 </template>

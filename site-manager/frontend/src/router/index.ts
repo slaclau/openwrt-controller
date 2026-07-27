@@ -1,6 +1,8 @@
 // src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
 import { ElNotification } from 'element-plus'
+import { exchangeCodeForTokenAuthTokenPost } from '@/sdk'
+import { site_manager_client } from '@/client'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -26,7 +28,18 @@ const router = createRouter({
 })
 
 // Global route guard to check auth status before changing pages
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+    if (to.query.code) {
+        // 2. Extract the JWT value from the hash
+        const auth_code = to.query.code.toString()
+
+        let auth_token = (await exchangeCodeForTokenAuthTokenPost({ client: site_manager_client, body: { code: auth_code } })).data?.access_token
+        if (auth_token)
+            localStorage.setItem("auth_token", auth_token)
+
+        return next({ path: to.path, query: {} })
+    }
+
     const token = localStorage.getItem('auth_token') // Or use a Pinia store
 
     if (to.meta.requiresAuth && !token) {

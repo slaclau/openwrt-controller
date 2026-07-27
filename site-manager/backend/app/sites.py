@@ -11,7 +11,7 @@ from sqlmodel import Field, Relationship, SQLModel, select
 from .dependencies import SessionDep
 from .links import SiteAccessRelationship
 from .users.model import UserInDb
-from .auth import get_current_active_user
+from .auth.main import get_current_active_user
 from .webrtc import client_websockets, site_websockets
 
 logger = logging.getLogger(f"uvicorn.{__name__}")

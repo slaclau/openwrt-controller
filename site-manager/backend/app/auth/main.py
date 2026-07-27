@@ -10,12 +10,13 @@ from fastapi.security import (
 )
 import jwt
 from pwdlib import PasswordHash
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
-from .dependencies import SessionDep
-from .users.model import User, UserInDb
+from . import auth
+from ..dependencies import SessionDep
+from ..users.model import User, UserInDb
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
@@ -53,9 +54,6 @@ class RefreshTokenData(TokenData, table=True):
             datetime.now(tz=timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         )
     )
-
-
-auth = APIRouter(prefix="/auth")
 
 
 def authenticate_user(username, password, session: SessionDep) -> User:
@@ -121,19 +119,17 @@ async def get_current_active_user(
     return current_user
 
 
-@auth.post("/token")
+@auth.post("/login")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: SessionDep,
     response: Response,
 ) -> Token:
     user = authenticate_user(form_data.username, form_data.password, session=session)
-    return await create_token_pair(user, session, response)
+    return await get_tokens(user, session, response)
 
 
-async def create_token_pair(
-    user: User, session: SessionDep, response: Response
-) -> Token:
+async def mint_tokens(user: User, session: SessionDep):
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     refresh_token_data = RefreshTokenData(username=user.username)
@@ -156,10 +152,14 @@ async def create_token_pair(
             "exp": refresh_token_data.expires,
         },
     )
+    return access_token, refresh_token
+
+
+async def get_tokens(user: User, session: SessionDep, response: Response) -> Token:
+    access_token, refresh_token = await mint_tokens(user, session)
     response.set_cookie(
         "refresh_token",
         refresh_token,
-        expires=refresh_token_data.expires.astimezone(tz=timezone.utc),
         secure=True,
         httponly=True,
         samesite="strict",
@@ -197,7 +197,7 @@ async def refresh_token(
     session.delete(refresh_token_data)
     session.commit()
 
-    return await create_token_pair(user, session, response)
+    return await get_tokens(user, session, response)
 
 
 @auth.post("/logout")
