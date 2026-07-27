@@ -22,7 +22,9 @@ class Site(SQLModel, table=True):
     name: str
     last_heartbeat: float
 
-    users: list[UserInDb] = Relationship(link_model=SiteAccessRelationship)
+    users: list[UserInDb] = Relationship(
+        link_model=SiteAccessRelationship, back_populates="sites"
+    )
 
     @computed_field  # type: ignore[prop-decorator]
     @property

@@ -19,4 +19,6 @@ class User(SQLModel, table=False):
 class UserInDb(User, table=True):
     hashed_password: str
 
-    sites: list["Site"] = Relationship(link_model=SiteAccessRelationship)
+    sites: list["Site"] = Relationship(
+        link_model=SiteAccessRelationship, back_populates="users"
+    )
