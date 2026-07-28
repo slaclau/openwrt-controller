@@ -27,7 +27,7 @@ class Token(BaseModel):
 
 
 class TokenData(SQLModel, table=False):
-    username: str = Field(foreign_key="userindb.username", serialization_alias="sub")
+    username: str = Field(foreign_key="users.username", serialization_alias="sub")
     upstream_issuer: str = Field(default="", serialization_alias="us_iss")
     upstream_session: str = Field(default="", serialization_alias="us_sid")
 

@@ -7,6 +7,7 @@ from ..links import SiteAccessRelationship
 if TYPE_CHECKING:
     from ..sites import Site
     from ..auth.main import RefreshTokenData
+    from ..auth.oidc import RemoteUser
 
 
 class User(SQLModel, table=False):
@@ -18,6 +19,8 @@ class User(SQLModel, table=False):
 
 
 class UserInDb(User, table=True):
+    __tablename__ = "users"
+
     hashed_password: str
 
     sites: list["Site"] = Relationship(
@@ -25,3 +28,4 @@ class UserInDb(User, table=True):
     )
 
     refresh_tokens: list["RefreshTokenData"] = Relationship(back_populates="user")
+    remote_users: list["RemoteUser"] = Relationship(back_populates="linked_user")

@@ -8,45 +8,19 @@ from fastapi.security import (
     OAuth2PasswordRequestForm,
 )
 import jwt
-from pwdlib import PasswordHash
 from fastapi import Depends, HTTPException, Request, Response, status
-from pydantic import BaseModel, Field, HttpUrl
 
 from . import auth
 from ..dependencies import SessionDep
 from ..users.model import User, UserInDb
-from .token import TokenData, get_tokens, public_key, Token, RefreshTokenData
+from .authentication import authenticate_user
+from .token import get_tokens, public_key, Token, RefreshTokenData
 from .oidc import LogoutUrl, handle_rp_logout
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
-password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 cookie_scheme = APIKeyCookie(name="refresh_token")
-
-
-def authenticate_user(username, password, session: SessionDep) -> User:
-    user = session.get(UserInDb, username)
-    if not user:
-        logger.info(f"failed login with nonexistent user {username}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="username or password is incorrect",
-        )
-    valid, new_hash = password_hash.verify_and_update(
-        password=password, hash=user.hashed_password
-    )
-    if not valid:
-        logger.info(f"failed login for user {username}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="username or password is incorrect",
-        )
-    if new_hash:
-        user.hashed_password = new_hash
-        session.commit()
-
-    return user
 
 
 async def get_current_user(

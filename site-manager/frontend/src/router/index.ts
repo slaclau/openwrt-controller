@@ -14,6 +14,11 @@ const router = createRouter({
       alias: ['/login/:provider'],
     },
     {
+      path: '/link-account',
+      name: 'LinkAccount',
+      component: () => import('@/views/LinkAccountView.vue')
+    },
+    {
       path: '/',
       name: 'Dashboard',
       component: () => import('@/views/DashboardView.vue'),
@@ -31,21 +36,22 @@ const router = createRouter({
 // Global route guard to check auth status before changing pages
 router.beforeEach(async (to, from, next) => {
   if (to.query.code) {
-    // 2. Extract the JWT value from the hash
     const auth_code = to.query.code.toString()
 
-    const auth_token = (
-      await exchangeCodeForTokenAuthTokenPost({
-        client: site_manager_client,
-        body: { code: auth_code },
-      })
-    ).data?.access_token
-    if (auth_token) localStorage.setItem('auth_token', auth_token)
+    if (!(to.name == "LinkAccount")) {
+      const auth_token = (
+        await exchangeCodeForTokenAuthTokenPost({
+          client: site_manager_client,
+          body: { code: auth_code },
+        })
+      ).data?.access_token
+      if (auth_token) localStorage.setItem('auth_token', auth_token)
 
-    return next({ path: to.path, query: {} })
+      return next({ path: to.path, query: {} })
+    }
   }
 
-  const token = localStorage.getItem('auth_token') // Or use a Pinia store
+  const token = localStorage.getItem('auth_token')
 
   if (to.meta.requiresAuth && !token) {
     ElNotification.error({

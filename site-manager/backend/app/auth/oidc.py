@@ -1,10 +1,12 @@
 from datetime import datetime, timezone, timedelta
 import logging
 import secrets
+from typing import Annotated
 
+from fastapi.security import OAuth2PasswordRequestForm
 from joserfc import jwt
 from joserfc.jwk import KeySet
-from fastapi import Form, HTTPException, Request, Response, status
+from fastapi import Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 
 from sqlmodel import Relationship, SQLModel, and_, select, Field as SQLField
@@ -15,6 +17,7 @@ from authlib.integrations.starlette_client import OAuth
 from pydantic import BaseModel, Field, HttpUrl
 
 from . import auth
+from .authentication import authenticate_user
 from .token import RefreshTokenData, Token, get_tokens
 from ..users.model import UserInDb
 from ..dependencies import SessionDep
@@ -80,8 +83,13 @@ def load_config():
 oauth = OAuth()
 
 
+class TokenExchangeRequest(BaseModel):
+    code: str
+
+
 @auth.get("/{provider}/login")
-async def login(provider: str, request: Request):
+async def login(provider: str, request: Request, pending: str | None = None):
+    logger.info(f"logging in to {provider}, pending login: {pending}")
     provider_config = providers.get(provider)
 
     if not provider_config:
@@ -89,9 +97,14 @@ async def login(provider: str, request: Request):
 
     client = oauth.create_client(provider)
 
+    auth_url = f"http://localhost:5174/api/auth/{provider}/authorize"
+
+    if pending:
+        request.session["link_code"] = pending
+
     return await client.authorize_redirect(
         request,
-        str(request.url).replace("8001", "5174/api").replace("login", "authorize"),
+        auth_url,
         prompt="select_account",
     )
 
@@ -100,13 +113,48 @@ class AuthCode(SQLModel, table=True):
     __tablename__ = "auth_codes"
 
     secret: str = SQLField(primary_key=True, default_factory=secrets.token_urlsafe)
-    username: str = SQLField(foreign_key="userindb.username")
+    subject: str = SQLField(foreign_key="remote_users.subject")
     expires: datetime = SQLField(
         default_factory=lambda: datetime.now() + timedelta(minutes=1),
     )
-    upstream_issuer: str = SQLField(default="")
+    upstream_issuer: str = SQLField(foreign_key="remote_users.provider")
     upstream_session: str = SQLField(default="")
-    user: UserInDb = Relationship()
+
+    remote_user: "RemoteUser" = Relationship(
+        back_populates="auth_codes",
+        sa_relationship_kwargs={
+            "primaryjoin": (
+                "and_("
+                "AuthCode.subject == RemoteUser.subject, "
+                "AuthCode.upstream_issuer == RemoteUser.provider"
+                ")"
+            )
+        },
+    )
+
+
+class RemoteUser(SQLModel, table=True):
+    __tablename__ = "remote_users"
+
+    subject: str = SQLField(primary_key=True)
+    provider: str = SQLField(primary_key=True)
+    link_authorized: bool = SQLField(default=False)
+
+    linked_username: str = SQLField(foreign_key="users.username")
+
+    linked_user: UserInDb = Relationship(back_populates="remote_users")
+
+    auth_codes: list[AuthCode] = Relationship(
+        back_populates="remote_user",
+        sa_relationship_kwargs={
+            "primaryjoin": (
+                "and_("
+                "AuthCode.subject == RemoteUser.subject, "
+                "AuthCode.upstream_issuer == RemoteUser.provider"
+                ")"
+            )
+        },
+    )
 
 
 @auth.get("/providers", response_model=list[OidcProvider])
@@ -115,9 +163,7 @@ async def get_list_of_oidc_providers() -> list[OidcProviderConfig]:
 
 
 @auth.get("/{provider}/authorize")
-async def authorize(
-    provider: str, request: Request, response: Response, session: SessionDep
-):
+async def authorize(provider: str, request: Request, session: SessionDep):
     provider_config = providers.get(provider)
 
     if not provider_config:
@@ -126,7 +172,8 @@ async def authorize(
     client = oauth.create_client(provider)
 
     token = await client.authorize_access_token(request)
-    request.session["id_token"] = token["id_token"]
+    if "link_code" not in request.session:
+        request.session["id_token"] = token["id_token"]
 
     userinfo = token["userinfo"]
     if not userinfo["email_verified"]:
@@ -144,26 +191,56 @@ async def authorize(
             detail="User must already have an account.",
         )
 
+    remote_user = session.get(RemoteUser, (userinfo["sub"], provider))
+    if not remote_user:
+        remote_user = RemoteUser(
+            subject=userinfo["sub"], provider=provider, linked_user=user
+        )
+
+    logger.info(f"authorizing {remote_user}")
+    if remote_user.link_authorized:
+        link_code = request.session.pop("link_code", None)
+        if link_code:
+            auth_code = session.get(AuthCode, link_code)
+            if auth_code:
+                auth_code.remote_user.link_authorized = (
+                    auth_code.remote_user.linked_user == user
+                )
+                session.commit()
+                return RedirectResponse(
+                    f"http://localhost:5174?code={auth_code.secret}"
+                )
+
+        auth_code = AuthCode(
+            remote_user=remote_user,
+            upstream_session=userinfo.get("sid", ""),
+            expires=datetime.now() + timedelta(minutes=1),
+        )
+        session.add(auth_code)
+        session.commit()
+        return RedirectResponse(f"http://localhost:5174?code={auth_code.secret}")
+
+    link_code = request.session.pop("link_code", None)
+    if link_code:
+        auth_code = session.get(AuthCode, link_code)
+        if auth_code:
+            return RedirectResponse(
+                f"http://localhost:5174/link-account?pending={auth_code.secret}"
+            )
     auth_code = AuthCode(
-        username=user.username,
-        upstream_issuer=provider,
+        remote_user=remote_user,
         upstream_session=userinfo.get("sid", ""),
+        expires=datetime.now() + timedelta(minutes=5),
     )
     session.add(auth_code)
     session.commit()
-
-    return RedirectResponse(f"http://localhost:5174?code={auth_code.secret}")
-
-
-class TokenExchangeRequest(BaseModel):
-    code: str
+    return RedirectResponse(
+        f"http://localhost:5174/link-account?pending={auth_code.secret}"
+    )
 
 
-@auth.post("/token")
-async def exchange_code_for_token(
-    payload: TokenExchangeRequest, response: Response, session: SessionDep
-) -> Token:
-    auth_code = session.get(AuthCode, payload.code)
+def verify_auth_code(code: str, session: SessionDep) -> AuthCode:
+    auth_code = session.get(AuthCode, code)
 
     if not auth_code:
         raise HTTPException(
@@ -178,9 +255,57 @@ async def exchange_code_for_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Expired authentication code, try again.",
         )
-    user = auth_code.user
+
+    return auth_code
+
+
+@auth.post("/token")
+async def exchange_code_for_token(
+    payload: TokenExchangeRequest, response: Response, session: SessionDep
+) -> Token:
+    auth_code = verify_auth_code(payload.code, session)
+
     upstream_issuer = auth_code.upstream_issuer
     upstream_session = auth_code.upstream_session
+
+    if auth_code.remote_user.link_authorized:
+        user = auth_code.remote_user.linked_user
+        session.delete(auth_code)
+        session.commit()
+    else:
+        session.delete(auth_code)
+        session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Remote account not linked.",
+        )
+
+    return await get_tokens(user, session, response, upstream_issuer, upstream_session)
+
+
+class AccountLinkRequest(TokenExchangeRequest):
+    username: str | None = Field(default=None)
+    password: str | None = Field(default=None)
+
+    linked_auth_code: str | None = Field(default=None)
+
+
+@auth.post("/link-account")
+async def exchange_code_for_token_and_link_account(
+    payload: AccountLinkRequest,
+    response: Response,
+    session: SessionDep,
+) -> Token:
+    if payload.username and payload.password:
+        user = authenticate_user(payload.username, payload.password, session=session)
+
+    auth_code = verify_auth_code(payload.code, session)
+
+    upstream_issuer = auth_code.upstream_issuer
+    upstream_session = auth_code.upstream_session
+
+    auth_code.remote_user.link_authorized = user == auth_code.remote_user.linked_user
+
     session.delete(auth_code)
     session.commit()
 

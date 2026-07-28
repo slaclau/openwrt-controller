@@ -18,6 +18,7 @@ logger = logging.getLogger(f"uvicorn.{__name__}")
 
 
 class Site(SQLModel, table=True):
+    __tablename__ = "sites"
     site_id: uuid.UUID = Field(primary_key=True)
     name: str
     last_heartbeat: float

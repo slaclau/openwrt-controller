@@ -1,21 +1,28 @@
 from contextlib import asynccontextmanager
+from datetime import datetime
+import logging
 import secrets
 
 from fastapi import FastAPI
+from sqlmodel import Session, select
 from starlette.middleware.sessions import SessionMiddleware
 
-from .dependencies import create_db_and_tables
+from .dependencies import create_db_and_tables, get_session
 from .auth import auth
-from .auth.oidc import load_config
+from .auth.token import RefreshTokenData
+from .auth.oidc import load_config, AuthCode
 from .users.router import users
 from .sites import sites
 from .webrtc import webrtc
+
+logger = logging.getLogger(f"uvicorn.{__name__}")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_config()
     create_db_and_tables()
+    await purge_expired_items(session=next(get_session()))
     yield
 
 
@@ -27,3 +34,16 @@ app.include_router(auth)
 app.include_router(users)
 app.include_router(sites)
 app.include_router(webrtc)
+
+
+async def purge_expired_items(session: Session):
+    for table in [RefreshTokenData, AuthCode]:
+        expired = session.exec(select(table).where(table.expires <= datetime.now()))  # type: ignore
+        count = 0
+        for row in expired:
+            session.delete(row)
+            count += 1
+        if count:
+            logger.info(f"purged {count} from {table}")
+
+    session.commit()

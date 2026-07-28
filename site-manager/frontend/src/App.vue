@@ -40,11 +40,9 @@ const logout = async () => {
   <el-container>
     <el-header>
       <h1>
-        <span style="float: left"
-          ><el-button
+        <span style="float: left"><el-button
             :style="`visibility: ${['/', '/login'].includes(route.path) ? 'hidden' : 'visible'}`"
-            @click="router.back()"
-          >
+            @click="router.back()">
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
@@ -53,10 +51,8 @@ const logout = async () => {
           <el-button @click="toggleDark()">
             <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
           </el-button>
-          <el-button
-            @click="logout"
-            :style="`visibility: ${['/login'].includes(route.path) ? 'hidden' : 'visible'}`"
-          >
+          <el-button @click="logout"
+            :style="`visibility: ${['/link-account', '/login'].includes(route.path) ? 'hidden' : 'visible'}`">
             Logout
           </el-button>
         </span>
