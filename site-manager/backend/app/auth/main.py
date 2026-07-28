@@ -52,7 +52,7 @@ async def get_current_active_user(
     return current_user
 
 
-@auth.post("/login")
+@auth.post("/login", tags=["auth"])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: SessionDep,
@@ -62,7 +62,7 @@ async def login_for_access_token(
     return await get_tokens(user, session, response)
 
 
-@auth.post("/refresh")
+@auth.post("/refresh", tags=["auth"])
 async def refresh_token(
     session: SessionDep, response: Response, refresh_token: str = Depends(cookie_scheme)
 ) -> Token:
@@ -92,7 +92,7 @@ async def refresh_token(
     return await get_tokens(user, session, response)
 
 
-@auth.post("/logout")
+@auth.post("/logout", tags=["auth"])
 async def logout(
     token: Annotated[str, Depends(oauth2_scheme)],
     session: SessionDep,
@@ -182,7 +182,7 @@ class PermissionChecker:
         return True
 
 
-@auth.get("/info")
+@auth.get("/info", tags=["auth"])
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> User:
