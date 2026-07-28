@@ -36,6 +36,9 @@ const handleLogin = async () => {
 const auth_providers: Ref<OidcProvider[]> = ref([])
 
 onMounted(async () => {
+    if (route.params.provider) {
+        window.location.href = window.location.origin + `/api/auth/${route.params.provider}/login`
+    }
     let providers = (await getListOfOidcProvidersAuthProvidersGet({ client: site_manager_client })).data
     if (providers)
         auth_providers.value = providers
