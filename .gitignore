@@ -205,5 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-config.db
+
+# Project specific
+*.db
 informd.tar.gz
+*.pem
+*.yml
+SITE_ID
