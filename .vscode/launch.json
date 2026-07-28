@@ -1,0 +1,50 @@
+{
+    "configurations": [
+        {
+            "command": "npm run dev",
+            "name": "controller frontend dev mode",
+            "request": "launch",
+            "type": "node-terminal",
+            "cwd": "${workspaceFolder}/controller/frontend"
+        },
+        {
+            "command": "npm run dev",
+            "name": "site-manager frontend dev mode",
+            "request": "launch",
+            "type": "node-terminal",
+            "cwd": "${workspaceFolder}/site-manager/frontend"
+        },
+        {
+            "name": "controller dev mode",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000"
+            ],
+            "jinja": true,
+            "cwd": "${workspaceFolder}/controller/backend"
+        },
+        {
+            "name": "site-manager dev mode",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8001"
+            ],
+            "jinja": true,
+            "cwd": "${workspaceFolder}/site-manager/backend"
+        }
+    ]
+}
