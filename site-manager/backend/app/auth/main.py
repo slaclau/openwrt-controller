@@ -32,7 +32,13 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, public_key, algorithms=["EdDSA"])
+        # require sub and exp for access tokens
+        payload = jwt.decode(
+            token,
+            public_key,
+            algorithms=["EdDSA"],
+            options={"require": ["sub", "exp"]},
+        )
         username = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -72,17 +78,25 @@ async def refresh_token(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(refresh_token, public_key, algorithms=["EdDSA"])
+        # require sub, exp and jti for refresh tokens
+        payload = jwt.decode(
+            refresh_token,
+            public_key,
+            algorithms=["EdDSA"],
+            options={"require": ["sub", "exp", "jti"]},
+        )
         username = payload.get("sub")
         if username is None:
             raise credentials_exception
-    except jwt.InvalidTokenError:
+        jti_raw = payload.get("jti")
+        token_id = uuid.UUID(jti_raw)
+    except (jwt.InvalidTokenError, ValueError, TypeError):
         raise credentials_exception
     user = session.get(UserInDb, username)
     if not user:
         raise credentials_exception
     refresh_token_data = session.get(
-        RefreshTokenData, uuid.UUID(hex=payload.get("jti"))
+        RefreshTokenData, token_id
     )
     if not refresh_token_data:
         raise credentials_exception
@@ -105,15 +119,22 @@ async def logout(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, public_key, algorithms=["EdDSA"])
+        payload = jwt.decode(
+            token,
+            public_key,
+            algorithms=["EdDSA"],
+            options={"require": ["sub", "exp", "jti"]},
+        )
         username = payload.get("sub")
         if username is None:
             raise credentials_exception
-    except jwt.InvalidTokenError:
+        jti_raw = payload.get("jti")
+        token_id = uuid.UUID(jti_raw)
+    except (jwt.InvalidTokenError, ValueError, TypeError):
         raise credentials_exception
 
     upstream_issuer = str(payload.get("us_iss"))
-    refresh_token_data = session.get(RefreshTokenData, uuid.UUID(payload.get("jti")))
+    refresh_token_data = session.get(RefreshTokenData, token_id)
     if not refresh_token_data:
         raise credentials_exception
     session.delete(refresh_token_data)
@@ -137,7 +158,8 @@ class PermissionChecker:
     def __call__(
         self, request: Request, user: Annotated[User, Depends(get_current_active_user)]
     ):
-        user_perms = user.permissions.split(" ")
+        # normalize permissions: split on any whitespace and remove empty entries
+        user_perms = [p for p in (user.permissions or "").split() if p]
 
         # --- SCENARIO A: Collection Endpoint (No specific path param) ---
         if not self.path_param_name:
