@@ -194,14 +194,22 @@ class LogoutUrl(BaseModel):
 async def handle_oidc_logout(
     provider: str, sid: str, session: SessionDep, response: Response
 ):
-    refresh_tokens = session.exec(
-        select(RefreshTokenData).where(
-            and_(
-                RefreshTokenData.upstream_session == sid,
+    if sid:
+        refresh_tokens = session.exec(
+            select(RefreshTokenData).where(
+                and_(
+                    RefreshTokenData.upstream_session == sid,
+                    RefreshTokenData.upstream_issuer == provider,
+                )
+            )
+        )
+    else:
+        refresh_tokens = session.exec(
+            select(RefreshTokenData).where(
                 RefreshTokenData.upstream_issuer == provider,
             )
         )
-    )
+
     for token in refresh_tokens:
         session.delete(token)
     session.commit()
