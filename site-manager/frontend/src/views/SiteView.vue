@@ -24,7 +24,7 @@ async function connect(url: string) {
     }
 
     socket.onmessage = async (event) => {
-        let data = JSON.parse(event.data)
+        const data = JSON.parse(event.data)
         switch (data.type) {
             case "connected":
                 console.log("Succesfully initiated connection")
@@ -35,7 +35,7 @@ async function connect(url: string) {
                 const dc = peerConnection.createDataChannel("http");
                 dataChannel.value = dc;
 
-                dc.addEventListener("open", (event) => {
+                dc.addEventListener("open", () => {
                     console.log("dc open")
                     connected.value = true;
                 })

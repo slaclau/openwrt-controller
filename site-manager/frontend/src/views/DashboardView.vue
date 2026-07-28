@@ -25,7 +25,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div v-for="site in sites">
+    <div v-for="site in sites" :key="site.site_id">
         <el-row>
             <el-col :xs="24" :sm="12" :md="6" :lg="4" :xl="3">
                 <SiteTile :site="site" @click="router.push(`/sites/${site.site_id}`)" shadow="hover" />

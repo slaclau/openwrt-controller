@@ -34,7 +34,7 @@ router.beforeEach(async (to, from, next) => {
         // 2. Extract the JWT value from the hash
         const auth_code = to.query.code.toString()
 
-        let auth_token = (await exchangeCodeForTokenAuthTokenPost({ client: site_manager_client, body: { code: auth_code } })).data?.access_token
+        const auth_token = (await exchangeCodeForTokenAuthTokenPost({ client: site_manager_client, body: { code: auth_code } })).data?.access_token
         if (auth_token)
             localStorage.setItem("auth_token", auth_token)
 

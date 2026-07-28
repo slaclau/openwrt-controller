@@ -10,7 +10,7 @@ import {
 import { refreshTokenAuthRefreshPost } from './sdk';
 import { ref, type Ref } from 'vue'
 import { assert } from '@vueuse/core';
-import { ElMessage, ElNotification } from 'element-plus';
+import { ElNotification } from 'element-plus';
 import router from './router';
 
 /**
@@ -165,11 +165,10 @@ async function authInterceptor(response: Response, request: Request) {
                 retriedRequest.headers.set('Authorization', `Bearer ${freshToken}`);
 
                 return await fetch(retriedRequest);
-            } catch (error) {
+            } catch {
                 activeRefreshPromise = null;
                 return response
             }
-            break
 
         case 403:
             // Handle forbidden access

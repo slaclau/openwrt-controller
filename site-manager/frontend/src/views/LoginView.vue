@@ -15,8 +15,8 @@ const form = reactive({
 
 const handleLogin = async () => {
     if (form.username && form.password) {
-        let response = (await loginForAccessTokenAuthLoginPost({ client: site_manager_client, body: { username: form.username, password: form.password } }))
-        let token = response.data?.access_token;
+        const response = (await loginForAccessTokenAuthLoginPost({ client: site_manager_client, body: { username: form.username, password: form.password } }))
+        const token = response.data?.access_token;
         if (!response.error && token) {
             localStorage.setItem('auth_token', token)
             ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
@@ -39,10 +39,12 @@ onMounted(async () => {
     if (route.params.provider) {
         window.location.href = window.location.origin + `/api/auth/${route.params.provider}/login`
     }
-    let providers = (await getListOfOidcProvidersAuthProvidersGet({ client: site_manager_client })).data
+    const providers = (await getListOfOidcProvidersAuthProvidersGet({ client: site_manager_client })).data
     if (providers)
         auth_providers.value = providers
 })
+
+const origin = window.location.origin;
 </script>
 
 <template>
@@ -63,8 +65,8 @@ onMounted(async () => {
         </el-form>
         <el-divider />
         <div style="display: grid; gap: 8px;">
-            <div v-for="provider in auth_providers">
-                <a :href="window.location.origin + `/api/auth/${provider.slug}/login`">
+            <div v-for="provider in auth_providers" :key="provider.slug">
+                <a :href="origin + `/api/auth/${provider.slug}/login`">
                     <el-button style="width: 100%" class="custom-img-btn mb-4">
                         <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
                         Login with {{ provider.name }}
