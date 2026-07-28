@@ -18,12 +18,14 @@ function adopt() {
     )
   }
 }
+
+const origin = window.location.origin;
 </script>
 
 <template>
   <DeviceSummary :device="device" />
   <DeviceDetails :device="device" />
-  <el-button><a download :href="`${window.origin}/api/configuration/raw/${device?.device_id}`">Download
+  <el-button><a download :href="`${origin}/api/configuration/raw/${device?.device_id}`">Download
       Configuration</a></el-button>
   <el-button v-if="!device?.device.adopted" @click="adopt">Adopt</el-button>
 </template>

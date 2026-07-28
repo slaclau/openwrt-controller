@@ -29,5 +29,23 @@ export default defineConfig({
     host: true,
     allowedHosts: ["sl-xps15-fedora"],
     port: 5174,
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          maxModuleSize: 30000,
+          groups: [
+            {
+              name: 'large-libs',
+              test: /node_modules/,
+              minSize: 100000, // 100KB
+              maxSize: 250000, // 250KB
+              priority: 10,
+            }
+          ]
+        }
+      }
+    }
   }
 })
