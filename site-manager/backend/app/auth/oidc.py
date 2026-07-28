@@ -2,8 +2,11 @@ from datetime import datetime, timezone, timedelta
 import logging
 import secrets
 
-from fastapi import HTTPException, Request, Response, status
+from joserfc import jwt
+from joserfc.jwk import KeySet
+from fastapi import Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
+
 from sqlmodel import Relationship, SQLModel, and_, select, Field as SQLField
 import yaml
 
@@ -188,12 +191,9 @@ class LogoutUrl(BaseModel):
     location: HttpUrl | None = Field(default=None)
 
 
-@auth.get("/{provider}/logout")
-async def frontchannel_logout(
-    provider: str, request: Request, response: Response, session: SessionDep
+async def handle_oidc_logout(
+    provider: str, sid: str, session: SessionDep, response: Response
 ):
-    sid = request.query_params.get("sid")
-
     refresh_tokens = session.exec(
         select(RefreshTokenData).where(
             and_(
@@ -210,11 +210,44 @@ async def frontchannel_logout(
     response.headers["Pragma"] = "no-cache"
 
 
+@auth.get("/{provider}/logout")
+async def frontchannel_logout(
+    provider: str, request: Request, response: Response, session: SessionDep
+):
+    sid = request.query_params.get("sid")
+
+    if not sid:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    await handle_oidc_logout(
+        provider=provider, sid=sid, session=session, response=response
+    )
+
+
 @auth.post("/{provider}/logout")
-async def backchannel_logout(provider: str, request: Request):
+async def backchannel_logout(
+    provider: str,
+    session: SessionDep,
+    response: Response,
+    logout_token: str = Form(...),
+):
     client = oauth.create_client(provider)
 
-    print(request.headers)
+    metadata = client.load_server_metadata()
+
+    alg_values = metadata.get("id_token_signing_alg_values_supported")
+
+    key_set = KeySet.import_key_set(await client.fetch_jwk_set())
+
+    logout_token_decoded = jwt.decode(logout_token, key=key_set, algorithms=alg_values)
+    sid = logout_token_decoded.claims.get("sid")
+
+    if not sid:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    await handle_oidc_logout(
+        provider=provider, sid=sid, session=session, response=response
+    )
 
 
 async def handle_rp_logout(provider: str, request: Request):
