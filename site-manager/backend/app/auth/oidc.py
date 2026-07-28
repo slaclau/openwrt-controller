@@ -147,7 +147,7 @@ async def authorize(
     auth_code = AuthCode(
         username=user.username,
         upstream_issuer=provider,
-        upstream_session=userinfo["sid"],
+        upstream_session=userinfo.get("sid", ""),
     )
     session.add(auth_code)
     session.commit()
