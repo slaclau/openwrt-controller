@@ -28,7 +28,8 @@ onUnmounted(() => {
     <div v-for="site in sites" :key="site.site_id">
         <el-row>
             <el-col :xs="24" :sm="12" :md="6" :lg="4" :xl="3">
-                <SiteTile :site="site" @click="router.push(`/sites/${site.site_id}`)" shadow="hover" />
+                <SiteTile :site="site" @click="() => { if (site.up) router.push(`/sites/${site.site_id}`) }"
+                    :shadow="site.up ? 'hover' : 'never'" />
             </el-col>
         </el-row>
     </div>
