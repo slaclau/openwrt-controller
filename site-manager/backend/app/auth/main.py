@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta, timezone
 import logging
 from typing import TYPE_CHECKING, Annotated
 import uuid
@@ -11,49 +10,19 @@ from fastapi.security import (
 import jwt
 from pwdlib import PasswordHash
 from fastapi import Depends, HTTPException, Request, Response, status
-from pydantic import BaseModel
-from sqlmodel import Field, SQLModel
+from pydantic import BaseModel, Field, HttpUrl
 
 from . import auth
 from ..dependencies import SessionDep
 from ..users.model import User, UserInDb
+from .token import TokenData, get_tokens, public_key, Token, RefreshTokenData
+from .oidc import LogoutUrl, handle_rp_logout
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
-
-with open("private.pem", "rb") as f:
-    private_key = f.read()
-
-with open("public.pem", "rb") as f:
-    public_key = f.read()
-
 
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 cookie_scheme = APIKeyCookie(name="refresh_token")
-
-FAKE_HASH = password_hash.hash("password")
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    expires_in: int = ACCESS_TOKEN_EXPIRE_MINUTES * 60
-
-
-class TokenData(SQLModel, table=False):
-    username: str = Field(foreign_key="userindb.username")
-
-
-class RefreshTokenData(TokenData, table=True):
-    jti: uuid.UUID = Field(primary_key=True, default_factory=uuid.uuid4)
-    expires: datetime = Field(
-        default_factory=lambda: (
-            datetime.now(tz=timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-        )
-    )
 
 
 def authenticate_user(username, password, session: SessionDep) -> User:
@@ -78,16 +47,6 @@ def authenticate_user(username, password, session: SessionDep) -> User:
         session.commit()
 
     return user
-
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(tz=timezone.utc) + expires_delta
-        to_encode.update({"exp": expire})
-
-    encoded_jwt = jwt.encode(to_encode, private_key, algorithm="EdDSA")
-    return encoded_jwt
 
 
 async def get_current_user(
@@ -129,47 +88,6 @@ async def login_for_access_token(
     return await get_tokens(user, session, response)
 
 
-async def mint_tokens(user: User, session: SessionDep):
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    refresh_token_data = RefreshTokenData(username=user.username)
-    session.add(refresh_token_data)
-    session.commit()
-
-    access_token = create_access_token(
-        data={
-            "sub": refresh_token_data.username,
-            "type": "access",
-            "jti": str(refresh_token_data.jti),
-        },
-        expires_delta=access_token_expires,
-    )
-    refresh_token = create_access_token(
-        data={
-            "sub": refresh_token_data.username,
-            "type": "refresh",
-            "jti": str(refresh_token_data.jti),
-            "exp": refresh_token_data.expires,
-        },
-    )
-    return access_token, refresh_token
-
-
-async def get_tokens(user: User, session: SessionDep, response: Response) -> Token:
-    access_token, refresh_token = await mint_tokens(user, session)
-    response.set_cookie(
-        "refresh_token",
-        refresh_token,
-        secure=True,
-        httponly=True,
-        samesite="strict",
-    )
-    return Token(
-        access_token=access_token,
-        token_type="bearer",
-    )
-
-
 @auth.post("/refresh")
 async def refresh_token(
     session: SessionDep, response: Response, refresh_token: str = Depends(cookie_scheme)
@@ -205,7 +123,8 @@ async def logout(
     token: Annotated[str, Depends(oauth2_scheme)],
     session: SessionDep,
     response: Response,
-):
+    request: Request,
+) -> LogoutUrl:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -219,12 +138,18 @@ async def logout(
     except jwt.InvalidTokenError:
         raise credentials_exception
 
+    upstream_issuer = str(payload.get("us_iss"))
     refresh_token_data = session.get(RefreshTokenData, uuid.UUID(payload.get("jti")))
     if not refresh_token_data:
         raise credentials_exception
     session.delete(refresh_token_data)
     session.commit()
     response.delete_cookie("refresh_token")
+
+    if upstream_issuer:
+        return await handle_rp_logout(upstream_issuer, request)
+
+    return LogoutUrl()
 
 
 class PermissionChecker:

@@ -16,19 +16,22 @@ import { ElNotification } from 'element-plus';
 
 const route = useRoute()
 
-const logout = () => {
-  logoutAuthLogoutPost({ client: site_manager_client }).then(() => {
-    localStorage.removeItem("auth_token")
-    console.log("logged out")
-    ElNotification.success({
-      title: 'Logged Out',
-      message: 'You have been successfully logged out.'
-    })
+const logout = async () => {
+  let logoutUrl = await (await logoutAuthLogoutPost({ client: site_manager_client })).data?.location
+  localStorage.removeItem("auth_token")
+  console.log("logged out")
+  ElNotification.success({
+    title: 'Logged Out',
+    message: 'You have been successfully logged out.'
+  })
+  if (logoutUrl) {
+    window.location.href = logoutUrl
+  } else {
     router.push({
       name: 'Login',
       query: { redirect: '/' }
     })
-  })
+  }
 }
 </script>
 
@@ -46,7 +49,8 @@ const logout = () => {
           <el-button @click="toggleDark()">
             <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
           </el-button>
-          <el-button @click="logout">
+          <el-button @click="logout" :style="`visibility: ${['/login'].includes(route.path) ? 'hidden'
+            : 'visible'}`">
             Logout
           </el-button>
         </span>

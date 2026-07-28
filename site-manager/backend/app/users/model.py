@@ -6,6 +6,7 @@ from ..links import SiteAccessRelationship
 
 if TYPE_CHECKING:
     from ..sites import Site
+    from ..auth.main import RefreshTokenData
 
 
 class User(SQLModel, table=False):
@@ -22,3 +23,5 @@ class UserInDb(User, table=True):
     sites: list["Site"] = Relationship(
         link_model=SiteAccessRelationship, back_populates="users"
     )
+
+    refresh_tokens: list["RefreshTokenData"] = Relationship(back_populates="user")

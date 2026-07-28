@@ -59,12 +59,34 @@ onMounted(async () => {
             </el-button>
         </el-form>
         <el-divider />
-        <div v-for="provider in auth_providers">
-            <a :href="window.location.origin + `/api/auth/${provider.slug}/login`">
-                <el-button style="width: 100%">
-                    Login with {{ provider.name }}
-                </el-button>
-            </a>
+        <div style="display: grid; gap: 8px;">
+            <div v-for="provider in auth_providers">
+                <a :href="window.location.origin + `/api/auth/${provider.slug}/login`">
+                    <el-button style="width: 100%" class="custom-img-btn mb-4">
+                        <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
+                        Login with {{ provider.name }}
+                    </el-button>
+                </a>
+            </div>
         </div>
     </div>
 </template>
+
+<style>
+.custom-img-btn {
+    position: relative;
+    padding-left: 40px;
+    padding-right: 40px;
+    min-width: 180px;
+}
+
+.btn-left-img {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+</style>
