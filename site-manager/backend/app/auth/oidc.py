@@ -47,8 +47,13 @@ class AuthConfig(BaseModel):
     providers: list[OidcProviderConfig] = Field()
 
 
+class FrontendConfig(BaseModel):
+    url: HttpUrl = Field()
+
+
 class Config(BaseModel):
     auth: AuthConfig = Field()
+    frontend: FrontendConfig = Field()
 
 
 providers: dict[str, OidcProviderConfig] = {}
@@ -97,7 +102,7 @@ async def login(provider: str, request: Request, pending: str | None = None):
 
     client = oauth.create_client(provider)
 
-    auth_url = f"http://localhost:5174/api/auth/{provider}/authorize"
+    auth_url = f"{config.frontend.url}api/auth/{provider}/authorize"
 
     if pending:
         request.session["link_code"] = pending
@@ -208,7 +213,7 @@ async def authorize(provider: str, request: Request, session: SessionDep):
                 )
                 session.commit()
                 return RedirectResponse(
-                    f"http://localhost:5174?code={auth_code.secret}"
+                    f"{config.frontend.url}?code={auth_code.secret}"
                 )
 
         auth_code = AuthCode(
@@ -218,14 +223,14 @@ async def authorize(provider: str, request: Request, session: SessionDep):
         )
         session.add(auth_code)
         session.commit()
-        return RedirectResponse(f"http://localhost:5174?code={auth_code.secret}")
+        return RedirectResponse(f"{config.frontend.url}?code={auth_code.secret}")
 
     link_code = request.session.pop("link_code", None)
     if link_code:
         auth_code = session.get(AuthCode, link_code)
         if auth_code:
             return RedirectResponse(
-                f"http://localhost:5174/link-account?pending={auth_code.secret}"
+                f"{config.frontend.url}link-account?pending={auth_code.secret}"
             )
     auth_code = AuthCode(
         remote_user=remote_user,
@@ -235,7 +240,7 @@ async def authorize(provider: str, request: Request, session: SessionDep):
     session.add(auth_code)
     session.commit()
     return RedirectResponse(
-        f"http://localhost:5174/link-account?pending={auth_code.secret}"
+        f"{config.frontend.url}link-account?pending={auth_code.secret}"
     )
 
 
@@ -389,7 +394,7 @@ async def handle_rp_logout(provider: str, request: Request):
         return LogoutUrl()
     logger.info(f"logging out from {provider} as well")
     id_token = request.session.pop("id_token", None)
-    redirect_uri = f"http://localhost:5174/api/auth/{provider}/logged-out"
+    redirect_uri = f"{config.frontend.url}api/auth/{provider}/logged-out"
     ret: RedirectResponse = await client.logout_redirect(
         request,
         post_logout_redirect_uri=redirect_uri,
@@ -403,4 +408,4 @@ async def logged_out(provider: str, request: Request):
     client = oauth.create_client(provider)
 
     state_data = await client.validate_logout_response(request)
-    return RedirectResponse("http://localhost:5174/login")
+    return RedirectResponse(f"{config.frontend.url}login")
