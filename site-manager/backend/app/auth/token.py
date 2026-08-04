@@ -30,6 +30,7 @@ class TokenData(SQLModel, table=False):
     username: str = Field(foreign_key="users.username", serialization_alias="sub")
     upstream_issuer: str = Field(default="", serialization_alias="us_iss")
     upstream_session: str = Field(default="", serialization_alias="us_sid")
+    expires: datetime = Field(serialization_alias="exp")
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
@@ -48,12 +49,6 @@ class RefreshTokenData(TokenData, table=True):
     jwt_id: uuid.UUID = Field(
         primary_key=True, default_factory=uuid.uuid4, serialization_alias="jti"
     )
-    expires: datetime = Field(
-        default_factory=lambda: (
-            datetime.now(tz=timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-        ),
-        serialization_alias="exp",
-    )
 
     user: UserInDb = Relationship(back_populates="refresh_tokens")
 
@@ -61,12 +56,14 @@ class RefreshTokenData(TokenData, table=True):
 async def mint_tokens(
     user: User, session: SessionDep, upstream_issuer="", upstream_session=""
 ):
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     refresh_token_data = RefreshTokenData(
         username=user.username,
         upstream_issuer=upstream_issuer,
         upstream_session=upstream_session,
+        expires=datetime.now() + refresh_token_expires,
     )
     session.add(refresh_token_data)
 
@@ -76,13 +73,12 @@ async def mint_tokens(
     access_token_dict["type"] = "access"
 
     session.commit()
-
     access_token = create_access_token(
         data=access_token_dict,
         expires_delta=access_token_expires,
     )
     refresh_token = create_access_token(
-        data=refresh_token_dict,
+        data=refresh_token_dict, expires_delta=refresh_token_expires
     )
     return access_token, refresh_token
 

@@ -4,14 +4,14 @@ from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 
 from ..dependencies import SessionDep
-from ..users.model import User, UserInDb
+from ..users.model import UserInDb
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
 password_hash = PasswordHash.recommended()
 
 
-def authenticate_user(username, password, session: SessionDep) -> User:
+def authenticate_user(username, password, session: SessionDep) -> UserInDb:
     user = session.get(UserInDb, username)
     if not user:
         logger.info(f"failed login with nonexistent user {username}")

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import select
 
 from .model import User, UserInDb
-from ..auth.main import PermissionChecker
+from ..auth.permissions import PermissionChecker
 from ..dependencies import SessionDep
 
 users = APIRouter(prefix="/users")
