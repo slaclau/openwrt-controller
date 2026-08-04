@@ -16,7 +16,7 @@ import { ElNotification } from 'element-plus'
 const route = useRoute()
 
 const logout = async () => {
-  const logoutUrl = await (
+  const logoutUrl = (
     await logoutAuthLogoutPost({ client: site_manager_client })
   ).data?.location
   localStorage.removeItem('auth_token')

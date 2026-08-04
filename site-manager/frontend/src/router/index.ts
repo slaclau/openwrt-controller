@@ -46,6 +46,7 @@ router.beforeEach(async (to, from, next) => {
         })
       ).data?.access_token
       if (auth_token) localStorage.setItem('auth_token', auth_token)
+      ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
 
       return next({ path: to.path, query: {} })
     }
