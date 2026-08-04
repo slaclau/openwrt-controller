@@ -167,7 +167,7 @@ async def get_list_of_oidc_providers() -> list[OidcProviderConfig]:
     return config.auth.providers
 
 
-@auth.get("/{provider}/authorize", tags=["auth"])
+@auth.get("/{provider}/authorize", tags=["oidc"])
 async def authorize(provider: str, request: Request, session: SessionDep):
     provider_config = providers.get(provider)
 
