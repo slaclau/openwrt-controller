@@ -43,6 +43,9 @@
                 "--port",
                 "8001"
             ],
+            "env": {
+                "PYTHONASYNCIODEBUG": "true"
+            },
             "jinja": true,
             "cwd": "${workspaceFolder}/site-manager/backend"
         }
