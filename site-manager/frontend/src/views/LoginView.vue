@@ -67,7 +67,7 @@ const origin = window.location.origin
 
       <el-button type="primary" style="width: 100%" @click="handleLogin"> Login </el-button>
     </el-form>
-    <el-divider />
+    <el-divider v-if="auth_providers.length > 0" />
     <div style="display: grid; gap: 8px">
       <div v-for="provider in auth_providers" :key="provider.slug">
         <a :href="origin + `/api/auth/${provider.slug}/login`">
