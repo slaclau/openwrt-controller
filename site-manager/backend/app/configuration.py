@@ -50,6 +50,7 @@ class Config(BaseSettings):
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         return (
             init_settings,
+            env_settings,
             YamlConfigSettingsSource(settings_cls),
             file_secret_settings,
         )
