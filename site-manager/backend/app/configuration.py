@@ -30,14 +30,14 @@ class AuthConfig(BaseModel):
 
 
 class FrontendConfig(BaseModel):
-    url: HttpUrl = Field()
+    url: HttpUrl = Field(default="http://localhost:8000")
 
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(yaml_file="config.yml")
 
     auth: AuthConfig | None = Field(default_factory=AuthConfig)
-    frontend: FrontendConfig | None = Field(default="http://localhost:8000")
+    frontend: FrontendConfig | None = Field(default_factory=FrontendConfig)
     database_url: str | None = Field(default=None)
 
     @classmethod
