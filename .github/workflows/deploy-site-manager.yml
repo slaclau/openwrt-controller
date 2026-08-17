@@ -2,9 +2,6 @@ name: Deploy to FastAPI Cloud
 on:
   push:
     branches: [master]
-defaults:
-  run:
-    working-directory: ./site-manager
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,9 +15,9 @@ jobs:
         with:
           python-version: '3.14'
           cache: 'pip'
-      - name: Get the openapi spec
+      - name: Get the controller openapi spec
         run: |
-          cd backend
+          cd controller/backend
           pip install .
           python -c "
           import json
@@ -28,15 +25,31 @@ jobs:
           with open('openapi.json', 'w') as f:
               json.dump(app.openapi(), f, indent=2)
           "
+      - name: Get the openapi spec
+        run: |
+          cd site-manager/backend
+          pip install .
+          python -c "
+          import json
+          from app.main import app
+          with open('openapi.json', 'w') as f:
+              json.dump(app.openapi(), f, indent=2)
+          "
+      - name: Build the controller sdk
+        run: |
+          cd controller/frontend
+          npm ci
+          npx openapi-ts -i ../backend/openapi.json -o src/sdk
+          npm run build
       - name: Build the frontend
         run: |
-          cd frontend
+          cd site-manager/frontend
           npm ci
           npx openapi-ts -i ../backend/openapi.json -o src/sdk
           npm run build
       - name: Deploy 
         run: |
-          cd backend
+          cd site-manager/backend
           uv run fastapi deploy
         env:
           FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}

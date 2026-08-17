@@ -1,0 +1,12 @@
+[project]
+name = "openwrt-controller"
+version = "0.0.1"
+dependencies = [
+    "authlib",
+    "fastapi[standard]",
+    "httpx2",
+    "sqlmodel",
+]
+
+[tool.fastapi]
+entrypoint = "app.main:app"
