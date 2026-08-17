@@ -4,14 +4,14 @@ import {
   updateNetworkConfigurationNetworksNetworkIdPut,
   provisionAllControlProvisionPost,
   type NetworkInput,
-  type NetworkOutput,
+  type NetworkWithDevices,
   createNetworkConfigurationNetworksPost,
 } from 'controller/sdk'
 import { client } from '@/client'
 import { ref, type Ref } from 'vue'
 
 const props = defineProps<{
-  network: NetworkOutput | null
+  network: NetworkWithDevices | null
 }>()
 
 const config: Ref<NetworkInput | null> = ref(props.network)

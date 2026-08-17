@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { getAllNetworksConfigurationNetworksGet, type NetworkOutput, type NetworkStatus, type Status } from 'controller/sdk'
+import { getAllNetworksConfigurationNetworksGet, type NetworkStatus, type NetworkWithDevices, type Status } from 'controller/sdk'
 import { client } from '@/client'
 import { ref, type Ref } from 'vue'
 
 import NetworkDrawerComponent from 'controller/components/settings/networks/NetworkDrawerComponent.vue'
 
-const networks: Ref<Array<NetworkOutput> | undefined> = ref([])
+const networks: Ref<Array<NetworkWithDevices> | undefined> = ref([])
 getAllNetworksConfigurationNetworksGet({ client }).then((res) => {
   networks.value = res.data
 })
 
-const selectedNetwork: Ref<NetworkOutput | null> = ref(null)
+const selectedNetwork: Ref<NetworkWithDevices | null> = ref(null)
 const openDrawer = ref(false)
 const drawerWidth = ref(window.screen.width < 500 ? '100%' : '30%')
 
