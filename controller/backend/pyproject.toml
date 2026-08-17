@@ -2,7 +2,7 @@
 name = "openwrt-controller"
 version = "0.0.1"
 dependencies = [
-    "authlib",
+    "aiortc",
     "fastapi[standard]",
     "httpx2",
     "netjsonconfig",
