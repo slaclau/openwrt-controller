@@ -14,7 +14,10 @@ def get_configuration():
 
 ConfigurationDep = Annotated[Config, Depends(get_configuration)]
 
-connect_args = {"check_same_thread": False}
+if get_configuration().database_url.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+else:
+    connect_args = {}
 engine = create_engine(get_configuration().database_url, connect_args=connect_args)
 
 
