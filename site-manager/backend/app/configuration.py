@@ -38,7 +38,7 @@ class Config(BaseSettings):
 
     auth: AuthConfig | None = Field(default_factory=AuthConfig)
     frontend: FrontendConfig | None = Field(default_factory=FrontendConfig)
-    database_url: str | None = Field(default=None)
+    database_url: str | None = Field(default="sqlite:///:memory:")
 
     @classmethod
     def settings_customise_sources(
