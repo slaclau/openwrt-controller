@@ -5,6 +5,7 @@ dependencies = [
     "authlib",
     "fastapi[standard]",
     "httpx2",
+    "netjsonconfig",
     "sqlmodel",
 ]
 
