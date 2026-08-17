@@ -11,7 +11,7 @@ import jwt
 from fastapi import Depends, HTTPException, Request, Response, status
 
 from . import auth
-from ..dependencies import SessionDep
+from ..dependencies import ConfigurationDep, SessionDep
 from ..users.model import User, UserInDb
 from .authentication import authenticate_user
 from .token import get_tokens, public_key, Token, RefreshTokenData
@@ -19,7 +19,7 @@ from .oidc import LogoutUrl, handle_rp_logout
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 cookie_scheme = APIKeyCookie(name="refresh_token")
 
 
@@ -45,7 +45,7 @@ async def get_current_user(
 
 
 def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[UserInDb, Depends(get_current_user)],
 ) -> UserInDb:
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
@@ -98,6 +98,7 @@ async def logout(
     session: SessionDep,
     response: Response,
     request: Request,
+    config: ConfigurationDep,
 ) -> LogoutUrl:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -123,7 +124,7 @@ async def logout(
     response.delete_cookie("refresh_token")
 
     if upstream_issuer:
-        return await handle_rp_logout(upstream_issuer, request)
+        return await handle_rp_logout(upstream_issuer, request, config)
 
     return LogoutUrl()
 
