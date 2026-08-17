@@ -20,50 +20,17 @@ from . import auth
 from .authentication import authenticate_user
 from .token import RefreshTokenData, Token, get_tokens
 from ..users.model import UserInDb
-from ..dependencies import SessionDep
+from ..configuration import Config, OidcProvider, OidcProviderConfig
+from ..dependencies import ConfigurationDep, SessionDep, get_configuration
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
 
-class OidcProviderConfig(BaseModel):
-    name: str = Field()
-    slug: str = Field()
-    client_id: str = Field()
-    client_secret: str = Field()
-    auth_url: HttpUrl | None = Field(default=None)
-    token_url: HttpUrl | None = Field(default=None)
-    logo_url: HttpUrl | None = Field(default=None)
-    wellknown_url: HttpUrl | None = Field(default=None)
-    scope: str = Field(default="")
-
-
-class OidcProvider(BaseModel):
-    name: str = Field()
-    slug: str = Field()
-    logo_url: HttpUrl | None = Field(default=None)
-
-
-class AuthConfig(BaseModel):
-    providers: list[OidcProviderConfig] = Field()
-
-
-class FrontendConfig(BaseModel):
-    url: HttpUrl = Field()
-
-
-class Config(BaseModel):
-    auth: AuthConfig = Field()
-    frontend: FrontendConfig = Field()
-
-
 providers: dict[str, OidcProviderConfig] = {}
-
-with open("config.yml") as f:
-    config = Config.model_validate(yaml.safe_load(f))
 
 
 def load_config():
-    for provider in config.auth.providers:
+    for provider in get_configuration().auth.providers:
         if provider.wellknown_url:
             oauth.register(
                 provider.slug,
@@ -93,7 +60,12 @@ class TokenExchangeRequest(BaseModel):
 
 
 @auth.get("/{provider}/login", tags=["oidc"])
-async def login(provider: str, request: Request, pending: str | None = None):
+async def login(
+    provider: str,
+    request: Request,
+    config: ConfigurationDep,
+    pending: str | None = None,
+):
     logger.info(f"logging in to {provider}, pending login: {pending}")
     provider_config = providers.get(provider)
 
@@ -163,12 +135,16 @@ class RemoteUser(SQLModel, table=True):
 
 
 @auth.get("/providers", response_model=list[OidcProvider], tags=["oidc"])
-async def get_list_of_oidc_providers() -> list[OidcProviderConfig]:
+async def get_list_of_oidc_providers(
+    config: ConfigurationDep,
+) -> list[OidcProviderConfig]:
     return config.auth.providers
 
 
 @auth.get("/{provider}/authorize", tags=["oidc"])
-async def authorize(provider: str, request: Request, session: SessionDep):
+async def authorize(
+    provider: str, request: Request, session: SessionDep, config: ConfigurationDep
+):
     provider_config = providers.get(provider)
 
     if not provider_config:
@@ -388,7 +364,7 @@ async def backchannel_logout(
     )
 
 
-async def handle_rp_logout(provider: str, request: Request):
+async def handle_rp_logout(provider: str, request: Request, config: ConfigurationDep):
     client = oauth.create_client(provider)
     if "end_session_endpoint" not in client.server_metadata:
         return LogoutUrl()
@@ -404,7 +380,7 @@ async def handle_rp_logout(provider: str, request: Request):
 
 
 @auth.get("/{provider}/logged-out", tags=["oidc"])
-async def logged_out(provider: str, request: Request):
+async def logged_out(provider: str, request: Request, config: ConfigurationDep):
     client = oauth.create_client(provider)
 
     state_data = await client.validate_logout_response(request)
