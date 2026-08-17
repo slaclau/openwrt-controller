@@ -14,12 +14,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: 'pip'
+      - name: Get the openapi spec
+        run: |
+          cd backend
+          pip install .
+          python -c "
+          import json
+          from app.main import app
+          with open('openapi.json', 'w') as f:
+              json.dump(app.openapi(), f, indent=2)
+          "
       - name: Build the frontend
         run: |
           cd frontend
           npm ci
+          npx openapi-ts -i ../backend/openapi.json -o src/sdk
           npm run build
-      - run: |
+      - name: Deploy 
+        run: |
           cd backend
           uv run fastapi deploy
         env:
