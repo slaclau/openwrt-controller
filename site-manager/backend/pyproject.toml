@@ -7,7 +7,7 @@ dependencies = [
     "httpx2",
     "itsdangerous",
     "joserfc",
-    "pwdlib",
+    "pwdlib[argon2]",
     "pyjwt",
     "sqlmodel",
 ]
