@@ -38,6 +38,7 @@ class Config(BaseSettings):
 
     auth: AuthConfig | None = Field(default_factory=AuthConfig)
     frontend: FrontendConfig = Field()
+    database_url: str = Field()
 
     @classmethod
     def settings_customise_sources(

@@ -4,13 +4,18 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-from .configuration import Config, OidcProviderConfig
+from .configuration import Config
 
-sqlite_file_name = "site-manager.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+@lru_cache
+def get_configuration():
+    return Config()
+
+
+ConfigurationDep = Annotated[Config, Depends(get_configuration)]
 
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(get_configuration().database_url, connect_args=connect_args)
 
 
 def create_db_and_tables():
@@ -23,11 +28,3 @@ def get_session():
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
-
-
-@lru_cache
-def get_configuration():
-    return Config()
-
-
-ConfigurationDep = Annotated[Config, Depends(get_configuration)]
