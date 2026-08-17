@@ -1,0 +1,13 @@
+[project]
+name = "openwrt-site-manager"
+version = "0.0.1"
+dependencies = [
+  "fastapi[standard]",
+  "httpx2",
+  "itsdangerous",
+  "pyjwt",
+  "sqlmodel",
+]
+
+[tool.fastapi]
+entrypoint = "app.main:app"
