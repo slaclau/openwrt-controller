@@ -37,8 +37,8 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(yaml_file="config.yml")
 
     auth: AuthConfig | None = Field(default_factory=AuthConfig)
-    frontend: FrontendConfig = Field()
-    database_url: str = Field()
+    frontend: FrontendConfig | None = Field(default="http://localhost:8000")
+    database_url: str | None = Field(default=None)
 
     @classmethod
     def settings_customise_sources(
