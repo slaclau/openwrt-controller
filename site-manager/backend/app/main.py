@@ -4,6 +4,7 @@ import logging
 import secrets
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from sqlmodel import Session, select
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -48,3 +49,8 @@ async def purge_expired_items(session: Session):
             logger.info(f"purged {count} from {table}")
 
     session.commit()
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("openwrt.ico")
