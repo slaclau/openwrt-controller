@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(root_path="/api", lifespan=lifespan)
-app.frontend("/", directory="dist", fallback="index.html", check_dir=True)
+app.frontend("/", directory="dist", fallback="index.html", check_dir=False)
 
 app.add_middleware(SessionMiddleware, secret_key=secrets.token_bytes())
 
