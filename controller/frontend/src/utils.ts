@@ -54,13 +54,15 @@ export function getApplicationName(application: string, protocol: string) {
       if (res.data) {
         applications_map = res.data;
         return getApplicationNameInner(application)
-      } else {
+      } else if (application) {
         return application
           .replace('netify.', '')
           .replace('-', ' ')
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.substring(1))
           .join(' ')
+      } else {
+        return ''
       }
     })
   } else {
