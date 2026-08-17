@@ -9,7 +9,14 @@ from joserfc.jwk import KeySet
 from fastapi import Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 
-from sqlmodel import Relationship, SQLModel, and_, select, Field as SQLField
+from sqlmodel import (
+    ForeignKeyConstraint,
+    Relationship,
+    SQLModel,
+    and_,
+    select,
+    Field as SQLField,
+)
 import yaml
 
 from authlib.integrations.starlette_client import OAuth
@@ -86,30 +93,6 @@ async def login(
     )
 
 
-class AuthCode(SQLModel, table=True):
-    __tablename__ = "auth_codes"
-
-    secret: str = SQLField(primary_key=True, default_factory=secrets.token_urlsafe)
-    subject: str = SQLField(foreign_key="remote_users.subject")
-    expires: datetime = SQLField(
-        default_factory=lambda: datetime.now() + timedelta(minutes=1),
-    )
-    upstream_issuer: str = SQLField(foreign_key="remote_users.provider")
-    upstream_session: str = SQLField(default="")
-
-    remote_user: "RemoteUser" = Relationship(
-        back_populates="auth_codes",
-        sa_relationship_kwargs={
-            "primaryjoin": (
-                "and_("
-                "AuthCode.subject == RemoteUser.subject, "
-                "AuthCode.upstream_issuer == RemoteUser.provider"
-                ")"
-            )
-        },
-    )
-
-
 class RemoteUser(SQLModel, table=True):
     __tablename__ = "remote_users"
 
@@ -121,16 +104,31 @@ class RemoteUser(SQLModel, table=True):
 
     linked_user: UserInDb = Relationship(back_populates="remote_users")
 
-    auth_codes: list[AuthCode] = Relationship(
+    auth_codes: list["AuthCode"] = Relationship(
         back_populates="remote_user",
-        sa_relationship_kwargs={
-            "primaryjoin": (
-                "and_("
-                "AuthCode.subject == RemoteUser.subject, "
-                "AuthCode.upstream_issuer == RemoteUser.provider"
-                ")"
-            )
-        },
+    )
+
+
+class AuthCode(SQLModel, table=True):
+    __tablename__ = "auth_codes"
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["subject", "upstream_issuer"],
+            ["remote_users.subject", "remote_users.provider"],
+        ),
+    )
+
+    secret: str = SQLField(primary_key=True, default_factory=secrets.token_urlsafe)
+    subject: str = SQLField()
+    expires: datetime = SQLField(
+        default_factory=lambda: datetime.now() + timedelta(minutes=1),
+    )
+    upstream_issuer: str = SQLField()
+    upstream_session: str = SQLField(default="")
+
+    remote_user: RemoteUser = Relationship(
+        back_populates="auth_codes",
     )
 
 
