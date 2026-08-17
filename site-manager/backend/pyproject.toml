@@ -5,6 +5,7 @@ dependencies = [
   "fastapi[standard]",
   "httpx2",
   "itsdangerous",
+  "joserfc",
   "pyjwt",
   "sqlmodel",
 ]
