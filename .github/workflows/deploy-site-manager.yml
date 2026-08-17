@@ -46,6 +46,7 @@ jobs:
           npm ci
           npx openapi-ts -i ../backend/openapi.json -o src/sdk
           npm run build
+          cp -r dist ../backend
       - name: Deploy 
         run: |
           cd site-manager/backend
