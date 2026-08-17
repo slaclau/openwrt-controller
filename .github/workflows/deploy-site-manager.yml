@@ -40,7 +40,6 @@ jobs:
           cd controller/frontend
           npm ci
           npx openapi-ts -i ../backend/openapi.json -o src/sdk
-          npm run build
       - name: Build the frontend
         run: |
           cd site-manager/frontend
