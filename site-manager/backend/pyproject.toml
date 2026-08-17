@@ -2,12 +2,13 @@
 name = "openwrt-site-manager"
 version = "0.0.1"
 dependencies = [
-  "fastapi[standard]",
-  "httpx2",
-  "itsdangerous",
-  "joserfc",
-  "pyjwt",
-  "sqlmodel",
+    "authlib",
+    "fastapi[standard]",
+    "httpx2",
+    "itsdangerous",
+    "joserfc",
+    "pyjwt",
+    "sqlmodel",
 ]
 
 [tool.fastapi]
