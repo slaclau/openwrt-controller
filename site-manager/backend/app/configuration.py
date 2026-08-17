@@ -26,7 +26,7 @@ class OidcProvider(BaseModel):
 
 
 class AuthConfig(BaseModel):
-    providers: list[OidcProviderConfig] = Field()
+    providers: list[OidcProviderConfig] = Field(default=[])
 
 
 class FrontendConfig(BaseModel):
@@ -36,7 +36,7 @@ class FrontendConfig(BaseModel):
 class Config(BaseSettings):
     model_config = SettingsConfigDict(yaml_file="config.yml")
 
-    auth: AuthConfig = Field()
+    auth: AuthConfig | None = Field(default_factory=AuthConfig)
     frontend: FrontendConfig = Field()
 
     @classmethod
