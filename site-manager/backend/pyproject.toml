@@ -7,6 +7,7 @@ dependencies = [
     "httpx2",
     "itsdangerous",
     "joserfc",
+    "pwdlib",
     "pyjwt",
     "sqlmodel",
 ]
