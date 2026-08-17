@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import os
 import uuid
 
 from fastapi import Response
@@ -12,12 +13,15 @@ from ..users.model import User, UserInDb
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+private_key = os.environ.get("PRIVATE_KEY")
+if not private_key:
+    with open("private.pem", "rb") as f:
+        private_key = f.read()
 
-with open("private.pem", "rb") as f:
-    private_key = f.read()
-
-with open("public.pem", "rb") as f:
-    public_key = f.read()
+public_key = os.environ.get("PUBLIC_KEY")
+if not public_key:
+    with open("public.pem", "rb") as f:
+        public_key = f.read()
 
 
 class Token(BaseModel):
