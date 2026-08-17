@@ -14,12 +14,12 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 private_key = os.environ.get("PRIVATE_KEY")
-if not private_key:
+if not private_key and os.path.exists("private.pem"):
     with open("private.pem", "rb") as f:
         private_key = f.read()
 
 public_key = os.environ.get("PUBLIC_KEY")
-if not public_key:
+if not public_key and os.path.exists("public.pem"):
     with open("public.pem", "rb") as f:
         public_key = f.read()
 
