@@ -1,20 +1,39 @@
 <script setup lang="ts">
-import { mdiAccount, mdiArrowLeft, mdiThemeLightDark } from '@mdi/js'
-import { useDark, useToggle } from '@vueuse/core'
+import { mdiAccount, mdiArrowLeft, mdiBrightness7, mdiThemeLightDark, mdiWeatherNight } from '@mdi/js'
+import { useColorMode } from '@vueuse/core'
 
 import SvgIcon from '@jamescoyle/vue-icon'
 import router from './router'
 
-const isDark = useDark()
-const toggleDark = useToggle(isDark)
+const colorMode = useColorMode()
+const toggleDark = () => {
+  switch (colorMode.store.value) {
+    case "dark":
+      colorMode.value = "light"
+      break
+    case "light":
+      colorMode.value = "auto"
+      break
+    case "auto":
+      colorMode.value = "dark"
+      break
+  }
+}
+
+const getColorModeIcon = () => {
+  switch (colorMode.store.value) {
+    case "dark":
+      return mdiWeatherNight
+    case "light":
+      return mdiBrightness7
+    case "auto":
+      return mdiThemeLightDark
+  }
+}
 
 import { useRoute } from 'vue-router'
-import { logoutAuthLogoutPost } from './sdk'
-import { site_manager_client } from './client'
-import { ElNotification } from 'element-plus'
 import { onMounted, ref, type Ref } from 'vue'
 import UserDrawerComponent from './components/UserDrawerComponent.vue'
-import { logout } from './utils.ts'
 
 const route = useRoute()
 
@@ -41,14 +60,11 @@ onMounted(() => {
         <el-button class="header-title" text disabled><img src="/openwrt.svg" height="24" /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
         <span style="float: right">
-          <el-button @click="toggleDark()">
-            <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
+          <el-button @click="toggleDark">
+            <svg-icon type="mdi" :path="getColorModeIcon()" :size="24" />
           </el-button>
           <el-button @click="toggleShowUserDrawer" :disabled="!route.meta.requiresAuth">
             <svg-icon type="mdi" :path="mdiAccount" :size="24" />
-          </el-button>
-          <el-button @click="logout" :disabled="!route.meta.requiresAuth">
-            Logout
           </el-button>
         </span>
       </h1>
