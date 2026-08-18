@@ -12,7 +12,7 @@ from fastapi import Depends, HTTPException, Request, Response, status
 
 from . import auth
 from ..dependencies import ConfigurationDep, SessionDep
-from ..users.model import User, UserInDb
+from ..users.model import User, UserInDb, UserWithRemoteUsers
 from .authentication import authenticate_user
 from .token import get_tokens, public_key, Token, RefreshTokenData
 from .oidc import LogoutUrl, handle_rp_logout
@@ -131,6 +131,20 @@ async def logout(
 
 @auth.get("/info", tags=["auth"])
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)],
-) -> User:
+    current_user: Annotated[UserInDb, Depends(get_current_active_user)],
+) -> UserWithRemoteUsers:
+    print(current_user.remote_users)
     return current_user
+
+
+@auth.post("{provider}/delink", tags=["oidc"])
+def delink_account(
+    provider: str,
+    session: SessionDep,
+    current_user: Annotated[UserInDb, Depends(get_current_active_user)],
+):
+    remote_user = [
+        user for user in current_user.remote_users if user.provider == provider
+    ][0]
+    session.delete(remote_user)
+    session.commit()

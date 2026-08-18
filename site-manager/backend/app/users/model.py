@@ -1,21 +1,22 @@
 from typing import TYPE_CHECKING, Annotated
 
-from sqlmodel import Field, Relationship, SQLModel, select
+from pydantic import BaseModel, Field
+from sqlmodel import Field as SQLField, Relationship, SQLModel, select
 
 from ..links import SiteAccessRelationship
 
 if TYPE_CHECKING:
     from ..sites import Site
     from ..auth.main import RefreshTokenData
-    from ..auth.oidc import RemoteUser
+    from ..auth.oidc import RemoteUser, RemoteUserOut
 
 
 class User(SQLModel, table=False):
-    username: str = Field(primary_key=True)
+    username: str = SQLField(primary_key=True)
     email: str
     full_name: str
-    disabled: bool = Field(default=False)
-    permissions: str = Field(default="")
+    disabled: bool = SQLField(default=False)
+    permissions: str | None = SQLField(default="")
 
 
 class UserInDb(User, table=True):
@@ -36,3 +37,7 @@ class CreateUserData(SQLModel, table=False):
     email: str
     full_name: str
     password: str
+
+
+class UserWithRemoteUsers(User):
+    remote_users: list["RemoteUserOut"] = []

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiArrowLeft, mdiThemeLightDark } from '@mdi/js'
+import { mdiAccount, mdiArrowLeft, mdiThemeLightDark } from '@mdi/js'
 import { useDark, useToggle } from '@vueuse/core'
 
 import SvgIcon from '@jamescoyle/vue-icon'
@@ -12,37 +12,29 @@ import { useRoute } from 'vue-router'
 import { logoutAuthLogoutPost } from './sdk'
 import { site_manager_client } from './client'
 import { ElNotification } from 'element-plus'
+import { onMounted, ref, type Ref } from 'vue'
+import UserDrawerComponent from './components/UserDrawerComponent.vue'
+import { logout } from './utils.ts'
 
 const route = useRoute()
 
-const logout = async () => {
-  const logoutUrl = (
-    await logoutAuthLogoutPost({ client: site_manager_client })
-  ).data?.location
-  localStorage.removeItem('auth_token')
-  console.log('logged out')
-  ElNotification.success({
-    title: 'Logged Out',
-    message: 'You have been successfully logged out.',
-  })
-  if (logoutUrl) {
-    window.location.href = logoutUrl
-  } else {
-    router.push({
-      name: 'Login',
-      query: { redirect: '/' },
-    })
-  }
+const openUserDrawer = ref(false)
+let drawerWidth: Ref<string>
+
+const toggleShowUserDrawer = () => {
+  openUserDrawer.value = !openUserDrawer.value
 }
+
+onMounted(() => {
+  drawerWidth = ref(window.screen.width < 500 ? '100%' : '30%')
+})
 </script>
 
 <template>
   <el-container>
     <el-header>
       <h1>
-        <span style="float: left"><el-button
-            :style="`visibility: ${['/', '/login'].includes(route.path) ? 'hidden' : 'visible'}`"
-            @click="router.back()">
+        <span style="float: left"><el-button :disabled="['/', '/login'].includes(route.path)" @click="router.back()">
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
@@ -52,8 +44,10 @@ const logout = async () => {
           <el-button @click="toggleDark()">
             <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
           </el-button>
-          <el-button @click="logout"
-            :style="`visibility: ${['/link-account', '/login', '/register'].includes(route.path) ? 'hidden' : 'visible'}`">
+          <el-button @click="toggleShowUserDrawer" :disabled="!route.meta.requiresAuth">
+            <svg-icon type="mdi" :path="mdiAccount" :size="24" />
+          </el-button>
+          <el-button @click="logout" :disabled="!route.meta.requiresAuth">
             Logout
           </el-button>
         </span>
@@ -63,6 +57,9 @@ const logout = async () => {
       <router-view />
     </el-main>
   </el-container>
+  <UserDrawerComponent v-model="openUserDrawer" :size="drawerWidth">
+    <UserDrawerComponent />
+  </UserDrawerComponent>
 </template>
 
 <style scoped>

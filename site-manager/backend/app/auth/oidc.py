@@ -1,9 +1,8 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 import logging
 import secrets
 from typing import Annotated
 
-from fastapi.security import OAuth2PasswordRequestForm
 from joserfc import jwt
 from joserfc.jwk import KeySet
 from fastapi import Depends, Form, HTTPException, Request, Response, status
@@ -17,17 +16,16 @@ from sqlmodel import (
     select,
     Field as SQLField,
 )
-import yaml
 
 from authlib.integrations.starlette_client import OAuth
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, computed_field
 
 from . import auth
 from .authentication import authenticate_user
 from .token import RefreshTokenData, Token, get_tokens
-from ..users.model import UserInDb
-from ..configuration import Config, OidcProvider, OidcProviderConfig
+from ..users.model import UserInDb, UserWithRemoteUsers
+from ..configuration import OidcProvider, OidcProviderConfig
 from ..dependencies import ConfigurationDep, SessionDep, get_configuration
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
@@ -107,6 +105,18 @@ class RemoteUser(SQLModel, table=True):
     auth_codes: list["AuthCode"] = Relationship(
         back_populates="remote_user",
     )
+
+
+class RemoteUserOut(BaseModel):
+    provider: str = Field()
+
+    @computed_field
+    @property
+    def provider_config(self) -> OidcProvider:
+        return providers.get(self.provider, None)
+
+
+UserWithRemoteUsers.model_rebuild()
 
 
 class AuthCode(SQLModel, table=True):
