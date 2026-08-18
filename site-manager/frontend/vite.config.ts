@@ -17,6 +17,9 @@ export default defineConfig({
       },
       pwaAssets: {
         config: true,
+      },
+      workbox: {
+        navigateFallbackDenylist: [/^\/api/]
       }
     }),
   ],
