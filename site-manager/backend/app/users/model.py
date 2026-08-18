@@ -14,8 +14,8 @@ class User(SQLModel, table=False):
     username: str = Field(primary_key=True)
     email: str
     full_name: str
-    disabled: bool
-    permissions: str
+    disabled: bool = Field(default=False)
+    permissions: str = Field(default="")
 
 
 class UserInDb(User, table=True):
@@ -29,3 +29,10 @@ class UserInDb(User, table=True):
 
     refresh_tokens: list["RefreshTokenData"] = Relationship(back_populates="user")
     remote_users: list["RemoteUser"] = Relationship(back_populates="linked_user")
+
+
+class CreateUserData(SQLModel, table=False):
+    username: str
+    email: str
+    full_name: str
+    password: str

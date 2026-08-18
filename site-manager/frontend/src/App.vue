@@ -46,14 +46,14 @@ const logout = async () => {
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
-        <el-button link disabled><img src="/openwrt.svg" height="24" /></el-button>
+        <el-button class="header-title" text disabled><img src="/openwrt.svg" height="24" /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
         <span style="float: right">
           <el-button @click="toggleDark()">
             <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
           </el-button>
           <el-button @click="logout"
-            :style="`visibility: ${['/link-account', '/login'].includes(route.path) ? 'hidden' : 'visible'}`">
+            :style="`visibility: ${['/link-account', '/login', '/register'].includes(route.path) ? 'hidden' : 'visible'}`">
             Logout
           </el-button>
         </span>

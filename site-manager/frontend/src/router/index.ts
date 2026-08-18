@@ -14,6 +14,11 @@ const router = createRouter({
       alias: ['/login/:provider'],
     },
     {
+      path: '/register',
+      name: 'Register',
+      component: () => import('@/views/RegistrationView.vue'),
+    },
+    {
       path: '/link-account',
       name: 'LinkAccount',
       component: () => import('@/views/LinkAccountView.vue')

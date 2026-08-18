@@ -39,6 +39,11 @@ const handleLogin = async () => {
   }
 }
 
+const handleRegister = () => {
+  router.push({ path: "/register", query: { username: form.username } })
+}
+
+
 const auth_providers: Ref<OidcProvider[]> = ref([])
 
 onMounted(async () => {
@@ -65,7 +70,14 @@ const origin = window.location.origin
         <el-input v-model="form.password" type="password" placeholder="Password" show-password />
       </el-form-item>
 
-      <el-button type="primary" style="width: 100%" @click="handleLogin"> Login </el-button>
+      <div style="display: grid; gap: 8px">
+        <span>
+          <el-button type="primary" style="width: 100%" @click="handleLogin"> Login </el-button>
+        </span>
+        <span>
+          <el-button style="width: 100%" @click="handleRegister"> Register </el-button>
+        </span>
+      </div>
     </el-form>
     <el-divider v-if="auth_providers.length > 0" />
     <div style="display: grid; gap: 8px">
