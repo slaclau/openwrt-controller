@@ -46,7 +46,8 @@ const logout = async () => {
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
-        <span class="header-title">Site Manager</span>
+        <el-button link disabled><img src="/openwrt.svg" height="24" /></el-button>
+        <span class="header-title hidden-sm-and-down">Site Manager</span>
         <span style="float: right">
           <el-button @click="toggleDark()">
             <svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" />
