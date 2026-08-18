@@ -49,8 +49,3 @@ async def purge_expired_items(session: Session):
             logger.info(f"purged {count} from {table}")
 
     session.commit()
-
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return FileResponse("openwrt.ico")
