@@ -62,7 +62,7 @@ const origin = window.location.origin
       </el-form-item>
 
       <el-form-item label="Password">
-        <el-input v-model="form.password" type="password" placeholder="Password" />
+        <el-input v-model="form.password" type="password" placeholder="Password" show-password />
       </el-form-item>
 
       <el-button type="primary" style="width: 100%" @click="handleLogin"> Login </el-button>
