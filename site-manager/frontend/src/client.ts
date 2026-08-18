@@ -4,9 +4,10 @@ import type { ClientOptions } from 'controller/sdk/types.gen'
 import {
   type ClientOptions as DefaultClientOptions,
   type Config,
-  createClient,
+  createClient as createControllerClient,
   createConfig,
 } from 'controller/sdk/client'
+import { createClient } from './sdk/client'
 import { refreshTokenAuthRefreshPost } from './sdk'
 import { ref, type Ref } from 'vue'
 import { assert } from '@vueuse/core'
@@ -92,7 +93,7 @@ export function handleResponse(message: DcMessage) {
   }
 }
 
-export const client = createClient(
+export const client = createControllerClient(
   createConfig<ClientOptions>({
     baseUrl: window.location.origin + '/api',
     fetch: sendRequest,
