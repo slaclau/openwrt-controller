@@ -11,10 +11,11 @@ import httpx
 import aiortc
 import websockets
 
-SITE_MANAGER_WS_URI = "ws://localhost:8001/sites/ws"  # Target external endpoint
-SITE_MANAGER_ICE_SERVERS_URI = (
-    "http://localhost:8001/ice-servers"  # Target external endpoint
-)
+from .configuration import Protocol
+from .dependencies import get_configuration
+
+SITE_MANAGER_WS_URI = f"{"ws" if get_configuration().site_manager.protocol == Protocol.HTTP else "wss"}://{get_configuration().site_manager.host}:{get_configuration().site_manager.port}/api/sites/ws"
+SITE_MANAGER_ICE_SERVERS_URI = f"{get_configuration().site_manager.protocol}://{get_configuration().site_manager.host}:{get_configuration().site_manager.port}/api/ice-servers"
 
 if not os.path.exists("SITE_ID"):
     with open("SITE_ID", "w") as f:
@@ -42,7 +43,11 @@ async def manage_site_manager_connection(app: FastAPI):
                         send_heartbeat(websocket), listen(websocket, app)
                     )
 
-            except (websockets.ConnectionClosed, OSError) as e:
+            except (
+                websockets.ConnectionClosed,
+                websockets.exceptions.InvalidStatus,
+                OSError,
+            ) as e:
                 logger.warning(
                     f"lost connection to site-manager ({e}) - retrying in 5 seconds..."
                 )

@@ -1,7 +1,10 @@
+from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
+
+from .configuration import Configuration
 
 sqlite_file_name = "config.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -20,3 +23,11 @@ def get_session():
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+
+@lru_cache
+def get_configuration():
+    return Configuration()
+
+
+ConfigurationDep = Annotated[Configuration, Depends(get_configuration)]
