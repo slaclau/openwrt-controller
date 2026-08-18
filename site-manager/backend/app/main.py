@@ -5,6 +5,7 @@ import secrets
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
+import logfire
 from sqlmodel import Session, select
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -28,6 +29,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(root_path="/api", lifespan=lifespan)
+
+logfire.configure(send_to_logfire="if-token-present")
+logfire.instrument_httpx()
+logfire.instrument_sqlalchemy()
+logfire.instrument_fastapi(app=app)
+
 app.frontend("/", directory="dist", fallback="index.html", check_dir=False)
 
 app.add_middleware(SessionMiddleware, secret_key=secrets.token_bytes())
