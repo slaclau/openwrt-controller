@@ -8,8 +8,6 @@ import {
 } from '@mdi/js'
 
 import { useDark, useToggle } from '@vueuse/core'
-import { onMounted, onUnmounted, ref, type Ref } from 'vue'
-import { setIntervalImmediate } from './utils'
 import MainView from './views/MainView.vue'
 
 const isDark = useDark()

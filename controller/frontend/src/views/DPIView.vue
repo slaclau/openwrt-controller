@@ -33,8 +33,6 @@ onMounted(() => {
           (prev, curr) => prev + curr.download + curr.upload,
           0,
         )
-      } else {
-        console.log('no data yet')
       }
     })
   }, 3000)

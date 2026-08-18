@@ -24,8 +24,6 @@ onMounted(() => {
         getStatusStatusGet({ client }).then((res) => {
             if (res.data) {
                 status.value = res.data
-            } else {
-                console.log('no data yet')
             }
         })
     }, 3000)
