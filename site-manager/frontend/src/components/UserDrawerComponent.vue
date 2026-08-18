@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import SvgIcon from '@jamescoyle/vue-icon'
 
+import { ElDrawer } from 'element-plus';
+
 import { site_manager_client } from '@/client';
 import { getListOfOidcProvidersAuthProvidersGet, readUsersMeAuthInfoGet, type OidcProvider, type UserWithRemoteUsers, delinkAccountAuthProviderDelinkPost } from '@/sdk';
 import { mdiAccount } from '@mdi/js';
@@ -39,16 +41,23 @@ const onClickRemoteProvider = async (provider: string) => {
     window.location.href = origin + `/api/auth/${provider}/login`
   }
 }
+
+const drawerRef: Ref<null | typeof ElDrawer> = ref(null);
+
+const handleLogout = async () => {
+  drawerRef.value?.handleClose();
+  await logout()
+}
 </script>
 
 <template>
-  <el-drawer destroy-on-close @open="onOpen">
+  <el-drawer destroy-on-close @open="onOpen" ref="drawerRef">
     <template #header>
       <span>
         <svg-icon style="float: left" type="mdi" :path="mdiAccount" :size="24" />
         {{ user?.full_name }}
       </span>
-      <el-button @click="logout" :disabled="!$route.meta.requiresAuth">
+      <el-button @click="handleLogout" :disabled="!$route.meta.requiresAuth">
         Logout
       </el-button>
     </template>
