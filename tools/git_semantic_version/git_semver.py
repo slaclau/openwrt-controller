@@ -10,7 +10,7 @@ def get_commits(target_dir):
     commits = repo.iter_commits(paths=["--", os.path.abspath(target_dir)])
     return commits
 
-def get_version_triplet(commits, initial=(0, 0, 0)):
+def _get_version_triplet(commits, initial=(0, 0, 0)):
     major, minor, patch = initial
     for commit in commits:
         message_type = re.sub(r'\(.*\)', '', commit.summary.split(":")[0]).replace(" ", "")
@@ -33,15 +33,22 @@ def get_version_triplet(commits, initial=(0, 0, 0)):
 
     return (major, minor, patch)
 
-def main(target_dir):
+def get_version_triplet(target_dir):
     commits = get_commits(target_dir)
-    return get_version_triplet(commits)
+    return _get_version_triplet(commits)
 
 def get_version_string(target_dir="."):
-    return ".".join([str(v) for v in main(target_dir)])
+    return ".".join([str(v) for v in get_version_triplet(target_dir)])
+
+def main():
+    if sys.argv:
+        target_dir = sys.argv[1]
+    else:
+        target_dir = "."
+    return get_version_string(target_dir)
 
 def set_semver(dist):
     dist.metadata.version = get_version_string()
 
 if __name__ == "__main__":
-    print(main(sys.argv[1]))
+    print(main())

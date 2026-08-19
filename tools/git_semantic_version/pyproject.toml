@@ -13,3 +13,6 @@ py-modules = ["git_semver"]
 
 [project.entry-points."setuptools.finalize_distribution_options"]
 git_semver = "git_semver:set_semver"
+
+[project.scripts]
+git-semver = "git_semver:main"
