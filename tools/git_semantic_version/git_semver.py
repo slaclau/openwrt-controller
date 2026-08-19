@@ -43,18 +43,16 @@ def get_version_triplet(target_dir):
     return _get_version_triplet(commits)
 
 def get_version_string(target_dir="."):
+    if os.path.exists("PKG-INFO"):
+        with open("PKG-INFO") as f:
+            for line in f:
+                if line.startswith("Version:"):
+                    return line.split(":", 1)[1].strip()
     try:
         repo = git.Repo(".", search_parent_directories=True)
-        version = ".".join([str(v) for v in get_version_triplet(target_dir)])
-    except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError, AttributeError):
-        if os.path.exists("PKG-INFO"):
-            with open("PKG-INFO") as f:
-                for line in f:
-                    if line.startswith("Version:"):
-                        return line.split(":", 1)[1].strip()
-        else:
-            version = "unknown"
-    return version
+        return ".".join([str(v) for v in get_version_triplet(target_dir)])
+    except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError):
+        return "0.0.1"
 
 def main():
     if sys.argv:
