@@ -21,6 +21,5 @@ entrypoint = "app.main:app"
 build-backend = "setuptools.build_meta"
 requires = [
   "setuptools>=45",
-  "git-semantic-version  @ git+https://github.com/slaclau/openwrt-controller#subdirectory=tools/git_semantic_version",
+  "git-semantic-version  @ file:///${PROJECT_ROOT}/../../tools/git_semantic_version",
 ]
-
