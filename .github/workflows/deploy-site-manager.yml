@@ -18,7 +18,7 @@ jobs:
       - name: Get the controller openapi spec
         run: |
           cd controller/backend
-          pip install .
+          uv pip install . --system
           python -c "
           import json
           from app.main import app
@@ -28,7 +28,7 @@ jobs:
       - name: Get the openapi spec
         run: |
           cd site-manager/backend
-          pip install .
+          uv pip install . --system
           python -c "
           import json
           from app.main import app
