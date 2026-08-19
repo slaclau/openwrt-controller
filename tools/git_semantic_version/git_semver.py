@@ -3,11 +3,13 @@ import re
 import sys
 import os
 
-import git
+try:
+    import git
+except ImportError:
+    git = None
 
 def get_commits(target_dir):
     repo = git.Repo(".", search_parent_directories=True)
-    print(repo)
     commits = repo.iter_commits(paths=["--", os.path.abspath(target_dir)])
     commits = list(commits)
     commits.reverse()
@@ -44,7 +46,7 @@ def get_version_string(target_dir="."):
     try:
         repo = git.Repo(".", search_parent_directories=True)
         version = ".".join([str(v) for v in get_version_triplet(target_dir)])
-    except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError):
+    except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError, AttributeError):
         if os.path.exists("PKG-INFO"):
             with open("PKG-INFO") as f:
                 for line in f:
