@@ -33,6 +33,15 @@ def get_version_triplet(commits, initial=(0, 0, 0)):
 
     return (major, minor, patch)
 
+def main(target_dir):
+    commits = get_commits(target_dir)
+    return get_version_triplet(commits)
+
+def get_version_string(target_dir="."):
+    return ".".join([str(v) for v in main(target_dir)])
+
+def set_semver(dist):
+    dist.metadata.version = get_version_string()
+
 if __name__ == "__main__":
-    commits = get_commits(os.path.abspath(sys.argv[1]))
-    print(get_version_triplet(commits))
+    print(main(sys.argv[1]))

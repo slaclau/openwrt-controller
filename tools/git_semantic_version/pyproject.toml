@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel", "GitPython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "git-semantic-version"
+dynamic = ["version"]
+description = "A monorepo-friendly setuptools plugin for directory-scoped conventional commit versioning."
+dependencies = ["GitPython"]
+
+[tool.setuptools]
+py-modules = ["git_semver"]
+
+[project.entry-points."setuptools.finalize_distribution_options"]
+git_semver = "git_semver:set_semver"
