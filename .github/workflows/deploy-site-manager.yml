@@ -47,9 +47,12 @@ jobs:
           npx openapi-ts -i ../backend/openapi.json -o src/sdk
           npm run build
           cp -r dist ../backend
-      - name: Deploy 
+      - name: Deploy
         run: |
           cd site-manager/backend
+          pip install build
+          python -m build --sdist
+          cp openwrt_site_manager.egg-info/PKG-INFO .
           uv run fastapi deploy
         env:
           FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
