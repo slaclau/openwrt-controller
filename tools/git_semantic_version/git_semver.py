@@ -55,7 +55,7 @@ def get_version_string(target_dir="."):
         return "0.0.1"
 
 def main():
-    if sys.argv:
+    if len(sys.argv) > 1:
         target_dir = sys.argv[1]
     else:
         target_dir = "."
