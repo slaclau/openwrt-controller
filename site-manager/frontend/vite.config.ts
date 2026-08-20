@@ -28,9 +28,9 @@ export default defineConfig({
     {
       name: 'generate-version-json',
       // The closeBundle hook runs right after Vite finishes writing files to the dist directory
-      closeBundle() {
-        const distDir = path.resolve(__dirname, 'dist');
-        const filePath = path.join(distDir, 'version.json');
+      buildStart() {
+        const srcDir = path.resolve(__dirname, 'src');
+        const filePath = path.join(srcDir, 'version.json');
         
         // Customise the object below to include timestamp, git commits, etc.
         const versionData = {
@@ -38,9 +38,6 @@ export default defineConfig({
             controller_frontend_version: execSync(`git-semver ${path.resolve(__dirname, "../../controller/frontend")}`).toString().trim(),
         }
         // Ensure the directory exists and write the file
-        if (!fs.existsSync(distDir)){
-            fs.mkdirSync(distDir, { recursive: true });
-        }
         fs.writeFileSync(filePath, JSON.stringify(versionData, null, 2));
         console.log("versions", versionData)        
       }
