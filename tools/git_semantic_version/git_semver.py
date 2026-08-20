@@ -59,10 +59,11 @@ def main():
         target_dir = sys.argv[1]
     else:
         target_dir = "."
-    return get_version_string(target_dir)
+    print(get_version_string(target_dir))
+    sys.exit(0)
 
 def set_semver(dist):
     dist.metadata.version = get_version_string()
 
 if __name__ == "__main__":
-    print(main())
+    main()
