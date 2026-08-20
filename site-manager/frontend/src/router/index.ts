@@ -35,6 +35,10 @@ const router = createRouter({
       component: () => import('@/views/SiteView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
+    }
   ],
 })
 
