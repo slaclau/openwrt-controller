@@ -9,11 +9,10 @@ import {
 import { useColorMode } from '@vueuse/core'
 
 import SvgIcon from '@jamescoyle/vue-icon'
-import router from './router'
 
-import versionData from './version.json'
-import { info as sdkInfo } from './sdk/source.json' with { type: 'json' }
-import { info as controllerSdkInfo } from 'openwrt-controller/src/sdk/source.json' with { type: 'json' }
+import ReloadPrompt from './components/ReloadPrompt.vue';
+
+import router from './router'
 
 const colorMode = useColorMode()
 const toggleDark = () => {
@@ -44,6 +43,7 @@ const getColorModeIcon = () => {
 import { useRoute } from 'vue-router'
 import { onMounted, ref, type Ref } from 'vue'
 import UserDrawerComponent from './components/UserDrawerComponent.vue'
+import VersionInfo from './VersionInfo.vue';
 
 const route = useRoute()
 
@@ -63,14 +63,11 @@ onMounted(() => {
   <el-container>
     <el-header>
       <h1>
-        <span style="float: left"
-          ><el-button :disabled="['/', '/login'].includes(route.path)" @click="router.back()">
+        <span style="float: left"><el-button :disabled="['/', '/login'].includes(route.path)" @click="router.back()">
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
-        <el-button class="header-title" text disabled
-          ><img src="/openwrt.svg" height="24"
-        /></el-button>
+        <el-button class="header-title" text disabled><img src="/openwrt.svg" height="24" /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
         <span style="float: right">
           <el-button @click="toggleDark">
@@ -86,19 +83,14 @@ onMounted(() => {
       <router-view />
     </el-main>
     <el-footer class="fixed-footer">
-      Frontend Version: {{ versionData.frontend_version }}
-      <el-divider direction="vertical" />
-      Controller Frontend Version: {{ versionData.controller_frontend_version }}
-      <el-divider direction="vertical" />
-      Sdk Version: {{ sdkInfo.version }}
-      <el-divider direction="vertical" />
-      Controller Sdk Version: {{ controllerSdkInfo.version }}
+      <VersionInfo />
     </el-footer>
   </el-container>
   <UserDrawerComponent v-model="openUserDrawer" :size="drawerWidth" />
+  <ReloadPrompt />
 </template>
 
-W
+
 <style scoped>
 .header-title {
   margin-left: 16px;
