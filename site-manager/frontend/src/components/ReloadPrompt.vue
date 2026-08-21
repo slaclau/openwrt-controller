@@ -20,8 +20,6 @@ watch(offlineReady, (isReady) => {
   }
 })
 
-console.log("RP", offlineReady.value)
-
 function showUpdateDialog() {
   ElMessageBox.confirm(
     'A new version of the app is available. Please reload to apply the updates.',
