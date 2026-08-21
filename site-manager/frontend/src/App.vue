@@ -12,7 +12,9 @@ import SvgIcon from '@jamescoyle/vue-icon'
 import router from './router'
 
 import versionData from './version.json'
-console.log(versionData)
+import { info as sdkInfo } from './sdk/source.json' with { type: 'json' }
+import { info as controllerSdkInfo } from 'openwrt-controller/src/sdk/source.json' with { type: 'json' }
+
 const colorMode = useColorMode()
 const toggleDark = () => {
   switch (colorMode.store.value) {
@@ -83,8 +85,14 @@ onMounted(() => {
     <el-main>
       <router-view />
     </el-main>
-    <el-footer>
-      {{ versionData }}
+    <el-footer class="fixed-footer">
+      Frontend Version: {{ versionData.frontend_version }}
+      <el-divider direction="vertical" />
+      Controller Frontend Version: {{ versionData.controller_frontend_version }}
+      <el-divider direction="vertical" />
+      Sdk Version: {{ sdkInfo.version }}
+      <el-divider direction="vertical" />
+      Controller Sdk Version: {{ controllerSdkInfo.version }}
     </el-footer>
   </el-container>
   <UserDrawerComponent v-model="openUserDrawer" :size="drawerWidth" />
@@ -95,5 +103,31 @@ W
 .header-title {
   margin-left: 16px;
   /* Creates the gap between left button and title */
+}
+
+.fixed-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  /* Match el-card colors and backgrounds */
+  background-color: var(--el-bg-color-overlay);
+
+  /* Top border only (matches el-card border style) */
+  border-top: 1px solid var(--el-border-color-light);
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+
+  /* Replicates el-card shadow (directed downwards, adjusted upwards) */
+  box-shadow: 0 -4px 12px 0 rgba(0, 0, 0, 0.05);
+
+  /* Layout alignment */
+  display: flex;
+  align-items: center;
+  padding: 0 var(--el-card-padding, 20px);
+
+  font-size: small;
 }
 </style>

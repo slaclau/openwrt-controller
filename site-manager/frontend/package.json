@@ -12,7 +12,7 @@
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "openapi-ts": "openapi-ts -i http://localhost:8001/openapi.json -o src/sdk"
+    "openapi-ts": "openapi-ts"
   },
   "engines": {
     "node": "^22.18.0 || >=24.12.0"

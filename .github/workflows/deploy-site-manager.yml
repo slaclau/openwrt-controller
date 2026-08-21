@@ -44,11 +44,11 @@ jobs:
       - name: Build the controller sdk
         run: |
           cd controller/frontend
-          npx openapi-ts -i ../backend/openapi.json -o src/sdk
+          NODE_ENV=production npm run openapi-ts
       - name: Build the frontend
         run: |
           cd site-manager/frontend
-          npx openapi-ts -i ../backend/openapi.json -o src/sdk
+          NODE_ENV=production npm run openapi-ts
           npm run build
           cp -r dist ../backend
       - name: Deploy
