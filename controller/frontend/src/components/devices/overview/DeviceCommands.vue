@@ -3,8 +3,7 @@ import {
   provisionControlProvisionDeviceIdPost,
   rebootControlRebootDeviceIdPost,
   type DeviceStatusWithDevice,
-} from 'controller/sdk'
-import { client } from '@/client'
+} from '@controller/sdk'
 const props = defineProps<{
   device: DeviceStatusWithDevice | undefined
 }>()
@@ -12,7 +11,6 @@ const props = defineProps<{
 function reboot() {
   if (props.device === undefined) return
   rebootControlRebootDeviceIdPost({
-    client,
     path: { device_id: props.device?.device_id },
   }).then((res) => {
     if (res.error) {
@@ -24,7 +22,6 @@ function reboot() {
 function provison() {
   if (props.device === undefined) return
   provisionControlProvisionDeviceIdPost({
-    client,
     path: { device_id: props.device?.device_id },
   }).then((res) => {
     if (res.error) {

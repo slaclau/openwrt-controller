@@ -3,9 +3,8 @@ import {
   getDeviceConfigurationDevicesDeviceIdGet,
   provisionControlProvisionDeviceIdPost,
   updateDeviceConfigurationDevicesDeviceIdPut,
-  type DeviceStatusWithDevice
-} from 'controller/sdk'
-import { client } from '@/client'
+  type DeviceStatusWithDevice,
+} from '@controller/sdk'
 
 const props = defineProps<{
   device: DeviceStatusWithDevice | undefined
@@ -16,7 +15,6 @@ function onSubmit(): void {
   if (props.device.device !== null) {
     if (props.device.device.address_proto === 'dhcp') props.device.device.address = null
     updateDeviceConfigurationDevicesDeviceIdPut({
-      client,
       path: {
         device_id: props.device.device.device_id,
       },
@@ -25,7 +23,6 @@ function onSubmit(): void {
       if (props.device === undefined) return
       console.log(`updated device ${props.device.device?.device_id}`)
       provisionControlProvisionDeviceIdPost({
-        client,
         path: { device_id: props.device.device.device_id },
       }).then(() => {
         console.log('provisioning device')
@@ -37,7 +34,6 @@ function onSubmit(): void {
 function onCancel(): void {
   if (props.device === undefined) return
   getDeviceConfigurationDevicesDeviceIdGet({
-    client,
     path: { device_id: props.device.device_id },
   }).then((res) => {
     if (props.device === undefined) return
@@ -63,7 +59,10 @@ function onCancel(): void {
         </el-radio-group>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="device.device.address" :disabled="device.device.address_proto === 'dhcp' ? true : false" />
+        <el-input
+          v-model="device.device.address"
+          :disabled="device.device.address_proto === 'dhcp' ? true : false"
+        />
       </el-form-item>
     </el-card>
   </el-form>

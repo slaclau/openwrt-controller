@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { site_manager_client } from '@/client';
-import router from '@/router';
-import { registerUserUsersRegisterPost } from '@/sdk';
-import { ElMessage, ElNotification } from 'element-plus';
-import { onMounted, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import router from '@/router'
+import { registerUserUsersRegisterPost } from '@/sdk'
+import { ElMessage, ElNotification } from 'element-plus'
+import { onMounted, reactive } from 'vue'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 
 onMounted(() => {
   // Safely pre-populate the email
@@ -25,11 +24,18 @@ const form = reactive({
 const handleRegister = async () => {
   if (form.full_name && form.email && form.username && form.password) {
     const response = await registerUserUsersRegisterPost({
-      client: site_manager_client,
-      body: { full_name: form.full_name, email: form.email, username: form.username, password: form.password },
+      body: {
+        full_name: form.full_name,
+        email: form.email,
+        username: form.username,
+        password: form.password,
+      },
     })
     if (!response.error) {
-      ElNotification.success({ title: 'Registered', message: 'You have successfully registered. Please log in.' })
+      ElNotification.success({
+        title: 'Registered',
+        message: 'You have successfully registered. Please log in.',
+      })
 
       // Redirect back or to dashboard
       router.back()

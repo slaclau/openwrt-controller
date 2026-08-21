@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { getAllWirelessNetworksConfigurationWirelessGet, type Wireless, type Status } from 'controller/sdk'
-import { client } from '@/client'
+import {
+  getAllWirelessNetworksConfigurationWirelessGet,
+  type Wireless,
+  type Status,
+} from '@controller/sdk'
 import { ref, type Ref } from 'vue'
 
-import WirelessDrawerComponent from 'controller/components/settings/wireless/WirelessDrawerComponent.vue'
+import WirelessDrawerComponent from '@controller/components/settings/wireless/WirelessDrawerComponent.vue'
 
 const networks: Ref<Array<Wireless> | undefined> = ref([])
-getAllWirelessNetworksConfigurationWirelessGet({ client }).then((res) => {
+getAllWirelessNetworksConfigurationWirelessGet().then((res) => {
   networks.value = res.data
 })
 

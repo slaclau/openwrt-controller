@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { getAllNetworksConfigurationNetworksGet, type NetworkStatus, type NetworkWithDevices, type Status } from 'controller/sdk'
-import { client } from '@/client'
+import {
+  getAllNetworksConfigurationNetworksGet,
+  type NetworkStatus,
+  type NetworkWithDevices,
+  type Status,
+} from '@controller/sdk'
 import { ref, type Ref } from 'vue'
 
-import NetworkDrawerComponent from 'controller/components/settings/networks/NetworkDrawerComponent.vue'
+import NetworkDrawerComponent from '@controller/components/settings/networks/NetworkDrawerComponent.vue'
 
 const networks: Ref<Array<NetworkWithDevices> | undefined> = ref([])
-getAllNetworksConfigurationNetworksGet({ client }).then((res) => {
+getAllNetworksConfigurationNetworksGet().then((res) => {
   networks.value = res.data
 })
 
@@ -33,7 +37,12 @@ defineProps<{
 </script>
 
 <template>
-  <el-table v-if="status" :data="status.network_status" table-layout="auto" @row-click="selectNetwork">
+  <el-table
+    v-if="status"
+    :data="status.network_status"
+    table-layout="auto"
+    @row-click="selectNetwork"
+  >
     <el-table-column prop="network.name" label="Name" />
     <el-table-column prop="network.vlan_id" label="VLAN ID" />
     <el-table-column prop="network.router.hostname" label="Router" />

@@ -1,7 +1,6 @@
-import type { DeviceRole } from 'controller/sdk/types.gen'
+import type { DeviceRole } from '@controller/sdk/types.gen'
 import { mdiRouterNetworkWireless, mdiRouterNetwork, mdiAccessPointNetwork, mdiLan } from '@mdi/js'
-import { getApplicationsMapNetifyApplicationsGet } from 'controller/sdk'
-import { client } from '@/client'
+import { getApplicationsMapNetifyApplicationsGet } from '@controller/sdk'
 
 export function makeIcon(roles: Array<DeviceRole> | undefined) {
   if (roles === undefined) return
@@ -14,7 +13,7 @@ export function makeIcon(roles: Array<DeviceRole> | undefined) {
 }
 
 export function formatTime(seconds: number | null) {
-  if (!seconds) return ""
+  if (!seconds) return ''
   const days = Math.floor(seconds / (3600 * 24))
   const hours = Math.floor((seconds - 3600 * 24 * days) / 3600)
   const minutes = Math.floor((seconds - 3600 * 24 * days - 3600 * hours) / 60)
@@ -31,9 +30,12 @@ export function formatTime(seconds: number | null) {
 let applications_map: { [key: string]: string }
 
 function getApplicationNameInner(arg: string) {
-  if (!arg) { return "Unknown" }
-  if (arg in applications_map) { return applications_map[arg] }
-  else if (arg.includes('netify.')) {
+  if (!arg) {
+    return 'Unknown'
+  }
+  if (arg in applications_map) {
+    return applications_map[arg]
+  } else if (arg.includes('netify.')) {
     return arg
       .replace('netify.', '')
       .replace('-', ' ')
@@ -48,11 +50,10 @@ function getApplicationNameInner(arg: string) {
 export function getApplicationName(application: string, protocol: string) {
   if (application === 'Unknown') return protocol
 
-
   if (!applications_map) {
-    getApplicationsMapNetifyApplicationsGet({ client }).then((res) => {
+    getApplicationsMapNetifyApplicationsGet().then((res) => {
       if (res.data) {
-        applications_map = res.data;
+        applications_map = res.data
         return getApplicationNameInner(application)
       } else if (application) {
         return application
@@ -68,9 +69,6 @@ export function getApplicationName(application: string, protocol: string) {
   } else {
     return getApplicationNameInner(application)
   }
-
-
-
 }
 
 const networkManagementIcon = mdiServerOutline

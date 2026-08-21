@@ -2,11 +2,11 @@
 import { getIceServersIceServersGet } from '@/sdk'
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
-import { dataChannel, handleResponse, site_manager_client } from '@/client.ts'
+import { dataChannel, handleResponse } from '@/client.ts'
 import { useRoute } from 'vue-router'
 
-import MainView from 'controller/views/MainView.vue'
-
+import MainView from 'openwrt-controller/src/views/MainView.vue'
+console.log('MV imported', MainView)
 const connected: Ref<boolean> = ref(false)
 const route = useRoute()
 let socket: WebSocket
@@ -38,8 +38,7 @@ async function connect(url: string) {
       case 'connected':
         console.log('Succesfully initiated connection')
 
-        const configuration = (await getIceServersIceServersGet({ client: site_manager_client }))
-          .data
+        const configuration = (await getIceServersIceServersGet()).data
         if (!configuration) return
         peerConnection = new RTCPeerConnection(configuration)
         const dc = peerConnection.createDataChannel('http')

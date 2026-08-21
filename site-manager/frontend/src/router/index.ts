@@ -2,7 +2,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { ElNotification } from 'element-plus'
 import { exchangeCodeForTokenAuthTokenPost } from '@/sdk'
-import { site_manager_client } from '@/client'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -21,7 +20,7 @@ const router = createRouter({
     {
       path: '/link-account',
       name: 'LinkAccount',
-      component: () => import('@/views/LinkAccountView.vue')
+      component: () => import('@/views/LinkAccountView.vue'),
     },
     {
       path: '/',
@@ -37,8 +36,8 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/'
-    }
+      redirect: '/',
+    },
   ],
 })
 
@@ -47,10 +46,9 @@ router.beforeEach(async (to, from, next) => {
   if (to.query.code) {
     const auth_code = to.query.code.toString()
 
-    if (!(to.name == "LinkAccount")) {
+    if (!(to.name == 'LinkAccount')) {
       const auth_token = (
         await exchangeCodeForTokenAuthTokenPost({
-          client: site_manager_client,
           body: { code: auth_code },
         })
       ).data?.access_token

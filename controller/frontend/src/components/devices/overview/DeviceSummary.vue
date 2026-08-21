@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DeviceStatusWithDevice } from 'controller/sdk'
-import DeviceIcon from 'controller/components/devices/DeviceIcon.vue'
+import type { DeviceStatusWithDevice } from '@controller/sdk'
+import DeviceIcon from '@controller/components/devices/DeviceIcon.vue'
 defineProps<{
   device: DeviceStatusWithDevice | undefined
 }>()

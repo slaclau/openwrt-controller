@@ -7,6 +7,9 @@ import 'element-plus/theme-chalk/display.css'
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+
+import { controllerClient, siteManagerClient } from './client.ts'
+
 import App from './App.vue'
 import router from './router' // 1. Import your router setup
 

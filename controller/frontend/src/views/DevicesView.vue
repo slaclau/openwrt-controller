@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from 'vue'
 
-import DeviceComponent from 'controller/components/devices/DeviceDrawerComponent.vue'
-import type { DeviceStatusWithDevice } from 'controller/sdk'
-import DeviceIcon from 'controller/components/devices/DeviceIcon.vue'
-import { formatTime } from 'controller/utils'
+import DeviceComponent from '@controller/components/devices/DeviceDrawerComponent.vue'
+import type { DeviceStatusWithDevice } from '@controller/sdk'
+import DeviceIcon from '@controller/components/devices/DeviceIcon.vue'
+import { formatTime } from '@controller/utils'
 
 const selectedDevice: Ref<DeviceStatusWithDevice | undefined> = ref(undefined)
 const openDrawer = ref(false)

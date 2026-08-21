@@ -39,15 +39,15 @@ jobs:
           with open('openapi.json', 'w') as f:
               json.dump(app.openapi(), f, indent=2)
           "
+      - name: Install node packages
+        run: npm ci
       - name: Build the controller sdk
         run: |
           cd controller/frontend
-          npm ci
           npx openapi-ts -i ../backend/openapi.json -o src/sdk
       - name: Build the frontend
         run: |
           cd site-manager/frontend
-          npm ci
           npx openapi-ts -i ../backend/openapi.json -o src/sdk
           npm run build
           cp -r dist ../backend

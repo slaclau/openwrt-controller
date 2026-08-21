@@ -1,0 +1,46 @@
+{
+  "name": "openwrt-controller-monorepo",
+  "private": true,
+  "description": "",
+  "workspaces": [
+    "controller/frontend",
+    "site-manager/frontend"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slaclau/openwrt-controller.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/slaclau/openwrt-controller/issues"
+  },
+  "homepage": "https://github.com/slaclau/openwrt-controller#readme",
+  "devDependencies": {
+    "@hey-api/openapi-ts": "^0.97.0",
+    "@hey-api/vite-plugin": "^0.3.2",
+    "@tsconfig/node24": "^24.0.5",
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/tsconfig": "^0.9.1",
+    "prettier": "^3.9.6",
+    "sass-embedded": "^1.103.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0",
+    "vite-plugin-vue-devtools": "^8.2.1",
+    "vue-tsc": "^3.3.8"
+  },
+  "dependencies": {
+    "@jamescoyle/vue-icon": "^0.1.2",
+    "@mdi/js": "^7.4.47",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "element-plus": "^2.14.4",
+    "simple-icons": "^16.28.0",
+    "vue-chartjs": "^5.3.4"
+  }
+}

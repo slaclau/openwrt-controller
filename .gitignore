@@ -212,3 +212,4 @@ informd.tar.gz
 *.pem
 *.yml
 SITE_ID
+node_modules

@@ -2,7 +2,6 @@
 import { onMounted, reactive, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
-import { site_manager_client } from '@/client'
 import {
   getListOfOidcProvidersAuthProvidersGet,
   loginForAccessTokenAuthLoginPost,
@@ -20,7 +19,6 @@ const form = reactive({
 const handleLogin = async () => {
   if (form.username && form.password) {
     const response = await loginForAccessTokenAuthLoginPost({
-      client: site_manager_client,
       body: { username: form.username, password: form.password },
     })
     const token = response.data?.access_token
@@ -40,9 +38,8 @@ const handleLogin = async () => {
 }
 
 const handleRegister = () => {
-  router.push({ path: "/register", query: { username: form.username } })
+  router.push({ path: '/register', query: { username: form.username } })
 }
-
 
 const auth_providers: Ref<OidcProvider[]> = ref([])
 
@@ -50,8 +47,7 @@ onMounted(async () => {
   if (route.params.provider) {
     window.location.href = window.location.origin + `/api/auth/${route.params.provider}/login`
   }
-  const providers = (await getListOfOidcProvidersAuthProvidersGet({ client: site_manager_client }))
-    .data
+  const providers = (await getListOfOidcProvidersAuthProvidersGet()).data
   if (providers) auth_providers.value = providers
 })
 

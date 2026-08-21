@@ -1,32 +1,40 @@
 <script setup lang="ts">
-import { mdiAccount, mdiArrowLeft, mdiBrightness7, mdiThemeLightDark, mdiWeatherNight } from '@mdi/js'
+import {
+  mdiAccount,
+  mdiArrowLeft,
+  mdiBrightness7,
+  mdiThemeLightDark,
+  mdiWeatherNight,
+} from '@mdi/js'
 import { useColorMode } from '@vueuse/core'
 
 import SvgIcon from '@jamescoyle/vue-icon'
 import router from './router'
 
+import versionData from './version.json'
+console.log(versionData)
 const colorMode = useColorMode()
 const toggleDark = () => {
   switch (colorMode.store.value) {
-    case "dark":
-      colorMode.value = "light"
+    case 'dark':
+      colorMode.value = 'light'
       break
-    case "light":
-      colorMode.value = "auto"
+    case 'light':
+      colorMode.value = 'auto'
       break
-    case "auto":
-      colorMode.value = "dark"
+    case 'auto':
+      colorMode.value = 'dark'
       break
   }
 }
 
 const getColorModeIcon = () => {
   switch (colorMode.store.value) {
-    case "dark":
+    case 'dark':
       return mdiWeatherNight
-    case "light":
+    case 'light':
       return mdiBrightness7
-    case "auto":
+    case 'auto':
       return mdiThemeLightDark
   }
 }
@@ -53,11 +61,14 @@ onMounted(() => {
   <el-container>
     <el-header>
       <h1>
-        <span style="float: left"><el-button :disabled="['/', '/login'].includes(route.path)" @click="router.back()">
+        <span style="float: left"
+          ><el-button :disabled="['/', '/login'].includes(route.path)" @click="router.back()">
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
-        <el-button class="header-title" text disabled><img src="/openwrt.svg" height="24" /></el-button>
+        <el-button class="header-title" text disabled
+          ><img src="/openwrt.svg" height="24"
+        /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
         <span style="float: right">
           <el-button @click="toggleDark">
@@ -72,12 +83,14 @@ onMounted(() => {
     <el-main>
       <router-view />
     </el-main>
+    <el-footer>
+      {{ versionData }}
+    </el-footer>
   </el-container>
-  <UserDrawerComponent v-model="openUserDrawer" :size="drawerWidth">
-    <UserDrawerComponent />
-  </UserDrawerComponent>
+  <UserDrawerComponent v-model="openUserDrawer" :size="drawerWidth" />
 </template>
 
+W
 <style scoped>
 .header-title {
   margin-left: 16px;
