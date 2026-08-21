@@ -72,12 +72,10 @@ export function handleResponse(message: DcMessage) {
     resolve(response)
   }
 }
-console.log(controllerClient.getConfig())
 controllerClient.setConfig({
   baseUrl: window.location.origin + '/api',
   fetch: sendRequest,
 })
-console.log(controllerClient.getConfig())
 
 siteManagerClient.setConfig({
   baseUrl: window.location.origin + '/api',
