@@ -12,10 +12,6 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install dependencies
-        run: |
-          npm i
-          uv sync --all-packages
       - name: Build
         run:  mise run build-all
       - name: Deploy

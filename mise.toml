@@ -7,6 +7,7 @@ config_roots = [
 ]
 
 [settings]
+experimental = true
 task.auto_infer = ["node"]
 python.uv_venv_auto = "create|source"
 
@@ -24,3 +25,10 @@ run = {task = "//...:build"}
 
 [tasks.format-all]
 run = {task = "//...:format"}
+
+[deps.npm]
+auto = true
+
+[deps.uv]
+auto = true
+run = "uv sync --all-packages"
