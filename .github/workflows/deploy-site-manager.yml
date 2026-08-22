@@ -18,7 +18,9 @@ jobs:
           python-version: '3.14'
           cache: 'pip'
       - name: Install build deps
-        run: npm i -g mise
+        run: |
+          npm i -g mise
+          uv sync --all-packages
       - name: Build
         run: npx mise run build-all
       - name: Deploy
