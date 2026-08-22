@@ -20,7 +20,7 @@ jobs:
       - name: Install build deps
         run: |
           npm i -g mise
-          npm ci --workspaces
+          npm i --workspaces
           uv sync --all-packages
       - name: Build
         run: npx mise run build-all
