@@ -1,0 +1,26 @@
+monorepo_root = true
+
+[monorepo]
+config_roots = [
+    "controller/*",
+    "site-manager/*",
+]
+
+[settings]
+task.auto_infer = ["node"]
+python.uv_venv_auto = "create|source"
+
+[tools]
+node = "latest"
+python = "latest"
+uv = "latest"
+
+[tasks.clean-all]
+run = {task = "//...:clean"}
+
+
+[tasks.build-all]
+run = {task = "//...:build"}
+
+[tasks.format-all]
+run = {task = "//...:format"}

@@ -28,10 +28,10 @@ function showUpdateDialog() {
       confirmButtonText: 'Reload Now',
       cancelButtonText: 'Later',
       type: 'info',
-      closeOnClickModal: false,  // Prevents closing by clicking outside
+      closeOnClickModal: false, // Prevents closing by clicking outside
       closeOnPressEscape: false, // Prevents closing via ESC key
-      showClose: false,          // Removes the 'X' button to encourage an explicit action
-    }
+      showClose: false, // Removes the 'X' button to encourage an explicit action
+    },
   )
     .then(() => {
       updateServiceWorker(true) // Triggers skipWaiting and reloads the page

@@ -1,0 +1,12 @@
+[tasks.build]
+depends = [
+    "//controller/frontend:build",
+    "//site-manager/backend:generate-openapi-spec"
+]
+run = "npm run build"
+
+[tasks.clean]
+run = "rm -rf dist src/sdk src/version.json"
+
+[deps.npm]
+auto = true

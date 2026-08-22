@@ -10,7 +10,7 @@ import { useColorMode } from '@vueuse/core'
 
 import SvgIcon from '@jamescoyle/vue-icon'
 
-import ReloadPrompt from './components/ReloadPrompt.vue';
+import ReloadPrompt from './components/ReloadPrompt.vue'
 
 import router from './router'
 
@@ -43,7 +43,7 @@ const getColorModeIcon = () => {
 import { useRoute } from 'vue-router'
 import { onMounted, ref, type Ref } from 'vue'
 import UserDrawerComponent from './components/UserDrawerComponent.vue'
-import VersionInfo from './VersionInfo.vue';
+import VersionInfo from './components/VersionInfo.vue'
 
 const route = useRoute()
 
@@ -89,7 +89,6 @@ onMounted(() => {
   <UserDrawerComponent v-model="openUserDrawer" :size="drawerWidth" />
   <ReloadPrompt />
 </template>
-
 
 <style scoped>
 .header-title {

@@ -1,6 +1,5 @@
 {
   "name": "openwrt-controller",
-  "version": "0.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -15,5 +14,8 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "openapi-ts": "openapi-ts"
+  },
+  "devDependencies": {
+    "@hey-api/vite-plugin": "^0.3.2"
   }
 }

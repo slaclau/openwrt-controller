@@ -1,0 +1,21 @@
+[project]
+name = "openwrt-controller-workspace"
+dependencies = ["git-semantic-version", "generate-openapi-spec"]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = []
+
+[tool.uv]
+package = false
+
+override-dependencies = [
+    "psycopg2; sys_platform == 'never'"
+]
+
+[tool.uv.workspace]
+members = ["tools/*", "site-manager/backend", "controller/backend"]
+
+[tool.uv.sources]
+git-semantic-version = { workspace = true }
+generate-openapi-spec = { workspace = true }

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel", "GitPython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "generate-openapi-spec"
+dynamic = ["version"]
+
+[tool.setuptools]
+py-modules = ["gen_openapi"]
+
+[project.scripts]
+gen-openapi = "gen_openapi:main"

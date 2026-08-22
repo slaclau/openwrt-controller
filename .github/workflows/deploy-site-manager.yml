@@ -18,39 +18,9 @@ jobs:
           python-version: '3.14'
           cache: 'pip'
       - name: Install build deps
-        run: pip install tools/git_semantic_version
-      - name: Get the controller openapi spec
-        run: |
-          cd controller/backend
-          uv pip install . --system
-          python -c "
-          import json
-          from app.main import app
-          with open('openapi.json', 'w') as f:
-              json.dump(app.openapi(), f, indent=2)
-          "
-      - name: Get the openapi spec
-        run: |
-          cd site-manager/backend
-          uv pip install . --system
-          python -c "
-          import json
-          from app.main import app
-          with open('openapi.json', 'w') as f:
-              json.dump(app.openapi(), f, indent=2)
-          "
-      - name: Install node packages
-        run: npm ci
-      - name: Build the controller sdk
-        run: |
-          cd controller/frontend
-          NODE_ENV=production npm run openapi-ts
-      - name: Build the frontend
-        run: |
-          cd site-manager/frontend
-          NODE_ENV=production npm run openapi-ts
-          npm run build
-          cp -r dist ../backend
+        run: npm i -g mise
+      - name: Build
+        run: npx mise run build-all
       - name: Deploy
         run: |
           cd site-manager/backend

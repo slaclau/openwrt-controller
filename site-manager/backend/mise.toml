@@ -1,0 +1,5 @@
+[tasks.clean]
+run = "rm -rf openapi.json"
+
+[tasks.generate-openapi-spec]
+run = "python -m gen_openapi"
