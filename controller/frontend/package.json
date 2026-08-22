@@ -17,5 +17,8 @@
   },
   "devDependencies": {
     "@hey-api/vite-plugin": "^0.3.2"
+  },
+  "dependencies": {
+    "openwrt-controller": "file:"
   }
 }
