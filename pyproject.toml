@@ -19,3 +19,8 @@ members = ["tools/*", "site-manager/backend", "controller/backend"]
 [tool.uv.sources]
 git-semantic-version = { workspace = true }
 generate-openapi-spec = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+]

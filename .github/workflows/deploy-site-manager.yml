@@ -12,8 +12,10 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Format
+        run: mise fun format
       - name: Build
-        run:  mise run build-all
+        run: mise run build-all
       - name: Deploy
         run: |
           cd site-manager/backend

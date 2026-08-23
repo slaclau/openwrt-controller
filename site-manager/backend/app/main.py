@@ -29,11 +29,17 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(root_path="/api", lifespan=lifespan, version=importlib.metadata.version("openwrt_site_manager"))
+app = FastAPI(
+    root_path="/api",
+    lifespan=lifespan,
+    version=importlib.metadata.version("openwrt_site_manager"),
+)
+
 
 @app.get("/version")
 def get_version():
     return app.version
+
 
 logfire.configure(send_to_logfire="if-token-present")
 logfire.instrument_httpx()

@@ -36,13 +36,16 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan, version=importlib.metadata.version("openwrt_controller"))
+app = FastAPI(
+    lifespan=lifespan, version=importlib.metadata.version("openwrt_controller")
+)
 # TODO: #2 Add users and RBAC
 
 
 @app.get("/version")
 def get_version():
     return app.version
+
 
 register_log_filter()
 

@@ -19,12 +19,15 @@ uv = "latest"
 [tasks.clean-all]
 run = {task = "//...:clean"}
 
+[tasks.format-all]
+run = {task = "//...:format"}
+
+[tasks.lint-all]
+run = {task = "//...:lint"}
 
 [tasks.build-all]
 run = {task = "//...:build"}
 
-[tasks.format-all]
-run = {task = "//...:format"}
 
 [deps.npm]
 auto = true

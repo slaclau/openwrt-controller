@@ -1,5 +1,8 @@
 [tasks.clean]
 run = "rm -rf openapi.json"
 
+[tasks.format]
+run = "uv run black app"
+
 [tasks.generate-openapi-spec]
 run = "python -m gen_openapi"
