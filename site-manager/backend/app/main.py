@@ -46,7 +46,7 @@ app = FastAPI(
 
 
 @app.get("/version")
-def get_version():
+def get_version() -> str:
     return app.version
 
 

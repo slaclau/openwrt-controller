@@ -5,10 +5,16 @@ import versionData from '../version.json'
 import { info as sdkInfo } from '../sdk/source.json' with { type: 'json' }
 import { info as controllerSdkInfo } from 'openwrt-controller/src/sdk/source.json' with { type: 'json' }
 import { ElDialog } from 'element-plus'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { getVersionVersionGet } from '@/sdk'
 
 const versionInfoVisible = ref(false)
 const showVersionInfo = useToggle(versionInfoVisible)
+const version = ref("");
+onMounted(async () => {
+  version.value = (await getVersionVersionGet()).data ?? "unknown"
+  console.log(version)
+})
 </script>
 
 <template>
@@ -18,6 +24,8 @@ const showVersionInfo = useToggle(versionInfoVisible)
     Controller Frontend Version: {{ versionData.controller_frontend_version }}
     <el-divider direction="vertical" />
     Sdk Version: {{ sdkInfo.version }}
+    <el-divider direction="vertical" />
+    Backend Version: {{ version }}
     <el-divider direction="vertical" />
     Controller Sdk Version: {{ controllerSdkInfo.version }}
   </div>
@@ -30,6 +38,7 @@ const showVersionInfo = useToggle(versionInfoVisible)
     <div>Frontend Version: {{ versionData.frontend_version }}</div>
     <div>Controller Frontend Version: {{ versionData.controller_frontend_version }}</div>
     <div>Sdk Version: {{ sdkInfo.version }}</div>
+    <div>Backend Version: {{ version }}</div>
     <div>Controller Sdk Version: {{ controllerSdkInfo.version }}</div>
   </el-dialog>
 </template>
