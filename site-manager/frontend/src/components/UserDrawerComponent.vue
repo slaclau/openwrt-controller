@@ -62,8 +62,13 @@ const handleLogout = async () => {
     <!-- {{ user }} -->
 
     <el-divider> Remote Login Providers </el-divider>
-    <el-button v-for="provider in auth_providers" :key="provider" style="width: 100%" class="custom-img-btn mb-4"
-      @click="() => onClickRemoteProvider(provider.slug)">
+    <el-button
+      v-for="provider in auth_providers"
+      :key="provider"
+      style="width: 100%"
+      class="custom-img-btn mb-4"
+      @click="() => onClickRemoteProvider(provider.slug)"
+    >
       <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
       {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
       {{ provider.name }}

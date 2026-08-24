@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Site } from '@/sdk'
+import type { SiteWithOutages } from '@/sdk'
 import StatusDot from './StatusDot.vue'
-defineProps<{ site: Site }>()
+defineProps<{ site: SiteWithOutages }>()
 </script>
 
 <template>

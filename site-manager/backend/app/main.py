@@ -4,6 +4,7 @@ import importlib.metadata
 import logging
 import secrets
 
+from alembic import command, config
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 import logfire
@@ -21,10 +22,18 @@ from .webrtc import webrtc
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
 
+def run_migrations():
+    alembic_cfg = config.Config()
+    # Tell Alembic where to find env.py and the versions folder
+    alembic_cfg.set_main_option("script_location", "alembic")
+
+    command.upgrade(alembic_cfg, "head")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_config()
-    create_db_and_tables()
+    run_migrations()
     await purge_expired_items(session=next(get_session()))
     yield
 

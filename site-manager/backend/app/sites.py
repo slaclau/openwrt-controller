@@ -17,15 +17,38 @@ from .webrtc import client_websockets, site_websockets
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
 
+class Outage(SQLModel, table=True):
+    __tablename__ = "outages"
+    site_id: uuid.UUID = Field(primary_key=True, foreign_key="sites.site_id")
+    outage_start: float | None = Field(primary_key=True)
+    outage_end: float = Field()
+
+    site: "Site" = Relationship(back_populates="outages")
+
+    @computed_field
+    @property
+    def duration(self) -> float:
+        return self.outage_end - self.outage_start
+
+
+class OutageWithoutSite(SQLModel, table=False):
+    site_id: uuid.UUID
+    outage_start: float | None
+    outage_end: float
+    duration: float
+
+
 class Site(SQLModel, table=True):
     __tablename__ = "sites"
     site_id: uuid.UUID = Field(primary_key=True)
-    name: str
-    last_heartbeat: float
+    name: str = Field()
+    last_heartbeat: float = Field()
 
     users: list[UserInDb] = Relationship(
         link_model=SiteAccessRelationship, back_populates="sites"
     )
+
+    outages: list[Outage] = Relationship(back_populates="site")
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -41,6 +64,15 @@ class Site(SQLModel, table=True):
         if t is None:
             return False
         return t < 30
+
+
+class SiteWithOutages(SQLModel, table=False):
+    site_id: uuid.UUID
+    name: str
+    last_heartbeat: float
+    time_since_hearbeat: float
+    up: bool
+    outages: list[OutageWithoutSite]
 
 
 sites = APIRouter(prefix="/sites")
@@ -62,11 +94,22 @@ async def controller_websocket_endpoint(websocket: WebSocket, session: SessionDe
                     logger.info(f"forwarded answer to {client} from {site_id}")
                 case "heartbeat":
                     logger.info(f"got heartbeat from {site_id}")
-                    site = Site(
-                        site_id=uuid.UUID(hex=data["site_id"]),
-                        name=data["name"],
-                        last_heartbeat=data["time"],
-                    )
+                    site = session.get(Site, uuid.UUID(hex=data["site_id"]))
+                    if not site:
+                        site = Site(
+                            site_id=uuid.UUID(hex=data["site_id"]),
+                            name=data["name"],
+                        )
+                    if not site.up:
+                        outage = Outage(
+                            site_id=site.site_id,
+                            outage_start=site.last_heartbeat,
+                            outage_end=data["time"],
+                        )
+                        session.add(outage)
+                        logger.info(f"New outage: {outage}")
+                    site.last_heartbeat = data["time"]
+
                     session.merge(site)
                     session.commit()
                     logger.info(site)
@@ -80,7 +123,7 @@ async def controller_websocket_endpoint(websocket: WebSocket, session: SessionDe
 @sites.get("/")
 def get_all_my_sites(
     session: SessionDep, user: Annotated[UserInDb, Depends(get_current_active_user)]
-) -> list[Site]:
+) -> list[SiteWithOutages]:
     return [
         site for site in session.exec(select(Site).where(Site.users.contains(user)))  # type: ignore[attr-defined]
     ]

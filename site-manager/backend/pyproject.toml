@@ -1,26 +1,41 @@
 [project]
 name = "openwrt-site-manager"
 dependencies = [
-    "authlib",
-    "fastapi[standard]",
-    "httpx2",
-    "itsdangerous",
-    "joserfc",
-    "pwdlib[argon2]",
-    "pyjwt",
-    "sqlmodel",
-    "psycopg2",
-    "logfire[fastapi,httpx,sqlalchemy]",
+  "alembic>=1.19.1",
+  "authlib",
+  "fastapi[standard]",
+  "httpx2",
+  "itsdangerous",
+  "joserfc",
+  "logfire[fastapi,httpx,sqlalchemy]",
+  "psycopg2",
+  "pwdlib[argon2]",
+  "pyjwt",
+  "sqlmodel",
 ]
 dynamic = ["version"]
+
+[build-system]
+requires = [
+  "git-semantic-version",
+  "setuptools>=45",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.alembic]
+script_location = "%(here)s/alembic"
+
+# additional paths to be prepended to sys.path. defaults to the current working directory.
+prepend_sys_path = ["."]
+
+[[tool.alembic.post_write_hooks]]
+name = "black"
+type = "console_scripts"
+entrypoint = "black"
+options = "-l 79 REVISION_SCRIPT_FILENAME"
 
 [tool.fastapi]
 entrypoint = "app.main:app"
 
-[build-system]
-build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=45",
-  "git-semantic-version",
-]
-
+[tool.setuptools]
+packages = ["app"]

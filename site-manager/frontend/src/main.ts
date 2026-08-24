@@ -9,7 +9,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
 import { controllerClient, siteManagerClient } from './client.ts'
-console.log("Configured clients", controllerClient, siteManagerClient)
+console.log('Configured clients', controllerClient, siteManagerClient)
 
 import App from './App.vue'
 import router from './router' // 1. Import your router setup
