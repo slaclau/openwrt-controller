@@ -213,3 +213,4 @@ informd.tar.gz
 *.yml
 SITE_ID
 node_modules
+openapi.json

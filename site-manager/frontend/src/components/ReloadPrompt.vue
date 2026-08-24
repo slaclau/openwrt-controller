@@ -42,7 +42,3 @@ function showUpdateDialog() {
     })
 }
 </script>
-
-<template>
-  <!-- Renderless logic component -->
-</template>
