@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SiteWithOutages } from '@/sdk'
 import StatusDot from './StatusDot.vue'
+import StatusBar from './StatusBar.vue'
 defineProps<{ site: SiteWithOutages }>()
 </script>
 
@@ -12,7 +13,10 @@ defineProps<{ site: SiteWithOutages }>()
       </div>
     </template>
     <div>
-      <StatusDot :online="site.up" />
+      <span style="float: left; width: 80%">
+        <StatusBar :outages="site.outages" :last-heartbeat="site.last_heartbeat" />
+      </span>
+      <StatusDot :online="site.up" style="float: right" />
     </div>
   </el-card>
 </template>
