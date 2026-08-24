@@ -6,13 +6,14 @@ const props = defineProps<{ outages: OutageWithoutSite[]; timeSinceHeartbeat: nu
 import { computed } from 'vue'
 
 // 1. Define sample raw outage data (Timestamps in milliseconds)
-const now = Date.now() / 1000
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60
-const startTimeWindow = now - TWENTY_FOUR_HOURS
 const MIN_WIDTH_PERCENT = 1.5 // Enforce a 1.5% minimum width (~9px on a 600px wide bar)
 
 const rawBlocks = computed(() => {
+  const now = Date.now() / 1000
+  const startTimeWindow = now - TWENTY_FOUR_HOURS
+
   // Filter, map to standard keys, and clamp outages strictly inside our 24h window
   const activeOutages = props.outages
     .map((o) => {
