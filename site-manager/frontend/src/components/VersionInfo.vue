@@ -21,7 +21,7 @@ const showVersionInfo = useToggle(versionInfoVisible)
     <el-divider direction="vertical" />
     Controller Sdk Version: {{ controllerSdkInfo.version }}
   </div>
-  <div class="visible-sm-and-down">
+  <div class="hidden-md-and-up">
     <el-button link @click="showVersionInfo"> Version Info </el-button>
   </div>
 
