@@ -13,7 +13,6 @@ const showVersionInfo = useToggle(versionInfoVisible)
 const version = ref("");
 onMounted(async () => {
   version.value = (await getVersionVersionGet()).data ?? "unknown"
-  console.log(version)
 })
 </script>
 

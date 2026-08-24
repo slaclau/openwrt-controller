@@ -1,3 +1,4 @@
+import datetime
 from typing import TYPE_CHECKING, Annotated
 
 from pydantic import BaseModel, Field
@@ -30,6 +31,7 @@ class UserInDb(User, table=True):
 
     refresh_tokens: list["RefreshTokenData"] = Relationship(back_populates="user")
     remote_users: list["RemoteUser"] = Relationship(back_populates="linked_user")
+    totp_configurations: list["TotpConfiguration"] = Relationship(back_populates="user")
 
 
 class CreateUserData(SQLModel, table=False):
@@ -41,3 +43,19 @@ class CreateUserData(SQLModel, table=False):
 
 class UserWithRemoteUsers(User):
     remote_users: list["RemoteUserOut"] = []
+
+
+class TotpConfiguration(SQLModel, table=True):
+    __tablename__ = "totp_configurations"
+    username: str = SQLField(primary_key=True, foreign_key="users.username")
+    id: int | None = SQLField(primary_key=True, default=None)
+
+    encrypted_secret: str
+    active: bool = SQLField(default=False)
+    created_at: datetime.datetime = SQLField(
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
+    )
+
+    device_name: str = SQLField(default="")
+
+    user: UserInDb = Relationship(back_populates="totp_configurations")

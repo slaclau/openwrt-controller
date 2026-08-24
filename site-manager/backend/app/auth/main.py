@@ -23,9 +23,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 cookie_scheme = APIKeyCookie(name="refresh_token")
 
 
-async def get_current_user(
+async def get_current_user_and_scope(
     token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep
-) -> UserInDb:
+) -> tuple[str | None, UserInDb]:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -36,9 +36,29 @@ async def get_current_user(
         username = payload.get("sub")
         if username is None:
             raise credentials_exception
+        token_type = payload.get("type")
     except jwt.InvalidTokenError:
         raise credentials_exception
     user = session.get(UserInDb, username)
+    if user is None:
+        raise credentials_exception
+    return token_type, user
+
+
+async def get_current_user(
+    user_and_scope: Annotated[
+        tuple[str | None, UserInDb], Depends(get_current_user_and_scope)
+    ],
+) -> UserInDb:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    scope, user = user_and_scope
+    if scope != "access":
+        raise credentials_exception
     if user is None:
         raise credentials_exception
     return user
@@ -59,7 +79,9 @@ async def login_for_access_token(
     response: Response,
 ) -> Token:
     user = authenticate_user(form_data.username, form_data.password, session=session)
-    return await get_tokens(user, session, response)
+    if len(user.totp_configurations):
+        return await get_tokens(user, session, response, limited_scope="mfa")
+    return await get_tokens(user, session, response, limited_scope="setup_mfa")
 
 
 @auth.post("/refresh", tags=["auth"])
@@ -133,7 +155,6 @@ async def logout(
 async def read_users_me(
     current_user: Annotated[UserInDb, Depends(get_current_active_user)],
 ) -> UserWithRemoteUsers:
-    print(current_user.remote_users)
     return current_user
 
 

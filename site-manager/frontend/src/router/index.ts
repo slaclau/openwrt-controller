@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { ElNotification } from 'element-plus'
 import { exchangeCodeForTokenAuthTokenPost } from '@/sdk'
+import { jwtDecode, type JwtPayload } from 'jwt-decode'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -11,6 +12,16 @@ const router = createRouter({
       name: 'Login',
       component: () => import('@/views/LoginView.vue'),
       alias: ['/login/:provider'],
+    },
+    {
+      path: '/mfa',
+      name: 'MFA',
+      component: () => import('@/views/MFAView.vue')
+    },
+    {
+      path: '/setup-mfa',
+      name: 'SetupMFA',
+      component: () => import('@/views/MFASetupView.vue')
     },
     {
       path: '/register',
@@ -33,11 +44,7 @@ const router = createRouter({
       name: 'Site',
       component: () => import('@/views/SiteView.vue'),
       meta: { requiresAuth: true },
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      redirect: '/',
-    },
+    }
   ],
 })
 
@@ -60,6 +67,22 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const token = localStorage.getItem('auth_token')
+
+  interface Token extends JwtPayload {
+    type: string
+  }
+
+  if (token) {
+    const decodedToken: Token = jwtDecode(token)
+    if (decodedToken.type.startsWith("limited:")) {
+      let limitedScope = decodedToken.type.replace("limited:", "")
+      if (limitedScope == "setup_mfa" && !(to.name == "SetupMFA"))
+        next({ name: 'SetupMFA', query: { redirect: to.query.redirect } })
+      if (limitedScope == "mfa" && !(to.name == "MFA"))
+        next({ name: 'MFA', query: { redirect: to.query.redirect } })
+    }
+  }
+
 
   if (to.meta.requiresAuth && !token) {
     ElNotification.error({

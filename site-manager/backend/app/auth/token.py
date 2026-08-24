@@ -58,7 +58,11 @@ class RefreshTokenData(TokenData, table=True):
 
 
 async def mint_tokens(
-    user: User, session: SessionDep, upstream_issuer="", upstream_session=""
+    user: User,
+    session: SessionDep,
+    upstream_issuer="",
+    upstream_session="",
+    limited_scope="",
 ):
     refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -69,20 +73,27 @@ async def mint_tokens(
         upstream_session=upstream_session,
         expires=datetime.now() + refresh_token_expires,
     )
-    session.add(refresh_token_data)
+    if not limited_scope:
+        session.add(refresh_token_data)
 
     refresh_token_dict = refresh_token_data.model_dump(by_alias=True, mode="json")
     refresh_token_dict["type"] = "refresh"
     access_token_dict = refresh_token_dict.copy()
-    access_token_dict["type"] = "access"
+    access_token_dict["type"] = (
+        f"limited:{limited_scope}" if limited_scope else "access"
+    )
 
     session.commit()
     access_token = create_access_token(
         data=access_token_dict,
         expires_delta=access_token_expires,
     )
-    refresh_token = create_access_token(
-        data=refresh_token_dict, expires_delta=refresh_token_expires
+    refresh_token = (
+        None
+        if limited_scope
+        else create_access_token(
+            data=refresh_token_dict, expires_delta=refresh_token_expires
+        )
     )
     return access_token, refresh_token
 
@@ -93,9 +104,10 @@ async def get_tokens(
     response: Response,
     upstream_issuer: str = "",
     upstream_session: str = "",
+    limited_scope: str = "",
 ) -> Token:
     access_token, refresh_token = await mint_tokens(
-        user, session, upstream_issuer, upstream_session
+        user, session, upstream_issuer, upstream_session, limited_scope
     )
     response.set_cookie(
         "refresh_token",

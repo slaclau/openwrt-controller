@@ -13,9 +13,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from .dependencies import create_db_and_tables, get_session
 from .users.router import users
-from .auth import auth
 from .auth.token import RefreshTokenData
 from .auth.oidc import load_config, AuthCode
+from .auth.mfa import auth
 from .sites import sites
 from .webrtc import webrtc
 
