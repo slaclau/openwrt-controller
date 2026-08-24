@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import SiteTile from '@/components/SiteTile.vue'
-import * as utils from 'openwrt-controller/src/utils'
 import { getAllMySitesSitesGet, type Site } from '@/sdk'
 import router from '@/router'
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
 const sites: Ref<Site[]> = ref([])
+
 let timer: number
 
+function setIntervalImmediate(func: Function, interval: number): number {
+  func()
+  return setInterval(func, interval)
+}
+
+
 onMounted(() => {
-  timer = utils.setIntervalImmediate(() => {
+  timer = setIntervalImmediate(() => {
     getAllMySitesSitesGet().then((res) => {
       if (res.data) sites.value = res.data
     })
