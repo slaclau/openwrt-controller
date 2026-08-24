@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { OutageWithoutSite } from '@/sdk'
-import { onUpdated, ref, watch, type Ref } from 'vue'
 
-const props = defineProps<{ outages: OutageWithoutSite[]; lastHeartbeat: number }>()
+const props = defineProps<{ outages: OutageWithoutSite[]; timeSinceHeartbeat: number }>()
 
 import { computed } from 'vue'
 
@@ -25,7 +24,8 @@ const rawBlocks = computed(() => {
     .filter((o) => o.start < o.end)
     .sort((a, b) => a.start - b.start)
 
-  if (props.lastHeartbeat + 30 < now) activeOutages.push({ start: props.lastHeartbeat, end: now })
+  if (props.timeSinceHeartbeat > 30)
+    activeOutages.push({ start: now - props.timeSinceHeartbeat, end: now })
 
   const events = []
   let currentPos = startTimeWindow
@@ -54,7 +54,6 @@ const rawBlocks = computed(() => {
 })
 
 const adjustedBlocks = computed(() => {
-  console.log(rawBlocks.value)
   let blocks = rawBlocks.value.map((b) => ({ ...b, displayWidth: b.widthPercentage }))
   // Calculate how much width we need to manufacture to satisfy our minimum floor requirement
   let addedWidth = 0
@@ -87,13 +86,8 @@ const adjustedBlocks = computed(() => {
 
 <template>
   <div class="merged-bar">
-    <div
-      v-for="(block, index) in adjustedBlocks"
-      :key="index"
-      class="bar-segment"
-      :class="block.isDown ? 'red' : 'green'"
-      :style="{ width: block.displayWidth + '%' }"
-    ></div>
+    <div v-for="(block, index) in adjustedBlocks" :key="index" class="bar-segment"
+      :class="block.isDown ? 'red' : 'green'" :style="{ width: block.displayWidth + '%' }"></div>
   </div>
 
   <div class="footer-labels">

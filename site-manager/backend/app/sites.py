@@ -52,7 +52,7 @@ class Site(SQLModel, table=True):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def time_since_hearbeat(self) -> float | None:
+    def time_since_heartbeat(self) -> float | None:
         if not self.last_heartbeat:
             return None
         return time.time() - self.last_heartbeat
@@ -60,7 +60,7 @@ class Site(SQLModel, table=True):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def up(self) -> bool:
-        t = self.time_since_hearbeat
+        t = self.time_since_heartbeat
         if t is None:
             return False
         return t < 30
@@ -70,7 +70,7 @@ class SiteWithOutages(SQLModel, table=False):
     site_id: uuid.UUID
     name: str
     last_heartbeat: float
-    time_since_hearbeat: float
+    time_since_heartbeat: float
     up: bool
     outages: list[OutageWithoutSite]
 

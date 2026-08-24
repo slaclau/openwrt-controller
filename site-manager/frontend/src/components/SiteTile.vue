@@ -14,7 +14,7 @@ defineProps<{ site: SiteWithOutages }>()
     </template>
     <div>
       <span style="float: left; width: 80%">
-        <StatusBar :outages="site.outages" :last-heartbeat="site.last_heartbeat" />
+        <StatusBar :outages="site.outages" :time-since-heartbeat="site.time_since_heartbeat" />
       </span>
       <StatusDot :online="site.up" style="float: right" />
     </div>
