@@ -1,7 +1,12 @@
+[tasks.dev]
+depends = ["wait-for-backend"]
+run = "npm run dev"
+
+[tasks.wait-for-backend]
+run = "until curl --silent --fail localhost:8000/version; do sleep 1; done"
+
 [tasks.build]
-depends = [
-    "//controller/backend:generate-openapi-spec"
-]
+depends = ["//controller/backend:generate-openapi-spec"]
 run = "npm run build"
 
 [tasks.clean]

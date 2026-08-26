@@ -1,0 +1,5 @@
+[tasks.dev]
+depends = [
+  {task = "./backend:dev"},
+  {task = "./frontend:dev"}
+]
