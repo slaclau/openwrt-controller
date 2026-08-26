@@ -54,7 +54,9 @@ onMounted(async () => {
       Please scan the QR code or click <a :href="totp_url">here</a> to configure two factor authentication.
       Then enter the code from your authenticator app below.
     </div>
-    <qrcode-vue :value="totp_url" />
+    <el-card :body-style="{ display: 'flex', justifyContent: 'center' }">
+      <qrcode-vue :value="totp_url" :size="200" />
+    </el-card>
     <el-form label-position="top">
       <el-form-item>
         <el-input v-model="form.device_name" placeholder="Device Name" />
