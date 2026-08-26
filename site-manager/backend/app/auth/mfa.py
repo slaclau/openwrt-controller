@@ -24,7 +24,7 @@ def generate_encryted_secret():
     key_bytes = secrets.token_bytes(20)
 
     f = Fernet(get_configuration().auth.totp.key)
-    return f.encrypt(key_bytes)
+    return base64.b64encode(f.encrypt(key_bytes)).decode("utf-8")
 
 
 class TotpConfiguration(SQLModel, table=True):
@@ -45,8 +45,9 @@ class TotpConfiguration(SQLModel, table=True):
     @property
     def secret(self):
         f = Fernet(get_configuration().auth.totp.key)
-        secret_bytes = f.decrypt(self.encrypted_secret)
-        return base64.b32encode(secret_bytes).decode("utf-8")
+        encrypted_secret_bytes = base64.b64decode(self.encrypted_secret)
+        secret_bytes = f.decrypt(encrypted_secret_bytes)
+        return base64.b32encode(secret_bytes)
 
     @property
     def totp(self):
