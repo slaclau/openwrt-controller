@@ -101,7 +101,8 @@ function handleLogout() {
 
 async function authInterceptor(response: Response, request: Request) {
   if (request.url.includes('/token')) return response
-  if (request.url.includes('/mfa')) return response
+  if (request.url.includes('/mfa/verify')) return response
+  if (request.url.includes('/mfa/register')) return response
 
   const status = response.status
 

@@ -17,6 +17,7 @@ class User(SQLModel, table=False):
     username: str = SQLField(primary_key=True)
     email: str
     full_name: str
+    display_name: str | None = SQLField()
     disabled: bool = SQLField(default=False)
     permissions: str | None = SQLField(default="")
 
@@ -53,7 +54,14 @@ class CreateUserData(SQLModel, table=False):
     username: str
     email: str
     full_name: str
+    display_name: str
     password: str
+
+
+class UpdateUserData(SQLModel, table=False):
+    username: str
+    full_name: str
+    display_name: str
 
 
 class UserWithRemoteUsers(User):

@@ -9,12 +9,21 @@ import {
   type OidcProvider,
   type UserWithRemoteUsers,
   delinkAccountAuthProviderDelinkPost,
+  updateUsersMePost,
+  type UpdateUserData,
 } from '@/sdk'
 import { mdiAccount } from '@mdi/js'
-import { onMounted, ref, type Ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch, type Ref } from 'vue'
 import { logout } from '@/utils'
 
 const user: Ref<UserWithRemoteUsers | null> = ref(null)
+
+const userUpdate: UpdateUserData = reactive({
+  username: '',
+  full_name: '',
+  display_name: ''
+})
+const initialUserUpdate = ref({ ...userUpdate })
 const activeAuthProviders: Ref<string[]> = ref([])
 
 const onOpen = async () => {
@@ -22,6 +31,10 @@ const onOpen = async () => {
   if (response.data) user.value = response.data
   if (user.value?.remote_users)
     activeAuthProviders.value = user.value.remote_users.flatMap((remoteUser) => remoteUser.provider)
+  userUpdate.username = user.value?.username ?? ''
+  userUpdate.full_name = user.value?.full_name ?? ''
+  userUpdate.display_name = user.value?.display_name ?? ''
+  initialUserUpdate.value = { ...userUpdate }
 }
 
 const auth_providers: Ref<OidcProvider[]> = ref([])
@@ -48,6 +61,16 @@ const handleLogout = async () => {
   drawerRef.value?.handleClose()
   await logout()
 }
+
+const handleUpdateInformation = async () => {
+  const res = await updateUsersMePost({ body: userUpdate })
+  if (res.data) user.value = res.data
+  initialUserUpdate.value = { ...userUpdate }
+}
+
+const changed = computed(() => {
+  return JSON.stringify(initialUserUpdate.value) !== JSON.stringify(userUpdate)
+})
 </script>
 
 <template>
@@ -55,24 +78,35 @@ const handleLogout = async () => {
     <template #header>
       <span>
         <svg-icon style="float: left" type="mdi" :path="mdiAccount" :size="24" />
-        {{ user?.full_name }}
+        {{ user?.display_name || user?.full_name }}
       </span>
       <el-button @click="handleLogout" :disabled="!$route.meta.requiresAuth"> Logout </el-button>
     </template>
     <!-- {{ user }} -->
 
     <el-divider> Remote Login Providers </el-divider>
-    <el-button
-      v-for="provider in auth_providers"
-      :key="provider"
-      style="width: 100%"
-      class="custom-img-btn mb-4"
-      @click="() => onClickRemoteProvider(provider.slug)"
-    >
+    <el-button v-for="provider in auth_providers" :key="provider" style="width: 100%" class="custom-img-btn mb-4"
+      @click="() => onClickRemoteProvider(provider.slug)">
       <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
       {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
       {{ provider.name }}
     </el-button>
+    <el-divider>User Information</el-divider>
+    <el-form label-position="right" label-width="auto">
+      <el-form-item label="Full Name">
+        <el-input v-model="userUpdate.full_name" />
+      </el-form-item>
+      <el-form-item label="Display Name">
+        <el-input v-model="userUpdate.display_name" />
+      </el-form-item>
+      <el-form-item label="Username">
+        <el-input :disabled="true" v-model="userUpdate.username" />
+      </el-form-item>
+      <span>
+        <el-button style="width: 100%" type="primary" :disabled="!changed" @click="handleUpdateInformation"> Save
+        </el-button>
+      </span>
+    </el-form>
   </el-drawer>
 </template>
 

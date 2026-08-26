@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import select
 
-from .model import User, UserInDb, CreateUserData
+from .model import UpdateUserData, User, UserInDb, CreateUserData, UserWithRemoteUsers
+from ..auth.main import get_current_active_user
 from ..auth.authentication import password_hash
 from ..auth.permissions import PermissionChecker
 from ..dependencies import SessionDep
@@ -27,3 +30,25 @@ async def register_user(user: CreateUserData, session: SessionDep):
     )
     session.add(user_in_db)
     session.commit()
+
+
+@users.post("/me")
+async def update(
+    user_update: UpdateUserData,
+    user: Annotated[UserInDb, Depends(get_current_active_user)],
+    session: SessionDep,
+) -> UserWithRemoteUsers:
+    if user_update.username != user.username:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        # check_user = session.get(UserInDb, user_update.username)
+        # if check_user:
+        #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        # for k, v in user_update.model_dump().items():
+        #     setattr(user, k, v)
+        # session.commit()
+        # return user
+    else:
+        for k, v in user_update.model_dump().items():
+            setattr(user, k, v)
+        session.commit()
+        return user
