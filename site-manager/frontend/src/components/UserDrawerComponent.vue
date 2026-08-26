@@ -148,7 +148,7 @@ const removePasskey = async (id: string) => {
 
     <el-divider> Remote Login Providers </el-divider>
     <el-button v-for="provider in auth_providers" :key="provider" style="width: 100%" class="custom-img-btn mb-4"
-      @click="() => onClickRemoteProvider(provider.slug)">
+      type="danger" plain @click="() => onClickRemoteProvider(provider.slug)">
       <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
       {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
       {{ provider.name }}
@@ -158,7 +158,7 @@ const removePasskey = async (id: string) => {
     <el-form label-width="auto" label-position="left">
       <el-form-item v-for="config in user?.active_totp_configurations"
         :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%" @click="removeMfaConfiguration(config.id)">Remove</el-button>
+        <el-button style="width: 100%" type="danger" plain @click="removeMfaConfiguration(config.id)">Remove</el-button>
       </el-form-item>
     </el-form>
     <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add additional configuration</el-button>
@@ -166,7 +166,7 @@ const removePasskey = async (id: string) => {
     <el-form label-width="auto" label-position="left">
       <el-form-item v-for="passkey in user?.passkeys"
         :label="`Passkey created on ${new Date(Date.parse(passkey.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%" @click="removePasskey(passkey.id_string)">Remove</el-button>
+        <el-button style="width: 100%" type="danger" plain @click="removePasskey(passkey.id_string)">Remove</el-button>
       </el-form-item>
     </el-form>
     <el-button style="width: 100%" type="primary" @click="addPasskey">Add a passkey</el-button>
