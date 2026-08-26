@@ -1,3 +1,11 @@
+[tasks.dev]
+depends = ["wait-for-backend"]
+run = "npm run dev"
+
+[tasks.wait-for-backend]
+run = "until curl --silent --fail localhost:8001/api/version; do sleep 1; done"
+
+
 [tasks.build]
 depends = [
     "//controller/frontend:build",
