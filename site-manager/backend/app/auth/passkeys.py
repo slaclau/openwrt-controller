@@ -2,7 +2,7 @@ import datetime
 import random
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import computed_field
 from sqlmodel import Field, Relationship, SQLModel
 from webauthn import (
@@ -16,8 +16,13 @@ from webauthn.helpers import (
     bytes_to_base64url,
     base64url_to_bytes,
 )
+from webauthn.helpers.structs import (
+    AuthenticatorSelectionCriteria,
+    ResidentKeyRequirement,
+)
 
 from .main import get_current_active_user
+from .token import Token, get_tokens
 from ..users.model import UserInDb, UserFullPublic
 from ..dependencies import SessionDep, ConfigurationDep
 
@@ -47,6 +52,7 @@ class Passkey(SQLModel, table=True):
 def begin_registration(
     user: Annotated[UserInDb, Depends(get_current_active_user)],
     config: ConfigurationDep,
+    request: Request,
 ) -> dict:
     user_id = random.randbytes(64)
     options = generate_registration_options(
@@ -55,21 +61,25 @@ def begin_registration(
         user_display_name=user.display_name,
         user_id=user_id,
         user_name=user.full_name,
+        authenticator_selection=AuthenticatorSelectionCriteria(
+            resident_key=ResidentKeyRequirement.REQUIRED
+        ),
     )
-    challenges[user.username] = options.challenge
+    request.session["challenge"] = bytes_to_base64url(options.challenge)
     return options_to_json_dict(options=options)
 
 
 @passkeys.post("/register", tags=["passkeys"])
 def verify_registration(
     user: Annotated[UserInDb, Depends(get_current_active_user)],
-    verification_response: dict,
+    registration_response: dict,
     session: SessionDep,
     config: ConfigurationDep,
+    request: Request,
 ) -> UserFullPublic:
     verified = verify_registration_response(
-        credential=verification_response,
-        expected_challenge=challenges.get(user.username),
+        credential=registration_response,
+        expected_challenge=base64url_to_bytes(request.session.get("challenge")),
         expected_origin=str(config.frontend.url)[0:-1],
         expected_rp_id=str(config.frontend.url),
     )
@@ -95,3 +105,34 @@ def delete_passkey(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     session.delete(passkey)
     session.commit()
+
+
+@passkeys.get("/authenticate", tags=["passkeys"])
+def begin_authentication(config: ConfigurationDep, request: Request) -> dict:
+    options = generate_authentication_options(
+        rp_id=config.frontend.url,
+    )
+    request.session["challenge"] = bytes_to_base64url(options.challenge)
+    return options_to_json_dict(options=options)
+
+
+@passkeys.post("/authenticate", tags=["passkeys"])
+async def verify_authentication(
+    authentication_response: dict,
+    session: SessionDep,
+    config: ConfigurationDep,
+    request: Request,
+    response: Response,
+) -> Token:
+    passkey_id = base64url_to_bytes(authentication_response["id"])
+    passkey = session.get(Passkey, passkey_id)
+    verify_authentication_response(
+        credential=authentication_response,
+        expected_challenge=base64url_to_bytes(request.session.get("challenge")),
+        expected_origin=str(config.frontend.url)[0:-1],
+        expected_rp_id=str(config.frontend.url),
+        credential_public_key=passkey.public_key,
+        credential_current_sign_count=0,
+    )
+
+    return await get_tokens(user=passkey.user, session=session, response=response)

@@ -1,11 +1,15 @@
 [project]
 name = "openwrt-controller-workspace"
 dependencies = [
-    "git-semantic-version",
-    "generate-openapi-spec",
-    "webauthn>=3.0.0",
+  "generate-openapi-spec",
+  "git-semantic-version",
 ]
 dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+  "black>=26.5.1",
+]
 
 [tool.setuptools]
 packages = []
@@ -13,9 +17,7 @@ packages = []
 [tool.uv]
 package = false
 
-override-dependencies = [
-    "psycopg2; sys_platform == 'never'"
-]
+override-dependencies = ["psycopg2; sys_platform == 'never'"]
 
 [tool.uv.workspace]
 members = ["tools/*", "site-manager/backend", "controller/backend"]
@@ -23,8 +25,3 @@ members = ["tools/*", "site-manager/backend", "controller/backend"]
 [tool.uv.sources]
 git-semantic-version = { workspace = true }
 generate-openapi-spec = { workspace = true }
-
-[dependency-groups]
-dev = [
-    "black>=26.5.1",
-]

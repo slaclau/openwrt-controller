@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import {
+  beginAuthenticationAuthPasskeysAuthenticateGet,
   getListOfOidcProvidersAuthOidcProvidersGet,
   loginForAccessTokenAuthLoginPost,
+  verifyAuthenticationAuthPasskeysAuthenticatePost,
   type OidcProvider,
 } from '@/sdk'
+import { mdiKey } from '@mdi/js'
+import { startAuthentication, type AuthenticationResponseJSON } from '@simplewebauthn/browser'
 
 const router = useRouter()
 const route = useRoute()
@@ -40,6 +44,30 @@ const handleRegister = () => {
   router.push({ path: '/register', query: { username: form.username } })
 }
 
+const handlePasskeyLogin = async () => {
+  const res = await beginAuthenticationAuthPasskeysAuthenticateGet()
+
+  console.log(res.data)
+  let attResp: AuthenticationResponseJSON
+  if (res.data) {
+    attResp = await startAuthentication({ optionsJSON: res.data })
+    const verificationResp = await verifyAuthenticationAuthPasskeysAuthenticatePost({ body: attResp })
+
+    const token = verificationResp.data?.access_token
+    if (!verificationResp.error && token) {
+      localStorage.setItem('auth_token', token)
+
+      ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
+
+      // Redirect back or to dashboard
+      const target = (route.query.redirect as string) || '/'
+      router.push(target)
+    } else {
+      ElMessage.error('Invalid credentials')
+    }
+  }
+}
+
 const auth_providers: Ref<OidcProvider[]> = ref([])
 
 onMounted(async () => {
@@ -71,6 +99,11 @@ const origin = window.location.origin
         </span>
         <span>
           <el-button style="width: 100%" @click="handleRegister"> Register </el-button>
+        </span>
+        <span>
+          <el-button type="info" style="width: 100%" @click="handlePasskeyLogin">
+            Login using a Passkey
+          </el-button>
         </span>
       </div>
     </el-form>
