@@ -12,13 +12,16 @@ import {
   updateUsersMePost,
   type UpdateUserData,
   deleteMfaAuthMfaIdDelete,
-  beginRegistrationAuthPasskeysRegisterBeginPost,
+  beginRegistrationAuthPasskeysRegisterGet,
+  verifyRegistrationAuthPasskeysRegisterPost,
+  deletePasskeyAuthPasskeysIdDelete,
 } from '@/sdk'
 import { mdiAccount } from '@mdi/js'
 import { computed, onMounted, reactive, ref, watch, type Ref } from 'vue'
 import { logout } from '@/utils'
 import router from '@/router'
 import { useRoute } from 'vue-router'
+import { startRegistration, type RegistrationResponseJSON } from '@simplewebauthn/browser'
 
 const route = useRoute()
 
@@ -97,9 +100,20 @@ const removeMfaConfiguration = async (id: string) => {
 }
 
 const addPasskey = async () => {
-  let credential = await navigator.credentials.create()
-  console.log(credential)
-  const res = await beginRegistrationAuthPasskeysRegisterBeginPost()
+  const res = await beginRegistrationAuthPasskeysRegisterGet()
+
+  console.log(res.data)
+  let attResp: RegistrationResponseJSON
+  if (res.data) {
+    attResp = await startRegistration({ optionsJSON: res.data })
+    const verificationResp = await verifyRegistrationAuthPasskeysRegisterPost({ body: attResp })
+    if (!verificationResp.error) await onOpen()
+  }
+}
+
+const removePasskey = async (id: string) => {
+  const res = await deletePasskeyAuthPasskeysIdDelete({ path: { id } })
+  if (!res.error) await onOpen()
 }
 
 </script>
@@ -150,10 +164,10 @@ const addPasskey = async () => {
     <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add additional configuration</el-button>
     <el-divider>Passkeys</el-divider>
     <el-form label-width="auto" label-position="left">
-      <!-- <el-form-item v-for="config in user?.active_totp_configurations"
-        :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%" @click="removeMfaConfiguration(config.id)">Remove</el-button>
-      </el-form-item> -->
+      <el-form-item v-for="passkey in user?.passkeys"
+        :label="`Passkey created on ${new Date(Date.parse(passkey.created_at)).toLocaleDateString()}`">
+        <el-button style="width: 100%" @click="removePasskey(passkey.id_string)">Remove</el-button>
+      </el-form-item>
     </el-form>
     <el-button style="width: 100%" type="primary" @click="addPasskey">Add a passkey</el-button>
   </el-drawer>

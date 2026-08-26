@@ -11,7 +11,8 @@ if TYPE_CHECKING:
     from ..sites import Site
     from ..auth.main import RefreshTokenData
     from ..auth.oidc import RemoteUser, RemoteUserOut
-    from ..auth.mfa import TotpConfiguration, PublicTotpConfiguration
+    from ..auth.mfa import TotpConfiguration
+    from ..auth.passkeys import Passkey
 
 
 class User(SQLModel, table=False):
@@ -50,6 +51,8 @@ class UserInDb(User, table=True):
         }
     )
 
+    passkeys: list["Passkey"] = Relationship(back_populates="user")
+
 
 class CreateUserData(SQLModel, table=False):
     username: str
@@ -71,6 +74,12 @@ class PublicTotpConfiguration(SQLModel, table=False):
     device_name: str
 
 
+class PublicPasskey(SQLModel, table=False):
+    id_string: str
+    created_at: datetime.datetime
+
+
 class UserFullPublic(User):
     remote_users: list["RemoteUserOut"] = []
     active_totp_configurations: list[PublicTotpConfiguration]
+    passkeys: list[PublicPasskey]
