@@ -1,5 +1,6 @@
 import datetime
 from typing import TYPE_CHECKING, Annotated
+import uuid
 
 from pydantic import BaseModel, Field
 from sqlmodel import Field as SQLField, Relationship, SQLModel, select
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from ..sites import Site
     from ..auth.main import RefreshTokenData
     from ..auth.oidc import RemoteUser, RemoteUserOut
-    from ..auth.mfa import TotpConfiguration
+    from ..auth.mfa import TotpConfiguration, PublicTotpConfiguration
 
 
 class User(SQLModel, table=False):
@@ -64,5 +65,12 @@ class UpdateUserData(SQLModel, table=False):
     display_name: str
 
 
-class UserWithRemoteUsers(User):
+class PublicTotpConfiguration(SQLModel, table=False):
+    id: uuid.UUID
+    created_at: datetime.datetime
+    device_name: str
+
+
+class UserFullPublic(User):
     remote_users: list["RemoteUserOut"] = []
+    active_totp_configurations: list[PublicTotpConfiguration]

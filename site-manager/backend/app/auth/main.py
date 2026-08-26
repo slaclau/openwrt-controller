@@ -12,7 +12,7 @@ from fastapi import Depends, HTTPException, Request, Response, status
 
 from . import auth
 from ..dependencies import ConfigurationDep, SessionDep
-from ..users.model import User, UserInDb, UserWithRemoteUsers
+from ..users.model import User, UserInDb, UserFullPublic
 from .authentication import authenticate_user
 from .token import get_tokens, public_key, Token, RefreshTokenData
 from .oidc import LogoutUrl, handle_rp_logout
@@ -154,7 +154,7 @@ async def logout(
 @auth.get("/info", tags=["auth"])
 async def read_users_me(
     current_user: Annotated[UserInDb, Depends(get_current_active_user)],
-) -> UserWithRemoteUsers:
+) -> UserFullPublic:
     return current_user
 
 

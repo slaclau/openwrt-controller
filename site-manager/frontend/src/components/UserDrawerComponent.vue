@@ -7,16 +7,21 @@ import {
   getListOfOidcProvidersAuthProvidersGet,
   readUsersMeAuthInfoGet,
   type OidcProvider,
-  type UserWithRemoteUsers,
+  type UserFullPublic,
   delinkAccountAuthProviderDelinkPost,
   updateUsersMePost,
   type UpdateUserData,
+  deleteMfaAuthMfaIdDelete,
 } from '@/sdk'
 import { mdiAccount } from '@mdi/js'
 import { computed, onMounted, reactive, ref, watch, type Ref } from 'vue'
 import { logout } from '@/utils'
+import router from '@/router'
+import { useRoute } from 'vue-router'
 
-const user: Ref<UserWithRemoteUsers | null> = ref(null)
+const route = useRoute()
+
+const user: Ref<UserFullPublic | null> = ref(null)
 
 const userUpdate: UpdateUserData = reactive({
   username: '',
@@ -68,6 +73,21 @@ const handleUpdateInformation = async () => {
   initialUserUpdate.value = { ...userUpdate }
 }
 
+const addMfaConfiguration = () => {
+  router.push({
+    name: 'SetupMFA', query: {
+      skip: 'disabled',
+      redirect: route.fullPath
+    }
+  })
+  drawerRef.value?.handleClose()
+}
+
+const removeMfaConfiguration = async (id: string) => {
+  const res = await deleteMfaAuthMfaIdDelete({ path: { id } })
+  if (!res.error) await onOpen()
+}
+
 const changed = computed(() => {
   return JSON.stringify(initialUserUpdate.value) !== JSON.stringify(userUpdate)
 })
@@ -84,13 +104,6 @@ const changed = computed(() => {
     </template>
     <!-- {{ user }} -->
 
-    <el-divider> Remote Login Providers </el-divider>
-    <el-button v-for="provider in auth_providers" :key="provider" style="width: 100%" class="custom-img-btn mb-4"
-      @click="() => onClickRemoteProvider(provider.slug)">
-      <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
-      {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
-      {{ provider.name }}
-    </el-button>
     <el-divider>User Information</el-divider>
     <el-form label-position="right" label-width="auto">
       <el-form-item label="Full Name">
@@ -107,6 +120,25 @@ const changed = computed(() => {
         </el-button>
       </span>
     </el-form>
+
+    <el-divider> Remote Login Providers </el-divider>
+    <el-button v-for="provider in auth_providers" :key="provider" style="width: 100%" class="custom-img-btn mb-4"
+      @click="() => onClickRemoteProvider(provider.slug)">
+      <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
+      {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
+      {{ provider.name }}
+    </el-button>
+
+    <el-divider>MFA Configurations</el-divider>
+    <el-form label-width="auto" label-position="left">
+      <el-form-item v-for="config in user?.active_totp_configurations"
+        :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`">
+        <el-button style="width: 100%" @click="removeMfaConfiguration(config.id)">Remove</el-button>
+      </el-form-item>
+    </el-form>
+    <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add
+      additional
+      configuration</el-button>
   </el-drawer>
 </template>
 

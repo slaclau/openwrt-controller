@@ -5,23 +5,25 @@ import { reactive, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 import QrcodeVue from 'qrcode.vue'
-import { ElNotification } from 'element-plus';
+import { ElMessage, ElNotification } from 'element-plus';
 
 const route = useRoute()
 
 const form = reactive({
+  device_name: 'Authenticator',
   totp: '',
 })
 
 const handleSubmit = async () => {
-  const res = await registerMfaAuthMfaRegisterPost({ body: { code: form.totp } })
+  const res = await registerMfaAuthMfaRegisterPost({ body: { device_name: form.device_name, code: form.totp } })
   if (res.data?.access_token) {
     localStorage.setItem("auth_token", res.data.access_token)
 
     ElNotification.success({ title: 'Logged In', message: 'You have successfully configured MFA.' })
     const target = (route.query.redirect as string) || '/'
     router.push(target)
-  }
+  } else
+    ElMessage.error({ message: 'Invalid code. Please try again.' })
 }
 
 const handleSkip = async () => {
@@ -55,7 +57,10 @@ onMounted(async () => {
     <qrcode-vue :value="totp_url" />
     <el-form label-position="top">
       <el-form-item>
-        <el-input v-model="form.totp" placeholder="code" />
+        <el-input v-model="form.device_name" placeholder="Device Name" />
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="form.totp" placeholder="Code" />
       </el-form-item>
 
       <div style="display: grid; gap: 8px">
@@ -63,7 +68,12 @@ onMounted(async () => {
           <el-button type="primary" style="width: 100%" @click="handleSubmit"> Submit </el-button>
         </span>
         <span>
-          <el-button style="width: 100%" @click="handleSkip"> Skip </el-button>
+          <el-button style="width: 100%" v-if="!($route.query.skip == 'disabled')" @click="handleSkip"> Skip
+          </el-button>
+        </span>
+        <span>
+          <el-button style="width: 100%" v-if="($route.query.skip == 'disabled')" @click="$router.back()"> Cancel
+          </el-button>
         </span>
       </div>
     </el-form>

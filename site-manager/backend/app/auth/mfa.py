@@ -12,9 +12,9 @@ from pyotp import TOTP
 from sqlmodel import Field, Relationship, SQLModel, select, and_
 
 from ..dependencies import get_configuration, ConfigurationDep, SessionDep
-from ..users.model import UserInDb
+from ..users.model import UserFullPublic, UserInDb
 from . import auth
-from .main import get_token_scope, get_current_user, Token
+from .main import get_current_active_user, get_token_scope, get_current_user, Token
 from .token import get_tokens
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
@@ -87,7 +87,9 @@ def setup_mfa(
     scope: Annotated[str, Depends(get_token_scope)],
     session: SessionDep,
 ) -> TotpCreationResponse:
-    assert scope == "limited:setup_mfa"
+    if scope not in ["limited:setup_mfa", "access"]:
+        logger.warning(f"invalid scope {scope}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     if user.pending_totp_configurations:
         totp_config = user.pending_totp_configurations[0]
@@ -98,20 +100,25 @@ def setup_mfa(
     return TotpCreationResponse(url=totp_config.totp.provisioning_uri())
 
 
+class TotpRegistrationPayload(TotpVerificationPayload):
+    device_name: str
+
+
 @auth.post("/mfa/register")
 async def register_mfa(
-    payload: TotpVerificationPayload,
+    payload: TotpRegistrationPayload,
     user: Annotated[UserInDb, Depends(get_current_user)],
     scope: Annotated[str, Depends(get_token_scope)],
     session: SessionDep,
     response: Response,
 ) -> Token:
-    if scope != "limited:setup_mfa":
+    if scope not in ["limited:setup_mfa", "access"]:
         logger.warning(f"invalid scope {scope}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     for config in user.pending_totp_configurations:
         if config.verify(payload.code):
             config.active = True
+            config.device_name = payload.device_name
             session.commit()
             return await get_tokens(user=user, session=session, response=response)
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -124,7 +131,20 @@ async def skip_mfa(
     session: SessionDep,
     response: Response,
 ) -> Token:
-    if scope not in ["limited:setup_mfa", "access"]:
+    if scope not in ["limited:setup_mfa"]:
         logger.warning(f"invalid scope {scope}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     return await get_tokens(user=user, session=session, response=response)
+
+
+@auth.delete("/mfa/{id}")
+async def delete_mfa(
+    id: uuid.UUID,
+    user: Annotated[UserInDb, Depends(get_current_active_user)],
+    session: SessionDep,
+):
+    config = session.get(TotpConfiguration, id)
+    if config.user != user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    session.delete(config)
+    session.commit()

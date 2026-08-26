@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field, HttpUrl, computed_field
 from . import auth
 from .authentication import authenticate_user
 from .token import RefreshTokenData, Token, get_tokens
-from ..users.model import UserInDb, UserWithRemoteUsers
+from ..users.model import UserInDb, UserFullPublic
 from ..configuration import OidcProvider, OidcProviderConfig
 from ..dependencies import ConfigurationDep, SessionDep, get_configuration
 
@@ -116,7 +116,7 @@ class RemoteUserOut(BaseModel):
         return providers.get(self.provider, None)
 
 
-UserWithRemoteUsers.model_rebuild()
+UserFullPublic.model_rebuild()
 
 
 class AuthCode(SQLModel, table=True):

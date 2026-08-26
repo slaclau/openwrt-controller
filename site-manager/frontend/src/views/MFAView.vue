@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import router from '@/router';
 import { verifyMfaAuthMfaVerifyPost } from '@/sdk';
-import { ElNotification } from 'element-plus';
+import { ElMessage, ElNotification } from 'element-plus';
 import { reactive } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -19,7 +19,8 @@ const handleSubmit = async () => {
     ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
     const target = (route.query.redirect as string) || '/'
     router.push(target)
-  }
+  } else
+    ElMessage.error({ message: 'Invalid code. Please try again.' })
 }
 
 const handleCancel = async () => {

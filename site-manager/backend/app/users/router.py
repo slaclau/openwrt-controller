@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import select
 
-from .model import UpdateUserData, User, UserInDb, CreateUserData, UserWithRemoteUsers
+from .model import UpdateUserData, User, UserInDb, CreateUserData, UserFullPublic
 from ..auth.main import get_current_active_user
 from ..auth.authentication import password_hash
 from ..auth.permissions import PermissionChecker
@@ -37,7 +37,7 @@ async def update(
     user_update: UpdateUserData,
     user: Annotated[UserInDb, Depends(get_current_active_user)],
     session: SessionDep,
-) -> UserWithRemoteUsers:
+) -> UserFullPublic:
     if user_update.username != user.username:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
         # check_user = session.get(UserInDb, user_update.username)
