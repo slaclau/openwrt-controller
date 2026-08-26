@@ -4,7 +4,7 @@ import SvgIcon from '@jamescoyle/vue-icon'
 import { ElDrawer } from 'element-plus'
 
 import {
-  getListOfOidcProvidersAuthProvidersGet,
+  getListOfOidcProvidersAuthOidcProvidersGet,
   readUsersMeAuthInfoGet,
   type OidcProvider,
   type UserFullPublic,
@@ -12,6 +12,7 @@ import {
   updateUsersMePost,
   type UpdateUserData,
   deleteMfaAuthMfaIdDelete,
+  beginRegistrationAuthPasskeysRegisterBeginPost,
 } from '@/sdk'
 import { mdiAccount } from '@mdi/js'
 import { computed, onMounted, reactive, ref, watch, type Ref } from 'vue'
@@ -31,6 +32,9 @@ const userUpdate: UpdateUserData = reactive({
 const initialUserUpdate = ref({ ...userUpdate })
 const activeAuthProviders: Ref<string[]> = ref([])
 
+const auth_providers: Ref<OidcProvider[]> = ref([])
+
+
 const onOpen = async () => {
   const response = await readUsersMeAuthInfoGet()
   if (response.data) user.value = response.data
@@ -42,10 +46,14 @@ const onOpen = async () => {
   initialUserUpdate.value = { ...userUpdate }
 }
 
-const auth_providers: Ref<OidcProvider[]> = ref([])
+
+const changed = computed(() => {
+  return JSON.stringify(initialUserUpdate.value) !== JSON.stringify(userUpdate)
+})
+
 
 onMounted(async () => {
-  const providers = (await getListOfOidcProvidersAuthProvidersGet()).data
+  const providers = (await getListOfOidcProvidersAuthOidcProvidersGet()).data
   if (providers) auth_providers.value = providers
 })
 
@@ -88,9 +96,12 @@ const removeMfaConfiguration = async (id: string) => {
   if (!res.error) await onOpen()
 }
 
-const changed = computed(() => {
-  return JSON.stringify(initialUserUpdate.value) !== JSON.stringify(userUpdate)
-})
+const addPasskey = async () => {
+  let credential = await navigator.credentials.create()
+  console.log(credential)
+  const res = await beginRegistrationAuthPasskeysRegisterBeginPost()
+}
+
 </script>
 
 <template>
@@ -136,9 +147,15 @@ const changed = computed(() => {
         <el-button style="width: 100%" @click="removeMfaConfiguration(config.id)">Remove</el-button>
       </el-form-item>
     </el-form>
-    <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add
-      additional
-      configuration</el-button>
+    <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add additional configuration</el-button>
+    <el-divider>Passkeys</el-divider>
+    <el-form label-width="auto" label-position="left">
+      <!-- <el-form-item v-for="config in user?.active_totp_configurations"
+        :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`">
+        <el-button style="width: 100%" @click="removeMfaConfiguration(config.id)">Remove</el-button>
+      </el-form-item> -->
+    </el-form>
+    <el-button style="width: 100%" type="primary" @click="addPasskey">Add a passkey</el-button>
   </el-drawer>
 </template>
 

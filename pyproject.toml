@@ -1,6 +1,10 @@
 [project]
 name = "openwrt-controller-workspace"
-dependencies = ["git-semantic-version", "generate-openapi-spec"]
+dependencies = [
+    "git-semantic-version",
+    "generate-openapi-spec",
+    "webauthn>=3.0.0",
+]
 dynamic = ["version"]
 
 [tool.setuptools]

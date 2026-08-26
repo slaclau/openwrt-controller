@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import router from '@/router'
 import {
-  exchangeCodeForTokenAndLinkAccountAuthLinkAccountPost,
-  getListOfOidcProvidersAuthProvidersGet,
+  exchangeCodeForTokenAndLinkAccountAuthOidcLinkAccountPost,
+  getListOfOidcProvidersAuthOidcProvidersGet,
   type OidcProvider,
 } from '@/sdk'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -20,7 +20,7 @@ const pending = ref('')
 
 const handleLink = async () => {
   if (form.username && form.password) {
-    const response = await exchangeCodeForTokenAndLinkAccountAuthLinkAccountPost({
+    const response = await exchangeCodeForTokenAndLinkAccountAuthOidcLinkAccountPost({
       body: {
         username: form.username,
         password: form.password,
@@ -52,7 +52,7 @@ onMounted(async () => {
   if (route.query.pending) pending.value = route.query.pending.toString()
 
   router.push(route.path)
-  const providers = (await getListOfOidcProvidersAuthProvidersGet()).data
+  const providers = (await getListOfOidcProvidersAuthOidcProvidersGet()).data
   if (providers) auth_providers.value = providers
 })
 

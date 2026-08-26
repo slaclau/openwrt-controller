@@ -5,7 +5,7 @@ from typing import Annotated
 
 from joserfc import jwt
 from joserfc.jwk import KeySet
-from fastapi import Depends, Form, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 
 from sqlmodel import (
@@ -21,7 +21,6 @@ from authlib.integrations.starlette_client import OAuth
 
 from pydantic import BaseModel, Field, HttpUrl, computed_field
 
-from . import auth
 from .authentication import authenticate_user
 from .token import RefreshTokenData, Token, get_tokens
 from ..users.model import UserInDb, UserFullPublic
@@ -32,6 +31,8 @@ logger = logging.getLogger(f"uvicorn.{__name__}")
 
 
 providers: dict[str, OidcProviderConfig] = {}
+
+oidc = APIRouter(prefix="/oidc")
 
 
 def load_config():
@@ -64,7 +65,7 @@ class TokenExchangeRequest(BaseModel):
     code: str
 
 
-@auth.get("/{provider}/login", tags=["oidc"])
+@oidc.get("/{provider}/login", tags=["oidc"])
 async def login(
     provider: str,
     request: Request,
@@ -79,7 +80,7 @@ async def login(
 
     client = oauth.create_client(provider)
 
-    auth_url = f"{config.frontend.url}api/auth/{provider}/authorize"
+    auth_url = f"{config.frontend.url}api/auth/oidc/{provider}/authorize"
 
     if pending:
         request.session["link_code"] = pending
@@ -142,14 +143,14 @@ class AuthCode(SQLModel, table=True):
     )
 
 
-@auth.get("/providers", response_model=list[OidcProvider], tags=["oidc"])
+@oidc.get("/providers", response_model=list[OidcProvider], tags=["oidc"])
 async def get_list_of_oidc_providers(
     config: ConfigurationDep,
 ) -> list[OidcProviderConfig]:
     return config.auth.providers
 
 
-@auth.get("/{provider}/authorize", tags=["oidc"])
+@oidc.get("/{provider}/authorize", tags=["oidc"])
 async def authorize(
     provider: str, request: Request, session: SessionDep, config: ConfigurationDep
 ):
@@ -248,7 +249,7 @@ def verify_auth_code(code: str, session: SessionDep) -> AuthCode:
     return auth_code
 
 
-@auth.post("/token", tags=["oidc"])
+@oidc.post("/token", tags=["oidc"])
 async def exchange_code_for_token(
     payload: TokenExchangeRequest, response: Response, session: SessionDep
 ) -> Token:
@@ -279,7 +280,7 @@ class AccountLinkRequest(TokenExchangeRequest):
     linked_auth_code: str | None = Field(default=None)
 
 
-@auth.post("/link-account", tags=["oidc"])
+@oidc.post("/link-account", tags=["oidc"])
 async def exchange_code_for_token_and_link_account(
     payload: AccountLinkRequest,
     response: Response,
@@ -332,7 +333,7 @@ async def handle_oidc_logout(
     response.headers["Pragma"] = "no-cache"
 
 
-@auth.get("/{provider}/logout", tags=["oidc"])
+@oidc.get("/{provider}/logout", tags=["oidc"])
 async def frontchannel_logout(
     provider: str, request: Request, response: Response, session: SessionDep
 ):
@@ -346,7 +347,7 @@ async def frontchannel_logout(
     )
 
 
-@auth.post("/{provider}/logout", tags=["oidc"])
+@oidc.post("/{provider}/logout", tags=["oidc"])
 async def backchannel_logout(
     provider: str,
     session: SessionDep,
@@ -378,7 +379,7 @@ async def handle_rp_logout(provider: str, request: Request, config: Configuratio
         return LogoutUrl()
     logger.info(f"logging out from {provider} as well")
     id_token = request.session.pop("id_token", None)
-    redirect_uri = f"{config.frontend.url}api/auth/{provider}/logged-out"
+    redirect_uri = f"{config.frontend.url}api/auth/oidc/{provider}/logged-out"
     ret: RedirectResponse = await client.logout_redirect(
         request,
         post_logout_redirect_uri=redirect_uri,
@@ -387,7 +388,7 @@ async def handle_rp_logout(provider: str, request: Request, config: Configuratio
     return LogoutUrl(location=HttpUrl(ret.headers["location"]))
 
 
-@auth.get("/{provider}/logged-out", tags=["oidc"])
+@oidc.get("/{provider}/logged-out", tags=["oidc"])
 async def logged_out(provider: str, request: Request, config: ConfigurationDep):
     client = oauth.create_client(provider)
 

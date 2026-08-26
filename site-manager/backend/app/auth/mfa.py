@@ -6,18 +6,20 @@ from cryptography.fernet import Fernet
 import datetime
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import AnyUrl
 from pyotp import TOTP
 from sqlmodel import Field, Relationship, SQLModel, select, and_
 
 from ..dependencies import get_configuration, ConfigurationDep, SessionDep
-from ..users.model import UserFullPublic, UserInDb
-from . import auth
+from ..users.model import UserInDb
+from . import mfa
 from .main import get_current_active_user, get_token_scope, get_current_user, Token
 from .token import get_tokens
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
+
+mfa = APIRouter(prefix="/mfa")
 
 
 def generate_encryted_secret():
@@ -61,7 +63,7 @@ class TotpVerificationPayload(SQLModel, table=False):
     code: str
 
 
-@auth.post("/mfa/verify")
+@mfa.post("/mfa/verify", tags=["mfa"])
 async def verify_mfa(
     payload: TotpVerificationPayload,
     user: Annotated[UserInDb, Depends(get_current_user)],
@@ -81,7 +83,7 @@ class TotpCreationResponse(SQLModel, table=False):
     url: AnyUrl
 
 
-@auth.get("/mfa/setup")
+@mfa.get("/setup", tags=["mfa"])
 def setup_mfa(
     user: Annotated[UserInDb, Depends(get_current_user)],
     scope: Annotated[str, Depends(get_token_scope)],
@@ -104,7 +106,7 @@ class TotpRegistrationPayload(TotpVerificationPayload):
     device_name: str
 
 
-@auth.post("/mfa/register")
+@mfa.post("/register", tags=["mfa"])
 async def register_mfa(
     payload: TotpRegistrationPayload,
     user: Annotated[UserInDb, Depends(get_current_user)],
@@ -124,7 +126,7 @@ async def register_mfa(
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-@auth.post("/mfa/skip")
+@mfa.post("/skip", tags=["mfa"])
 async def skip_mfa(
     user: Annotated[UserInDb, Depends(get_current_user)],
     scope: Annotated[str, Depends(get_token_scope)],
@@ -137,7 +139,7 @@ async def skip_mfa(
     return await get_tokens(user=user, session=session, response=response)
 
 
-@auth.delete("/mfa/{id}")
+@mfa.delete("/{id}", tags=["mfa"])
 async def delete_mfa(
     id: uuid.UUID,
     user: Annotated[UserInDb, Depends(get_current_active_user)],

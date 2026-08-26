@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import {
-  getListOfOidcProvidersAuthProvidersGet,
+  getListOfOidcProvidersAuthOidcProvidersGet,
   loginForAccessTokenAuthLoginPost,
   type OidcProvider,
 } from '@/sdk'
@@ -44,9 +44,9 @@ const auth_providers: Ref<OidcProvider[]> = ref([])
 
 onMounted(async () => {
   if (route.params.provider) {
-    window.location.href = window.location.origin + `/api/auth/${route.params.provider}/login`
+    window.location.href = window.location.origin + `/api/auth/oidc/${route.params.provider}/login`
   }
-  const providers = (await getListOfOidcProvidersAuthProvidersGet()).data
+  const providers = (await getListOfOidcProvidersAuthOidcProvidersGet()).data
   if (providers) auth_providers.value = providers
 })
 
@@ -77,7 +77,7 @@ const origin = window.location.origin
     <el-divider v-if="auth_providers.length > 0" />
     <div style="display: grid; gap: 8px">
       <div v-for="provider in auth_providers" :key="provider.slug">
-        <a :href="origin + `/api/auth/${provider.slug}/login`">
+        <a :href="origin + `/api/auth/oidc/${provider.slug}/login`">
           <el-button style="width: 100%" class="custom-img-btn mb-4">
             <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
             Login with {{ provider.name }}

@@ -19,7 +19,7 @@ from .oidc import LogoutUrl, handle_rp_logout
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 cookie_scheme = APIKeyCookie(name="refresh_token")
 
 

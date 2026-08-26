@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router';
-import { verifyMfaAuthMfaVerifyPost } from '@/sdk';
+import { verifyMfaAuthMfaMfaVerifyPost } from '@/sdk';
 import { ElMessage, ElNotification } from 'element-plus';
 import { reactive } from 'vue';
 import { useRoute } from 'vue-router';
@@ -12,7 +12,8 @@ const form = reactive({
 })
 
 const handleSubmit = async () => {
-  const res = await verifyMfaAuthMfaVerifyPost({ body: { code: form.totp } })
+  const res = await verifyMfaAuthMfaMfaVerifyPost({ body: { code: form.totp } })
+  console.log(res)
   if (res.data?.access_token) {
     localStorage.setItem("auth_token", res.data.access_token)
 

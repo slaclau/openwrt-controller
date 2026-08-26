@@ -1,7 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
 import { ElNotification } from 'element-plus'
-import { exchangeCodeForTokenAuthTokenPost } from '@/sdk'
+import { exchangeCodeForTokenAuthOidcTokenPost } from '@/sdk'
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
 
 const router = createRouter({
@@ -55,7 +55,7 @@ router.beforeEach(async (to, from, next) => {
 
     if (!(to.name == 'LinkAccount')) {
       const auth_token = (
-        await exchangeCodeForTokenAuthTokenPost({
+        await exchangeCodeForTokenAuthOidcTokenPost({
           body: { code: auth_code },
         })
       ).data?.access_token
