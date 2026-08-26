@@ -1,7 +1,10 @@
-name: Deploy to FastAPI Cloud
+name: Deploy
 on:
   push:
     branches: [master]
+env:
+  FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
+  FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -17,12 +20,4 @@ jobs:
       - name: Build
         run: mise run build-all
       - name: Deploy
-        run: |
-          cd site-manager/backend
-          cp -r ../frontend/dist .
-          uv build --sdist
-          cp openwrt_site_manager.egg-info/PKG-INFO .
-          uv run fastapi deploy
-        env:
-          FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
-          FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
+        run: mise run deploy-all

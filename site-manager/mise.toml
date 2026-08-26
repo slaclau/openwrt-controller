@@ -1,5 +1,12 @@
 [tasks.dev]
-depends = [
-  {task = "./backend:dev"},
-  {task = "./frontend:dev"}
+depends = [{ task = "./backend:dev" }, { task = "./frontend:dev" }]
+
+[tasks.pre-deploy]
+run = [
+  "cp -r frontend/dist backend",
+  "cp backend/openwrt_site_manager.egg-info/PKG-INFO backend",
 ]
+
+[tasks.deploy]
+depends = ["pre-deploy", "//:build-all"]
+run = [{ task = "./backend:deploy" }]

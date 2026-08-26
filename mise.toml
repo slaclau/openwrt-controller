@@ -2,9 +2,9 @@ monorepo_root = true
 
 [monorepo]
 config_roots = [
-    "*",
-    "controller/*",
-    "site-manager/*",
+  "*",
+  "controller/*",
+  "site-manager/*",
 ]
 
 [settings]
@@ -18,17 +18,19 @@ python = "latest"
 uv = "latest"
 
 [tasks.clean-all]
-run = {task = "//...:clean"}
+run = { task = "//...:clean" }
+
+[tasks.deploy-all]
+run = { task = "//...:deploy" }
 
 [tasks.format-all]
-run = {task = "//...:format"}
+run = { task = "//...:format" }
 
 [tasks.lint-all]
-run = {task = "//...:lint"}
+run = { task = "//...:lint" }
 
 [tasks.build-all]
-run = {task = "//...:build"}
-
+run = { task = "//...:build" }
 
 [deps.npm]
 auto = true
