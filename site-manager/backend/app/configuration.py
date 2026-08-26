@@ -39,7 +39,7 @@ class FrontendConfig(BaseModel):
 
 
 class Config(BaseSettings):
-    model_config = SettingsConfigDict(yaml_file="config.yml")
+    model_config = SettingsConfigDict(yaml_file="config.yml", env_nested_delimiter="__")
 
     auth: AuthConfig | None = Field(default_factory=AuthConfig)
     frontend: FrontendConfig | None = Field(default_factory=FrontendConfig)
