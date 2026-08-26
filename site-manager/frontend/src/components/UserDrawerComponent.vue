@@ -102,7 +102,6 @@ const removeMfaConfiguration = async (id: string) => {
 const addPasskey = async () => {
   const res = await beginRegistrationAuthPasskeysRegisterGet()
 
-  console.log(res.data)
   let attResp: RegistrationResponseJSON
   if (res.data) {
     attResp = await startRegistration({ optionsJSON: res.data })

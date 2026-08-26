@@ -47,7 +47,6 @@ const handleRegister = () => {
 const handlePasskeyLogin = async () => {
   const res = await beginAuthenticationAuthPasskeysAuthenticateGet()
 
-  console.log(res.data)
   let attResp: AuthenticationResponseJSON
   if (res.data) {
     attResp = await startAuthentication({ optionsJSON: res.data })

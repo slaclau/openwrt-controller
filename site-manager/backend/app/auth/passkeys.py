@@ -56,7 +56,7 @@ def begin_registration(
 ) -> dict:
     user_id = random.randbytes(64)
     options = generate_registration_options(
-        rp_id=config.frontend.url,
+        rp_id=config.frontend.url.host,
         rp_name="OpenWrt Site Manager",
         user_display_name=user.display_name,
         user_id=user_id,
@@ -81,7 +81,7 @@ def verify_registration(
         credential=registration_response,
         expected_challenge=base64url_to_bytes(request.session.get("challenge")),
         expected_origin=str(config.frontend.url)[0:-1],
-        expected_rp_id=str(config.frontend.url),
+        expected_rp_id=config.frontend.url.host,
     )
     passkey = Passkey(
         id=verified.credential_id,
@@ -110,7 +110,7 @@ def delete_passkey(
 @passkeys.get("/authenticate", tags=["passkeys"])
 def begin_authentication(config: ConfigurationDep, request: Request) -> dict:
     options = generate_authentication_options(
-        rp_id=config.frontend.url,
+        rp_id=config.frontend.url.host,
     )
     request.session["challenge"] = bytes_to_base64url(options.challenge)
     return options_to_json_dict(options=options)
@@ -130,7 +130,7 @@ async def verify_authentication(
         credential=authentication_response,
         expected_challenge=base64url_to_bytes(request.session.get("challenge")),
         expected_origin=str(config.frontend.url)[0:-1],
-        expected_rp_id=str(config.frontend.url),
+        expected_rp_id=config.frontend.url.host,
         credential_public_key=passkey.public_key,
         credential_current_sign_count=0,
     )
