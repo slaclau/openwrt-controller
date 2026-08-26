@@ -24,6 +24,7 @@
   "dependencies": {
     "jwt-decode": "^4.0.0",
     "openwrt-controller": "file:../../controller/frontend",
+    "qrcode.vue": "^3.10.0",
     "vue-router": "^5.2.0"
   },
   "overrides": {

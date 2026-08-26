@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import logging
 import os
 import uuid
 
@@ -9,6 +10,8 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from ..dependencies import SessionDep
 from ..users.model import User, UserInDb
+
+logger = logging.getLogger(f"uvicorn.{__name__}")
 
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -94,6 +97,9 @@ async def mint_tokens(
         else create_access_token(
             data=refresh_token_dict, expires_delta=refresh_token_expires
         )
+    )
+    logger.debug(
+        f"issued tokens with scope {access_token_dict["type"]} to {user.username}"
     )
     return access_token, refresh_token
 

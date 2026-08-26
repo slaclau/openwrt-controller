@@ -25,8 +25,13 @@ class OidcProvider(BaseModel):
     logo_url: HttpUrl | None = Field(default=None)
 
 
+class TotpConfig(BaseModel):
+    key: bytes
+
+
 class AuthConfig(BaseModel):
     providers: list[OidcProviderConfig] = Field(default=[])
+    totp: TotpConfig | None = Field(default=None)
 
 
 class FrontendConfig(BaseModel):

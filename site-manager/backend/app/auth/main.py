@@ -23,8 +23,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 cookie_scheme = APIKeyCookie(name="refresh_token")
 
 
-async def get_current_user_and_scope(
-    token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep
+async def get_token_scope(
+    token: Annotated[str, Depends(oauth2_scheme)],
 ) -> tuple[str | None, UserInDb]:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,22 +33,14 @@ async def get_current_user_and_scope(
     )
     try:
         payload = jwt.decode(token, public_key, algorithms=["EdDSA"])
-        username = payload.get("sub")
-        if username is None:
-            raise credentials_exception
         token_type = payload.get("type")
     except jwt.InvalidTokenError:
         raise credentials_exception
-    user = session.get(UserInDb, username)
-    if user is None:
-        raise credentials_exception
-    return token_type, user
+    return token_type
 
 
 async def get_current_user(
-    user_and_scope: Annotated[
-        tuple[str | None, UserInDb], Depends(get_current_user_and_scope)
-    ],
+    token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep
 ) -> UserInDb:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,9 +48,14 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    scope, user = user_and_scope
-    if scope != "access":
+    try:
+        payload = jwt.decode(token, public_key, algorithms=["EdDSA"])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except jwt.InvalidTokenError:
         raise credentials_exception
+    user = session.get(UserInDb, username)
     if user is None:
         raise credentials_exception
     return user
@@ -66,7 +63,10 @@ async def get_current_user(
 
 def get_current_active_user(
     current_user: Annotated[UserInDb, Depends(get_current_user)],
+    scope: Annotated[str, Depends(get_token_scope)],
 ) -> UserInDb:
+    if scope != "access":
+        raise HTTPException(status_code=400, detail="Insufficient token")
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -79,7 +79,7 @@ async def login_for_access_token(
     response: Response,
 ) -> Token:
     user = authenticate_user(form_data.username, form_data.password, session=session)
-    if len(user.totp_configurations):
+    if len([conf for conf in user.totp_configurations if conf.active]):
         return await get_tokens(user, session, response, limited_scope="mfa")
     return await get_tokens(user, session, response, limited_scope="setup_mfa")
 

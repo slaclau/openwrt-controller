@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import router from '@/router';
+import { verifyMfaAuthMfaVerifyPost } from '@/sdk';
+import { ElNotification } from 'element-plus';
 import { reactive } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute()
 
 const form = reactive({
   totp: '',
 })
 
 const handleSubmit = async () => {
+  const res = await verifyMfaAuthMfaVerifyPost({ body: { code: form.totp } })
+  if (res.data?.access_token) {
+    localStorage.setItem("auth_token", res.data.access_token)
 
+    ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
+    const target = (route.query.redirect as string) || '/'
+    router.push(target)
+  }
 }
 
 const handleCancel = async () => {
