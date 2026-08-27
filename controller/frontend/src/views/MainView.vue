@@ -36,7 +36,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-tabs :stretch="true">
+  <el-tabs :stretch="true" style="">
     <el-tab-pane name="overview">
       <template #label>
         <svg-icon type="mdi" :path="mdiMonitorDashboard" :size="24" />
@@ -67,14 +67,15 @@ onUnmounted(() => {
   </el-tabs>
 </template>
 
-<style>
-.el-tabs {
-  height: 100%;
+<style scoped>
+:deep(.el-tabs) {
+  overflow: clip; /* Stays within bounds without creating a new scrollbar */
 }
 
-.el-tabs__content {
-  height: 100%;
-  /* Adjust this height to fit your layout */
-  overflow-y: auto;
+:deep(.el-tabs__header) {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--el-bg-color);
 }
 </style>
