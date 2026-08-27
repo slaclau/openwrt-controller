@@ -60,7 +60,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-container>
+  <el-container style="height: 100%;">
     <el-header class="fixed-header">
       <h1>
         <span style="float: left"><el-button :disabled="['/', '/login', '/mfa', '/setup-mfa'].includes(route.path)"
@@ -80,7 +80,7 @@ onMounted(() => {
         </span>
       </h1>
     </el-header>
-    <el-main>
+    <el-main style="flex-grow: 1; overflow-y: hidden;">
       <router-view />
     </el-main>
     <el-footer class="fixed-footer">
@@ -92,10 +92,15 @@ onMounted(() => {
 </template>
 
 <style>
-html, body {
+html,
+body {
   overscroll-behavior: none;
   margin: 0;
-  height: 100dvh;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
 }
 </style>
 
@@ -126,7 +131,7 @@ html, body {
 }
 
 .fixed-footer {
-  position: fixed;
+  position: sticky;
   bottom: 0;
   left: 0;
   width: 100%;

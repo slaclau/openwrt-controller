@@ -36,35 +36,45 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-main>
-    <el-tabs :stretch="true">
-      <el-tab-pane name="overview">
-        <template #label>
-          <svg-icon type="mdi" :path="mdiMonitorDashboard" :size="24" />
-        </template>
-        <OverviewView />
-      </el-tab-pane>
-      <el-tab-pane name="devices">
-        <template #label>
-          <svg-icon type="mdi" :path="mdiServerOutline" :size="24" />
-        </template>
-        <DevicesView :devices="status.device_status" />
-      </el-tab-pane>
-      <el-tab-pane name="clients">
-        <template #label>
-          <svg-icon type="mdi" :path="mdiMonitorCellphone" :size="24" />
-        </template>
-      </el-tab-pane>
-      <el-tab-pane label="DPI" name="dpi">
-        <template #label>
-          <svg-icon type="mdi" :path="mdiChartLine" :size="24" />
-        </template>
-        <DPIView />
-      </el-tab-pane>
-      <el-tab-pane name="settings">
-        <template #label> <svg-icon type="mdi" :path="mdiCog" :size="24" /> </template>
-        <SettingsView :status="status" />
-      </el-tab-pane>
-    </el-tabs>
-  </el-main>
+  <el-tabs :stretch="true">
+    <el-tab-pane name="overview">
+      <template #label>
+        <svg-icon type="mdi" :path="mdiMonitorDashboard" :size="24" />
+      </template>
+      <OverviewView />
+    </el-tab-pane>
+    <el-tab-pane name="devices">
+      <template #label>
+        <svg-icon type="mdi" :path="mdiServerOutline" :size="24" />
+      </template>
+      <DevicesView :devices="status.device_status" />
+    </el-tab-pane>
+    <el-tab-pane name="clients">
+      <template #label>
+        <svg-icon type="mdi" :path="mdiMonitorCellphone" :size="24" />
+      </template>
+    </el-tab-pane>
+    <el-tab-pane label="DPI" name="dpi">
+      <template #label>
+        <svg-icon type="mdi" :path="mdiChartLine" :size="24" />
+      </template>
+      <DPIView />
+    </el-tab-pane>
+    <el-tab-pane name="settings">
+      <template #label> <svg-icon type="mdi" :path="mdiCog" :size="24" /> </template>
+      <SettingsView :status="status" />
+    </el-tab-pane>
+  </el-tabs>
 </template>
+
+<style>
+.el-tabs {
+  height: 100%;
+}
+
+.el-tabs__content {
+  height: 100%;
+  /* Adjust this height to fit your layout */
+  overflow-y: auto;
+}
+</style>
