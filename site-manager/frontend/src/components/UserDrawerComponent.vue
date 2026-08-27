@@ -152,20 +152,20 @@ const removePasskey = async (id: string) => {
       {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
       {{ provider.name }}
     </el-button>
-
-    <el-divider>MFA Configurations</el-divider>
-    <el-form label-width="auto" label-position="left">
+    <el-form label-width="80%" label-position="left">
+      <el-divider>MFA Configurations</el-divider>
       <el-form-item v-for="config in user?.active_totp_configurations"
         :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%" type="danger" plain @click="removeMfaConfiguration(config.id)">Remove</el-button>
+        <el-button style="width: 100%; max-width: 100px" type="danger" plain
+          @click="removeMfaConfiguration(config.id)">Remove</el-button>
       </el-form-item>
-    </el-form>
-    <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add additional configuration</el-button>
-    <el-divider>Passkeys</el-divider>
-    <el-form label-width="auto" label-position="left">
+      <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add additional
+        configuration</el-button>
+      <el-divider>Passkeys</el-divider>
       <el-form-item v-for="passkey in user?.passkeys"
         :label="`Passkey created on ${new Date(Date.parse(passkey.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%" type="danger" plain @click="removePasskey(passkey.id_string)">Remove</el-button>
+        <el-button style="width: 100%; max-width: 100px;" type="danger" plain
+          @click="removePasskey(passkey.id_string)">Remove</el-button>
       </el-form-item>
     </el-form>
     <el-button style="width: 100%" type="primary" @click="addPasskey">Add a passkey</el-button>
