@@ -61,7 +61,7 @@ onMounted(() => {
 
 <template>
   <el-container>
-    <el-header>
+    <el-header class="fixed-header">
       <h1>
         <span style="float: left"><el-button :disabled="['/', '/login', '/mfa', '/setup-mfa'].includes(route.path)"
             @click="router.back()">
@@ -91,10 +91,38 @@ onMounted(() => {
   <ReloadPrompt />
 </template>
 
+<style>
+html, body {
+  overscroll-behavior: none;
+  margin: 0;
+  height: 100dvh;
+}
+</style>
+
 <style scoped>
 .header-title {
   margin-left: 16px;
   /* Creates the gap between left button and title */
+}
+
+.fixed-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto !important;
+
+  /* Match el-card colors and backgrounds */
+  background-color: var(--el-bg-color-overlay);
+
+  /* Top border only (matches el-card border style) */
+  border-bottom: 1px solid var(--el-border-color-light);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+
+  /* Replicates el-card shadow (directed downwards, adjusted upwards) */
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .fixed-footer {
@@ -102,7 +130,6 @@ onMounted(() => {
   bottom: 0;
   left: 0;
   width: 100%;
-
   /* Match el-card colors and backgrounds */
   background-color: var(--el-bg-color-overlay);
 

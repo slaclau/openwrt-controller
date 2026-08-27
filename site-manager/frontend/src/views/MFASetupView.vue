@@ -48,7 +48,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div style="max-width: 320px; margin: 100px auto">
+  <div style="max-width: 320px; margin: 20px auto">
     <h1>Two-Factor Authentication</h1>
     <div>
       Please scan the QR code or click <a :href="totp_url">here</a> to configure two factor authentication.

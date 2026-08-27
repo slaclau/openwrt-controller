@@ -31,7 +31,7 @@ const handleCancel = async () => {
 </script>
 
 <template>
-  <div style="max-width: 320px; margin: 100px auto">
+  <div style="max-width: 320px; margin: 20px auto">
     <h1>Two-Factor Authentication</h1>
     Please enter the code from your authenticator app.
     <el-form label-position="top">

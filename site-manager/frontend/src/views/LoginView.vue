@@ -81,7 +81,7 @@ const origin = window.location.origin
 </script>
 
 <template>
-  <div style="max-width: 320px; margin: 100px auto">
+  <div style="max-width: 320px; margin: 20px auto auto;">
     <h1>Login</h1>
     <el-form label-position="top">
       <el-form-item label="Username">
@@ -100,7 +100,7 @@ const origin = window.location.origin
           <el-button style="width: 100%" @click="handleRegister"> Register </el-button>
         </span>
         <span>
-          <el-button type="info" style="width: 100%" @click="handlePasskeyLogin">
+          <el-button type="primary" plain style="width: 100%" @click="handlePasskeyLogin">
             Login using a Passkey
           </el-button>
         </span>
