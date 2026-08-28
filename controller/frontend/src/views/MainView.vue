@@ -14,6 +14,7 @@ import {
   mdiCog,
   mdiChartLine,
 } from '@mdi/js'
+import ScrollTabs from '../components/ScrollTabs.vue'
 import { setIntervalImmediate } from '@controller/utils'
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
@@ -36,7 +37,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-tabs :stretch="true" style="">
+  <scroll-tabs :stretch="true" style="height: 100%">
     <el-tab-pane name="overview">
       <template #label>
         <svg-icon type="mdi" :path="mdiMonitorDashboard" :size="24" />
@@ -64,18 +65,5 @@ onUnmounted(() => {
       <template #label> <svg-icon type="mdi" :path="mdiCog" :size="24" /> </template>
       <SettingsView :status="status" />
     </el-tab-pane>
-  </el-tabs>
+  </scroll-tabs>
 </template>
-
-<style scoped>
-:deep(.el-tabs) {
-  overflow: clip; /* Stays within bounds without creating a new scrollbar */
-}
-
-:deep(.el-tabs__header) {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: var(--el-bg-color);
-}
-</style>

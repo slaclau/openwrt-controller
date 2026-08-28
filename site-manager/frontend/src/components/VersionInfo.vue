@@ -10,9 +10,9 @@ import { getVersionVersionGet } from '@/sdk'
 
 const versionInfoVisible = ref(false)
 const showVersionInfo = useToggle(versionInfoVisible)
-const version = ref("");
+const version = ref('')
 onMounted(async () => {
-  version.value = (await getVersionVersionGet()).data ?? "unknown"
+  version.value = (await getVersionVersionGet()).data ?? 'unknown'
 })
 </script>
 

@@ -30,13 +30,12 @@ const user: Ref<UserFullPublic | null> = ref(null)
 const userUpdate: UpdateUserData = reactive({
   username: '',
   full_name: '',
-  display_name: ''
+  display_name: '',
 })
 const initialUserUpdate = ref({ ...userUpdate })
 const activeAuthProviders: Ref<string[]> = ref([])
 
 const auth_providers: Ref<OidcProvider[]> = ref([])
-
 
 const onOpen = async () => {
   const response = await readUsersMeAuthInfoGet()
@@ -49,11 +48,9 @@ const onOpen = async () => {
   initialUserUpdate.value = { ...userUpdate }
 }
 
-
 const changed = computed(() => {
   return JSON.stringify(initialUserUpdate.value) !== JSON.stringify(userUpdate)
 })
-
 
 onMounted(async () => {
   const providers = (await getListOfOidcProvidersAuthOidcProvidersGet()).data
@@ -86,10 +83,11 @@ const handleUpdateInformation = async () => {
 
 const addMfaConfiguration = () => {
   router.push({
-    name: 'SetupMFA', query: {
+    name: 'SetupMFA',
+    query: {
       skip: 'disabled',
-      redirect: route.fullPath
-    }
+      redirect: route.fullPath,
+    },
   })
   drawerRef.value?.handleClose()
 }
@@ -114,7 +112,6 @@ const removePasskey = async (id: string) => {
   const res = await deletePasskeyAuthPasskeysIdDelete({ path: { id } })
   if (!res.error) await onOpen()
 }
-
 </script>
 
 <template>
@@ -140,32 +137,60 @@ const removePasskey = async (id: string) => {
         <el-input :disabled="true" v-model="userUpdate.username" />
       </el-form-item>
       <span>
-        <el-button style="width: 100%" type="primary" :disabled="!changed" @click="handleUpdateInformation"> Save
+        <el-button
+          style="width: 100%"
+          type="primary"
+          :disabled="!changed"
+          @click="handleUpdateInformation"
+        >
+          Save
         </el-button>
       </span>
     </el-form>
 
     <el-divider> Remote Login Providers </el-divider>
-    <el-button v-for="provider in auth_providers" :key="provider" style="width: 100%" class="custom-img-btn mb-4"
-      type="danger" plain @click="() => onClickRemoteProvider(provider.slug)">
+    <el-button
+      v-for="provider in auth_providers"
+      :key="provider"
+      style="width: 100%"
+      class="custom-img-btn mb-4"
+      type="danger"
+      plain
+      @click="() => onClickRemoteProvider(provider.slug)"
+    >
       <img v-if="provider.logo_url" :src="provider.logo_url" class="btn-left-img" />
       {{ activeAuthProviders.includes(provider.slug) ? 'Deauthorize' : 'Authorize' }}
       {{ provider.name }}
     </el-button>
     <el-form label-width="80%" label-position="left">
       <el-divider>MFA Configurations</el-divider>
-      <el-form-item v-for="config in user?.active_totp_configurations"
-        :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%; max-width: 100px" type="danger" plain
-          @click="removeMfaConfiguration(config.id)">Remove</el-button>
+      <el-form-item
+        v-for="config in user?.active_totp_configurations"
+        :label="`${config.device_name} created on ${new Date(Date.parse(config.created_at)).toLocaleDateString()}`"
+      >
+        <el-button
+          style="width: 100%; max-width: 100px"
+          type="danger"
+          plain
+          @click="removeMfaConfiguration(config.id)"
+          >Remove</el-button
+        >
       </el-form-item>
-      <el-button style="width: 100%" type="primary" @click="addMfaConfiguration">Add additional
-        configuration</el-button>
+      <el-button style="width: 100%" type="primary" @click="addMfaConfiguration"
+        >Add additional configuration</el-button
+      >
       <el-divider>Passkeys</el-divider>
-      <el-form-item v-for="passkey in user?.passkeys"
-        :label="`Passkey created on ${new Date(Date.parse(passkey.created_at)).toLocaleDateString()}`">
-        <el-button style="width: 100%; max-width: 100px;" type="danger" plain
-          @click="removePasskey(passkey.id_string)">Remove</el-button>
+      <el-form-item
+        v-for="passkey in user?.passkeys"
+        :label="`Passkey created on ${new Date(Date.parse(passkey.created_at)).toLocaleDateString()}`"
+      >
+        <el-button
+          style="width: 100%; max-width: 100px"
+          type="danger"
+          plain
+          @click="removePasskey(passkey.id_string)"
+          >Remove</el-button
+        >
       </el-form-item>
     </el-form>
     <el-button style="width: 100%" type="primary" @click="addPasskey">Add a passkey</el-button>

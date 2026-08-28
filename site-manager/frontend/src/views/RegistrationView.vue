@@ -25,7 +25,7 @@ const form = reactive({
 const handleRegister = async () => {
   if (form.full_name && form.email && form.username && form.password) {
     const response = await registerUserUsersRegisterPost({
-      body: form
+      body: form,
     })
     if (!response.error) {
       ElNotification.success({
@@ -55,7 +55,6 @@ const handleRegister = async () => {
       <el-form-item label="Display Name (if different to Full Name)">
         <el-input v-model="form.display_name" placeholder="Display Name" />
       </el-form-item>
-
 
       <el-form-item label="Email Address">
         <el-input v-model="form.email" placeholder="Email Address" />

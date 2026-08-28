@@ -14,8 +14,10 @@ const toggleDark = useToggle(isDark)
     <el-header>
       <h1>
         OpenWrt Controller
-        <span style="float: right"><el-button @click="toggleDark()"><svg-icon type="mdi" :path="mdiThemeLightDark"
-              :size="24" /></el-button></span>
+        <span style="float: right"
+          ><el-button @click="toggleDark()"
+            ><svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" /></el-button
+        ></span>
       </h1>
     </el-header>
     <el-main>

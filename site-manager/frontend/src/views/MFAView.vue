@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import router from '@/router';
-import { verifyMfaAuthMfaMfaVerifyPost } from '@/sdk';
-import { ElMessage, ElNotification } from 'element-plus';
-import { reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import router from '@/router'
+import { verifyMfaAuthMfaMfaVerifyPost } from '@/sdk'
+import { ElMessage, ElNotification } from 'element-plus'
+import { reactive } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
@@ -15,17 +15,16 @@ const handleSubmit = async () => {
   const res = await verifyMfaAuthMfaMfaVerifyPost({ body: { code: form.totp } })
   console.log(res)
   if (res.data?.access_token) {
-    localStorage.setItem("auth_token", res.data.access_token)
+    localStorage.setItem('auth_token', res.data.access_token)
 
     ElNotification.success({ title: 'Logged In', message: 'You have successfully logged in.' })
     const target = (route.query.redirect as string) || '/'
     router.push(target)
-  } else
-    ElMessage.error({ message: 'Invalid code. Please try again.' })
+  } else ElMessage.error({ message: 'Invalid code. Please try again.' })
 }
 
 const handleCancel = async () => {
-  localStorage.removeItem("auth_token")
+  localStorage.removeItem('auth_token')
   router.back()
 }
 </script>

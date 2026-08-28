@@ -16,12 +16,12 @@ const router = createRouter({
     {
       path: '/mfa',
       name: 'MFA',
-      component: () => import('@/views/MFAView.vue')
+      component: () => import('@/views/MFAView.vue'),
     },
     {
       path: '/setup-mfa',
       name: 'SetupMFA',
-      component: () => import('@/views/MFASetupView.vue')
+      component: () => import('@/views/MFASetupView.vue'),
     },
     {
       path: '/register',
@@ -44,7 +44,7 @@ const router = createRouter({
       name: 'Site',
       component: () => import('@/views/SiteView.vue'),
       meta: { requiresAuth: true },
-    }
+    },
   ],
 })
 
@@ -74,15 +74,14 @@ router.beforeEach(async (to, from, next) => {
 
   if (token) {
     const decodedToken: Token = jwtDecode(token)
-    if (decodedToken.type.startsWith("limited:")) {
-      let limitedScope = decodedToken.type.replace("limited:", "")
-      if (limitedScope == "setup_mfa" && !(to.name == "SetupMFA"))
+    if (decodedToken.type.startsWith('limited:')) {
+      let limitedScope = decodedToken.type.replace('limited:', '')
+      if (limitedScope == 'setup_mfa' && !(to.name == 'SetupMFA'))
         next({ name: 'SetupMFA', query: { redirect: to.query.redirect } })
-      if (limitedScope == "mfa" && !(to.name == "MFA"))
+      if (limitedScope == 'mfa' && !(to.name == 'MFA'))
         next({ name: 'MFA', query: { redirect: to.query.redirect } })
     }
   }
-
 
   if (to.meta.requiresAuth && !token) {
     ElNotification.error({

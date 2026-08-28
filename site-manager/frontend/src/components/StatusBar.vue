@@ -87,8 +87,13 @@ const adjustedBlocks = computed(() => {
 
 <template>
   <div class="merged-bar">
-    <div v-for="(block, index) in adjustedBlocks" :key="index" class="bar-segment"
-      :class="block.isDown ? 'red' : 'green'" :style="{ width: block.displayWidth + '%' }"></div>
+    <div
+      v-for="(block, index) in adjustedBlocks"
+      :key="index"
+      class="bar-segment"
+      :class="block.isDown ? 'red' : 'green'"
+      :style="{ width: block.displayWidth + '%' }"
+    ></div>
   </div>
 
   <div class="footer-labels">

@@ -60,15 +60,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-container style="height: 100%;">
+  <el-container style="height: 100%">
     <el-header class="fixed-header">
       <h1>
-        <span style="float: left"><el-button :disabled="['/', '/login', '/mfa', '/setup-mfa'].includes(route.path)"
-            @click="router.back()">
+        <span style="float: left"
+          ><el-button
+            :disabled="['/', '/login', '/mfa', '/setup-mfa'].includes(route.path)"
+            @click="router.back()"
+          >
             <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
           </el-button>
         </span>
-        <el-button class="header-title" text disabled><img src="/openwrt.svg" height="24" /></el-button>
+        <el-button class="header-title" text disabled
+          ><img src="/openwrt.svg" height="24"
+        /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
         <span style="float: right">
           <el-button @click="toggleDark">
@@ -80,7 +85,7 @@ onMounted(() => {
         </span>
       </h1>
     </el-header>
-    <el-main style="flex-grow: 1; overflow-y: auto;">
+    <el-main style="flex-grow: 1;">
       <router-view />
     </el-main>
     <el-footer class="fixed-footer">

@@ -50,7 +50,9 @@ const handlePasskeyLogin = async () => {
   let attResp: AuthenticationResponseJSON
   if (res.data) {
     attResp = await startAuthentication({ optionsJSON: res.data })
-    const verificationResp = await verifyAuthenticationAuthPasskeysAuthenticatePost({ body: attResp })
+    const verificationResp = await verifyAuthenticationAuthPasskeysAuthenticatePost({
+      body: attResp,
+    })
 
     const token = verificationResp.data?.access_token
     if (!verificationResp.error && token) {
@@ -81,7 +83,7 @@ const origin = window.location.origin
 </script>
 
 <template>
-  <div style="max-width: 320px; margin: 20px auto auto;">
+  <div style="max-width: 320px; margin: 20px auto auto">
     <h1>Login</h1>
     <el-form label-position="top">
       <el-form-item label="Username">
