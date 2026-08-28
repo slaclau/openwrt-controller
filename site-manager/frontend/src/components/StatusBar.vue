@@ -55,7 +55,7 @@ const rawBlocks = computed(() => {
 })
 
 const adjustedBlocks = computed(() => {
-  let blocks = rawBlocks.value.map((b) => ({ ...b, displayWidth: b.widthPercentage }))
+  const blocks = rawBlocks.value.map((b) => ({ ...b, displayWidth: b.widthPercentage }))
   // Calculate how much width we need to manufacture to satisfy our minimum floor requirement
   let addedWidth = 0
   blocks.forEach((block) => {

@@ -6,12 +6,13 @@
         <template v-if="node.children && node.children.label" #label>
           <component :is="node.children.label" />
         </template>
-
-        <el-scrollbar height="100%" view-style="max-width: 100%; overflow-x: hidden;">
-          <!-- Render the inner contents/slots of the original el-tab-pane -->
-          <component :is="node.children?.default" v-if="node.children?.default" />
-          <component :is="node.children" v-else />
-        </el-scrollbar>
+        <div class="scroll-fade-container">
+          <el-scrollbar height="100%" view-style="max-width: 100%; overflow-x: hidden;">
+            <!-- Render the inner contents/slots of the original el-tab-pane -->
+            <component :is="node.children?.default" v-if="node.children?.default" />
+            <component :is="node.children" v-else />
+          </el-scrollbar>
+        </div>
       </el-tab-pane>
     </template>
   </el-tabs>
@@ -25,17 +26,22 @@ const slots = useSlots()
 // Safely extract and filter el-tab-pane elements
 const paneNodes = computed(() => {
   const children = slots.default ? slots.default() : []
-  
-  return children.flatMap(node => {
-    // Unroll Fragment wrappers (e.g. if you happen to use v-for outside)
-    if (node.type?.toString() === 'Symbol(Fragment)' || node.type?.toString() === 'Symbol(v-fgt)') {
-      return node.children || []
-    }
-    return node
-  }).filter(node => {
-    // Ensure it's a valid Vue component node with props
-    return node && node.props
-  })
+
+  return children
+    .flatMap((node) => {
+      // Unroll Fragment wrappers (e.g. if you happen to use v-for outside)
+      if (
+        node.type?.toString() === 'Symbol(Fragment)' ||
+        node.type?.toString() === 'Symbol(v-fgt)'
+      ) {
+        return node.children || []
+      }
+      return node
+    })
+    .filter((node) => {
+      // Ensure it's a valid Vue component node with props
+      return node && node.props
+    })
 })
 </script>
 
@@ -47,5 +53,28 @@ const paneNodes = computed(() => {
 
 :deep(.el-tab-pane) {
   height: 100%;
+}
+
+.scroll-fade-container {
+  height: 100%;
+  position: relative;
+
+  /* Applies a linear gradient transparency mask across the viewport height */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+
+  /* Fallback support for older WebKit browsers */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
 }
 </style>

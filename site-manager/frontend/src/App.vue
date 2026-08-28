@@ -85,7 +85,7 @@ onMounted(() => {
         </span>
       </h1>
     </el-header>
-    <el-main style="flex-grow: 1;">
+    <el-main style="flex-grow: 1">
       <router-view />
     </el-main>
     <el-footer class="fixed-footer">

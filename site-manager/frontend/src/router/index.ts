@@ -75,7 +75,7 @@ router.beforeEach(async (to, from, next) => {
   if (token) {
     const decodedToken: Token = jwtDecode(token)
     if (decodedToken.type.startsWith('limited:')) {
-      let limitedScope = decodedToken.type.replace('limited:', '')
+      const limitedScope = decodedToken.type.replace('limited:', '')
       if (limitedScope == 'setup_mfa' && !(to.name == 'SetupMFA'))
         next({ name: 'SetupMFA', query: { redirect: to.query.redirect } })
       if (limitedScope == 'mfa' && !(to.name == 'MFA'))
