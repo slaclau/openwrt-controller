@@ -77,4 +77,8 @@ const paneNodes = computed(() => {
     transparent 100%
   );
 }
+
+:deep(.el-scrollbar__bar) {
+  display: none !important; /* Hides both vertical and horizontal scroll indicator tracks */
+}
 </style>
