@@ -102,7 +102,17 @@ const origin = window.location.origin
           <el-button style="width: 100%" @click="handleRegister"> Register </el-button>
         </span>
         <span>
-          <el-button type="primary" plain style="width: 100%" @click="handlePasskeyLogin">
+          <el-button
+            type="primary"
+            plain
+            style="width: 100%"
+            @click="handlePasskeyLogin"
+            class="custom-img-btn mb-4"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/webauthn/default.svg"
+              class="btn-left-img"
+            />
             Login using a Passkey
           </el-button>
         </span>

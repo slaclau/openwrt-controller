@@ -63,15 +63,7 @@ onMounted(() => {
   <el-container style="height: 100%">
     <el-header class="fixed-header">
       <h1>
-        <span style="float: left"
-          ><el-button
-            :disabled="['/', '/login', '/mfa', '/setup-mfa'].includes(route.path)"
-            @click="router.back()"
-          >
-            <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
-          </el-button>
-        </span>
-        <el-button class="header-title" text disabled
+        <el-button class="header-title" text @click="$router.push('/')"
           ><img src="/openwrt.svg" height="24"
         /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
