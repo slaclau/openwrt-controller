@@ -35,7 +35,7 @@ onUnmounted(() => {
           :site="site"
           @click="
             () => {
-              if (site.up) router.push(`/sites/${site.site_id}`)
+              if (site.up) router.push(`/sites/${site.site_id}/overview`)
             }
           "
           :shadow="site.up ? 'hover' : 'never'"

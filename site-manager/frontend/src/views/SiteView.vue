@@ -5,8 +5,7 @@ import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 import { dataChannel, handleResponse } from '@/client.ts'
 import { useRoute } from 'vue-router'
 
-import MainView from 'openwrt-controller/src/views/MainView.vue'
-console.log('MV imported', MainView)
+import TabBar from 'openwrt-controller/src/components/TabBar.vue'
 const connected: Ref<boolean> = ref(false)
 const route = useRoute()
 let socket: WebSocket
@@ -107,5 +106,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <MainView v-loading="!connected" />
+  <div v-loading="!connected">
+    <router-view v-if="connected" style="padding-bottom: 86" />
+    <TabBar style="margin-bottom: 59px" />
+  </div>
 </template>

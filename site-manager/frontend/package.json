@@ -25,6 +25,7 @@
     "@simplewebauthn/browser": "^13.3.0",
     "jwt-decode": "^4.0.0",
     "openwrt-controller": "file:../../controller/frontend",
+    "pinia": "^4.0.3",
     "qrcode.vue": "^3.10.0",
     "vue-router": "^5.2.0"
   },

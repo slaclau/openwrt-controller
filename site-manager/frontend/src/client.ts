@@ -11,6 +11,18 @@ export const dataChannel: Ref<RTCDataChannel | null> = ref(null)
 
 const pendingRequests = new Map()
 
+function generateId(length = 16) {
+  // Use crypto.randomUUID if available for convenience
+  if (typeof crypto !== 'undefined' && crypto.randomUUID && length === 36) {
+    return crypto.randomUUID()
+  }
+
+  // High-performance fallback for HTTP using getRandomValues
+  const arr = new Uint8Array(length / 2)
+  crypto.getRandomValues(arr)
+  return Array.from(arr, (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
 function sendRequest(
   resource: RequestInfo | URL,
   options: RequestInit | undefined,
@@ -23,7 +35,7 @@ function sendRequest(
     }
 
     // Generate a unique ID for correlation
-    const requestId = crypto.randomUUID()
+    const requestId = generateId()
 
     // Set up a timeout so the promise doesn't hang forever
     const timeoutId = setTimeout(() => {

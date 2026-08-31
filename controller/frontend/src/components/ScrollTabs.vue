@@ -7,7 +7,10 @@
           <component :is="node.children.label" />
         </template>
         <div class="scroll-fade-container">
-          <el-scrollbar height="100%" view-style="max-width: 100%; overflow-x: hidden; padding-top: 24px">
+          <el-scrollbar
+            height="100%"
+            view-style="max-width: 100%; overflow-x: hidden; padding-top: 24px"
+          >
             <!-- Render the inner contents/slots of the original el-tab-pane -->
             <component :is="node.children?.default" v-if="node.children?.default" />
             <component :is="node.children" v-else />

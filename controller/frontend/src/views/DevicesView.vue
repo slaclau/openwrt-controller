@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from 'vue'
+import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
 import DeviceComponent from '@controller/components/devices/DeviceDrawerComponent.vue'
 import type { DeviceStatusWithDevice } from '@controller/sdk'
 import DeviceIcon from '@controller/components/devices/DeviceIcon.vue'
 import { formatTime } from '@controller/utils'
+import { useStatusStore } from '@controller/stores/status'
 
 const selectedDevice: Ref<DeviceStatusWithDevice | undefined> = ref(undefined)
 const openDrawer = ref(false)
 let drawerWidth: Ref<string>
 
-defineProps<{
-  devices: Array<DeviceStatusWithDevice> | undefined
-}>()
+const statusStore = useStatusStore()
 
 onMounted(() => {
   drawerWidth = ref(window.screen.width < 500 ? '100%' : '30%')
+  statusStore.startAutoRefresh(3000)
+})
+
+onUnmounted(() => {
+  statusStore.stopAutoRefresh()
 })
 
 function selectDevice(row: DeviceStatusWithDevice) {
@@ -26,7 +30,12 @@ function selectDevice(row: DeviceStatusWithDevice) {
 
 <template>
   <div>
-    <el-table :data="devices" style="width: 100%" table-layout="auto" @row-click="selectDevice">
+    <el-table
+      :data="statusStore.status?.device_status"
+      style="width: 100%"
+      table-layout="auto"
+      @row-click="selectDevice"
+    >
       <el-table-column width="100">
         <template #default="scope">
           <DeviceIcon :device="scope.row.device" />

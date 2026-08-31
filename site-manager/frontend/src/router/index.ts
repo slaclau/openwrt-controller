@@ -4,14 +4,15 @@ import { ElNotification } from 'element-plus'
 import { exchangeCodeForTokenAuthOidcTokenPost } from '@/sdk'
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
 
+import { routes as siteRoutes } from 'openwrt-controller/src/router'
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/login',
+      path: '/login/:provider?',
       name: 'Login',
       component: () => import('@/views/LoginView.vue'),
-      alias: ['/login/:provider'],
     },
     {
       path: '/mfa',
@@ -44,6 +45,7 @@ const router = createRouter({
       name: 'Site',
       component: () => import('@/views/SiteView.vue'),
       meta: { requiresAuth: true },
+      children: siteRoutes,
     },
   ],
 })

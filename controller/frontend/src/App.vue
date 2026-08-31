@@ -10,7 +10,7 @@ const toggleDark = useToggle(isDark)
 </script>
 
 <template>
-  <el-container>
+  <el-container style="height: 100%">
     <el-header>
       <h1>
         OpenWrt Controller
@@ -20,8 +20,19 @@ const toggleDark = useToggle(isDark)
         ></span>
       </h1>
     </el-header>
-    <el-main>
-      <MainView />
-    </el-main>
+    <MainView />
   </el-container>
 </template>
+
+<style>
+html,
+body {
+  overscroll-behavior: none;
+  margin: 0;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+</style>
