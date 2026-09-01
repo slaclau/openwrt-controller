@@ -8,6 +8,10 @@ import { ref, type Ref } from 'vue'
 
 import WirelessDrawerComponent from '@controller/components/settings/wireless/WirelessDrawerComponent.vue'
 
+import { useStatusStore } from '@controller/stores/status'
+
+const statusStore = useStatusStore()
+
 const networks: Ref<Array<Wireless> | undefined> = ref([])
 getAllWirelessNetworksConfigurationWirelessGet().then((res) => {
   networks.value = res.data
@@ -25,13 +29,15 @@ function addNetwork() {
   selectedNetwork.value = null
   openDrawer.value = true
 }
-defineProps<{
-  status: Status | null
-}>()
 </script>
 
 <template>
-  <el-table v-if="status" :data="networks" table-layout="auto" @row-click="selectNetwork">
+  <el-table
+    v-if="statusStore.status"
+    :data="networks"
+    table-layout="auto"
+    @row-click="selectNetwork"
+  >
     <el-table-column prop="ssid" label="SSID" />
     <el-table-column prop="network_id" label="Network" />
   </el-table>

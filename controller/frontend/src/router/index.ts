@@ -26,6 +26,18 @@ export const routes = [
     name: 'Settings',
     path: 'settings',
     component: () => import('@controller/views/SettingsView.vue'),
+    children: [
+      {
+        name: 'Networks',
+        path: 'network',
+        component: () => import('@controller/views/NetworksView.vue'),
+      },
+      {
+        name: 'WiFi',
+        path: 'wifi',
+        component: () => import('@controller/views/WirelessView.vue'),
+      },
+    ],
   },
 ]
 

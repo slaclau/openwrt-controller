@@ -8,6 +8,11 @@ import { useStatusStore } from '@controller/stores/status'
 
 const statusStore = useStatusStore()
 
+const tabs = [
+  { name: 'Networks', route: { name: 'Networks' } },
+  { name: 'WiFi', route: { name: 'WiFi' } },
+]
+
 onMounted(() => {
   statusStore.startAutoRefresh(3000)
 })
@@ -18,12 +23,31 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-tabs tab-position="left" :stretch="true">
-    <el-tab-pane label="Networks" name="networks">
-      <NetworksView :status="statusStore.status" />
-    </el-tab-pane>
-    <el-tab-pane label="WiFi" name="wireless">
-      <WirelessView :status="statusStore.status" />
-    </el-tab-pane>
-  </el-tabs>
+  <el-card v-if="$route.name == 'Settings'">
+    <div v-for="tab in tabs" class="list-item" @click="$router.push(tab.route)">
+      {{ tab.name }}
+    </div>
+  </el-card>
+  <router-view v-else />
 </template>
+
+<style scoped lang="css">
+:deep(.el-card__body) {
+  padding: 0 !important;
+}
+
+.list-item {
+  padding: 10px;
+}
+.list-item.active {
+  color: var(--el-color-primary);
+}
+
+.list-item:hover {
+  color: var(--el-color-primary);
+}
+
+.list-item:not(:last-child) {
+  border-bottom: var(--el-border);
+}
+</style>

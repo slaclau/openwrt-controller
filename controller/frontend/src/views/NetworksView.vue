@@ -9,6 +9,10 @@ import { ref, type Ref } from 'vue'
 
 import NetworkDrawerComponent from '@controller/components/settings/networks/NetworkDrawerComponent.vue'
 
+import { useStatusStore } from '@controller/stores/status'
+
+const statusStore = useStatusStore()
+
 const networks: Ref<Array<NetworkWithDevices> | undefined> = ref([])
 getAllNetworksConfigurationNetworksGet().then((res) => {
   networks.value = res.data
@@ -31,15 +35,12 @@ function addNetwork() {
 //     (network) => network.network.dhcp_server_id == dhcp_server_id,
 //   )[0].dhcp_leases
 // }
-defineProps<{
-  status: Status | null
-}>()
 </script>
 
 <template>
   <el-table
-    v-if="status"
-    :data="status.network_status"
+    v-if="statusStore.status"
+    :data="statusStore.status.network_status"
     table-layout="auto"
     @row-click="selectNetwork"
   >

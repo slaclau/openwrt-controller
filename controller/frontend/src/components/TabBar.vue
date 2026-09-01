@@ -14,11 +14,11 @@ const route = useRoute()
 const router = useRouter()
 
 const tabs = ref([
-  { id: 'overview', icon: mdiMonitorDashboard, path: 'overview' },
-  { id: 'devices', icon: mdiServerOutline, path: 'devices' },
-  { id: 'clients', icon: mdiMonitorCellphone, path: 'clients' },
-  { id: 'dpi', icon: mdiChartLine, path: 'dpi' },
-  { id: 'settings', icon: mdiCog, path: 'settings' },
+  { id: 'overview', icon: mdiMonitorDashboard, route: { name: 'Overview' } },
+  { id: 'devices', icon: mdiServerOutline, route: { name: 'Devices' } },
+  { id: 'clients', icon: mdiMonitorCellphone, route: { name: 'Clients' } },
+  { id: 'dpi', icon: mdiChartLine, route: { name: 'DPI' } },
+  { id: 'settings', icon: mdiCog, route: { name: 'Settings' } },
 ])
 
 const hoverIndex = ref<number | null>(null)
@@ -41,9 +41,9 @@ const dynamicDragLeft = ref(0)
 
 const preloadedPaths = ref<Set<string>>(new Set())
 
-const preloadRouteAsset = (path: string) => {
-  if (preloadedPaths.value.has(path) || path === route.path) return
-  const matchedRoute = router.resolve(path)
+const preloadRouteAsset = (newRoute) => {
+  if (preloadedPaths.value.has(newRoute) || newRoute === route) return
+  const matchedRoute = router.resolve(newRoute)
   if (matchedRoute && matchedRoute.matched.length > 0) {
     matchedRoute.matched.forEach((record) => {
       const components = record.components
@@ -52,9 +52,9 @@ const preloadRouteAsset = (path: string) => {
         if (typeof component === 'function') {
           try {
             ;(component as () => Promise<any>)()
-            preloadedPaths.value.add(path)
+            preloadedPaths.value.add(newRoute)
           } catch (e) {
-            console.error('Failed to preload chunk asset path:', path, e)
+            console.error('Failed to preload chunk asset path:', newRoute, e)
           }
         }
       })
@@ -63,7 +63,9 @@ const preloadRouteAsset = (path: string) => {
 }
 
 const routeActiveIndex = computed(() => {
-  const index = tabs.value.findIndex((tab) => tab.path === route.path.split('/').pop())
+  const index = tabs.value.findIndex((tab) =>
+    route.matched.some((r) => r.path === tab.route || r.name === tab.route.name),
+  )
   return index !== -1 ? index : 0
 })
 
@@ -138,7 +140,7 @@ const handlePointerDown = (event: PointerEvent) => {
 
     // Shift position values to let CSS execute the slide tracking animation smoothly
     activeIndex.value = initialTargetIdx
-    preloadRouteAsset(tabs.value[initialTargetIdx].path)
+    preloadRouteAsset(tabs.value[initialTargetIdx].route)
     updatePillPosition()
 
     // De-escalate size scaling right as the capsule snaps onto its final target zone
@@ -148,7 +150,7 @@ const handlePointerDown = (event: PointerEvent) => {
 
     // Complete router transitions seamlessly when the slide finishes
     setTimeout(() => {
-      router.push(tabs.value[initialTargetIdx].path).then(() => {
+      router.push(tabs.value[initialTargetIdx].route).then(() => {
         isTransitioning.value = false
       })
     }, 350)
@@ -160,7 +162,7 @@ const handlePointerDown = (event: PointerEvent) => {
   isGrowing.value = true
   startX.value = event.clientX
   dragActiveIndex.value = initialTargetIdx
-  preloadRouteAsset(tabs.value[initialTargetIdx].path)
+  preloadRouteAsset(tabs.value[initialTargetIdx].route)
 
   const parentRect = tabBarRef.value.getBoundingClientRect()
   const activeTabRect = tabRefs.value[activeIndex.value].getBoundingClientRect()
@@ -178,7 +180,7 @@ const handlePointerMove = (event: PointerEvent) => {
     if (hoverIndex.value !== currentHoverIdx) {
       hoverIndex.value = currentHoverIdx
       updatePillPosition()
-      preloadRouteAsset(tabs.value[currentHoverIdx].path)
+      preloadRouteAsset(tabs.value[currentHoverIdx].route)
     }
     return
   }
@@ -190,7 +192,7 @@ const handlePointerMove = (event: PointerEvent) => {
   if (currentClosestIdx !== dragActiveIndex.value) {
     dragActiveIndex.value = currentClosestIdx
     activeIndex.value = currentClosestIdx
-    preloadRouteAsset(tabs.value[currentClosestIdx].path)
+    preloadRouteAsset(tabs.value[currentClosestIdx].route)
 
     const targetTab = tabRefs.value[currentClosestIdx]
     if (targetTab) pillWidth.value = targetTab.getBoundingClientRect().width
@@ -204,7 +206,7 @@ const handlePointerUp = () => {
   hoverIndex.value = null
 
   if (dragActiveIndex.value !== null) {
-    router.push(tabs.value[dragActiveIndex.value].path)
+    router.push(tabs.value[dragActiveIndex.value].route)
   }
 
   dragActiveIndex.value = null
@@ -218,7 +220,7 @@ const handleMouseLeave = () => {
 }
 
 watch(
-  () => route.path,
+  () => route,
   () => {
     activeIndex.value = routeActiveIndex.value
     nextTick(updatePillPosition)
