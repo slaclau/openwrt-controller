@@ -107,7 +107,9 @@ onUnmounted(() => {
 
 <template>
   <div v-loading="!connected">
-    <router-view v-if="connected" style="padding-bottom: 86" />
+    <div style="padding-bottom: 86px">
+      <router-view v-if="connected" />
+    </div>
     <TabBar style="margin-bottom: 59px" />
   </div>
 </template>
