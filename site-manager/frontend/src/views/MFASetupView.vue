@@ -68,7 +68,7 @@ onMounted(async () => {
         <el-input v-model="form.device_name" placeholder="Device Name" />
       </el-form-item>
       <el-form-item>
-        <el-input v-model="form.totp" placeholder="Code" />
+        <el-input-otp v-model="form.totp" placeholder="Code" />
       </el-form-item>
 
       <div style="display: grid; gap: 8px">

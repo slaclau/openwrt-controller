@@ -35,7 +35,7 @@ const handleCancel = async () => {
     Please enter the code from your authenticator app.
     <el-form label-position="top">
       <el-form-item>
-        <el-input v-model="form.totp" placeholder="code" />
+        <el-input-otp v-model="form.totp" placeholder="code" />
       </el-form-item>
 
       <div style="display: grid; gap: 8px">
