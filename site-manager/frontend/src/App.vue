@@ -3,6 +3,7 @@ import {
   mdiAccount,
   mdiArrowLeft,
   mdiBrightness7,
+  mdiHome,
   mdiThemeLightDark,
   mdiWeatherNight,
 } from '@mdi/js'
@@ -63,7 +64,12 @@ onMounted(() => {
   <el-container style="height: 100%">
     <el-header class="fixed-header">
       <h1>
-        <el-button class="header-title" text @click="$router.push('/')"
+        <span style="float: left">
+          <el-button @click="$router.push('/')">
+            <svg-icon type="mdi" :path="mdiHome" :size="24" />
+          </el-button>
+        </span>
+        <el-button class="header-title" text disabled
           ><img src="/openwrt.svg" height="24"
         /></el-button>
         <span class="header-title hidden-sm-and-down">Site Manager</span>
