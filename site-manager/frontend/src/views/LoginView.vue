@@ -10,6 +10,8 @@ import {
   type OidcProvider,
 } from '@/sdk'
 import { mdiKey } from '@mdi/js'
+
+import SvgIcon from '@jamescoyle/vue-icon'
 import { startAuthentication, type AuthenticationResponseJSON } from '@simplewebauthn/browser'
 
 const router = useRouter()
@@ -109,10 +111,7 @@ const origin = window.location.origin
             @click="handlePasskeyLogin"
             class="custom-img-btn mb-4"
           >
-            <img
-              src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/webauthn/default.svg"
-              class="btn-left-img"
-            />
+            <svg-icon type="mdi" :path="mdiKey" class="btn-left-img-2" :size="20" style="" />
             Login using a Passkey
           </el-button>
         </span>
@@ -144,6 +143,14 @@ const origin = window.location.origin
   position: absolute;
   left: 16px;
   top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.btn-left-img-2 {
+  position: absolute;
+  left: 16px;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
