@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
-import type { Status } from '@controller/sdk'
-import NetworksView from '@controller/views/NetworksView.vue'
-import WirelessView from '@controller/views/WirelessView.vue'
-
+import SvgIcon from '@jamescoyle/vue-icon'
 import { useStatusStore } from '@controller/stores/status'
+import { mdiArrowLeft } from '@mdi/js'
+import { isMobile } from '@controller/utils'
 
 const statusStore = useStatusStore()
 
@@ -23,22 +22,26 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-card v-if="$route.name == 'Settings'">
-    <div v-for="tab in tabs" class="list-item" @click="$router.push(tab.route)">
-      {{ tab.name }}
-    </div>
-  </el-card>
-  <router-view v-else />
+  <div v-if="!isMobile || $route.name == 'Settings'">
+    <el-card body-style="padding: 0 !important">
+      <div v-for="tab in tabs" class="list-item" @click="$router.push(tab.route)">
+        {{ tab.name }}
+      </div>
+    </el-card>
+  </div>
+  <div v-if="!isMobile || $route.name != 'Settings'">
+    <el-button v-if="isMobile" @click="$router.push({ name: 'Settings' })">
+      <svg-icon type="mdi" :path="mdiArrowLeft" :size="24" />
+    </el-button>
+    <router-view />
+  </div>
 </template>
 
 <style scoped lang="css">
-:deep(.el-card__body) {
-  padding: 0 !important;
-}
-
 .list-item {
   padding: 10px;
 }
+
 .list-item.active {
   color: var(--el-color-primary);
 }

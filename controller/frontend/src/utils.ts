@@ -1,7 +1,7 @@
 import type { DeviceRole } from '@controller/sdk/types.gen'
 import { mdiRouterNetworkWireless, mdiRouterNetwork, mdiAccessPointNetwork, mdiLan } from '@mdi/js'
 import { getApplicationsMapNetifyApplicationsGet } from '@controller/sdk'
-
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 export function makeIcon(roles: Array<DeviceRole> | undefined) {
   if (roles === undefined) return
   if (roles.includes('router')) {
@@ -156,3 +156,6 @@ export function setIntervalImmediate(func: Function, interval: number): number {
   func()
   return setInterval(func, interval)
 }
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+export const isMobile = breakpoints.isSmaller('md')

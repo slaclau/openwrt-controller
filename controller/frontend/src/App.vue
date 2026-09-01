@@ -13,7 +13,7 @@ const toggleDark = useToggle(isDark)
   <el-container style="height: 100%">
     <el-header>
       <h1>
-        OpenWrt Controller
+        {{ $route.name }}
         <span style="float: right"
           ><el-button @click="toggleDark()"
             ><svg-icon type="mdi" :path="mdiThemeLightDark" :size="24" /></el-button

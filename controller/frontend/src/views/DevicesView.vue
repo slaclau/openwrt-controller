@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 import DeviceComponent from '@controller/components/devices/DeviceDrawerComponent.vue'
 import type { DeviceStatusWithDevice } from '@controller/sdk'
 import DeviceIcon from '@controller/components/devices/DeviceIcon.vue'
-import { formatTime } from '@controller/utils'
+import { formatTime, isMobile } from '@controller/utils'
 import { useStatusStore } from '@controller/stores/status'
 
 const selectedDevice: Ref<DeviceStatusWithDevice | undefined> = ref(undefined)
@@ -29,7 +29,7 @@ function selectDevice(row: DeviceStatusWithDevice) {
 </script>
 
 <template>
-  <div>
+  <div v-if="!isMobile">
     <el-table
       :data="statusStore.status?.device_status"
       style="width: 100%"
@@ -58,7 +58,58 @@ function selectDevice(row: DeviceStatusWithDevice) {
       </el-table-column>
     </el-table>
   </div>
+  <div v-else>
+    <el-card body-style="padding: 0 !important">
+      <div
+        v-for="device in statusStore.status?.device_status"
+        class="list-item"
+        @click="selectDevice(device)"
+      >
+        <span style="width: 50%">
+          <DeviceIcon :device="device.device" />
+          {{ device.device.hostname }}
+          <br />
+          <small> {{ device.device.model }} </small>
+        </span>
+        <span>
+          {{ device.last_ip }}
+          <br />
+          <small>
+            {{
+              device.device.adopted
+                ? device.up
+                  ? '✔ for ' + formatTime(device.uptime)
+                  : device.time_since_inform
+                    ? '✗ for ' + formatTime(device.time_since_inform)
+                    : '✗'
+                : 'Awaiting adoption'
+            }}
+          </small>
+        </span>
+      </div>
+    </el-card>
+  </div>
   <el-drawer v-model="openDrawer" :size="drawerWidth">
     <DeviceComponent :device="selectedDevice" />
   </el-drawer>
 </template>
+
+<style scoped lang="css">
+.list-item {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.list-item.active {
+  color: var(--el-color-primary);
+}
+
+.list-item:hover {
+  color: var(--el-color-primary);
+}
+
+.list-item:not(:last-child) {
+  border-bottom: var(--el-border);
+}
+</style>

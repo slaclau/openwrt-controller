@@ -6,7 +6,7 @@ import {
   updateWirelessNetworkConfigurationWirelessWirelessIdPut,
   type Wireless,
 } from '@controller/sdk'
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, defineEmits } from 'vue'
 
 const props = defineProps<{
   network: Wireless | null
@@ -41,20 +41,22 @@ function onSubmit(): void {
   }
 }
 
+const emit = defineEmits(['cancel'])
 function onCancel(): void {
   getWirelessNetworkConfigurationWirelessWirelessIdGet({
     path: { wireless_id: config.value?.wireless_id },
   }).then((res) => {
     if (res.data !== undefined) config.value = res.data
   })
+  emit('cancel')
 }
 </script>
 
 <template>
   <el-form label-width="auto" v-if="config">
-    <el-form-item>
-      <el-button @click="onCancel">Cancel</el-button>
-      <el-button type="primary" @click="onSubmit">Update</el-button>
+    <el-form-item style="display: flex">
+      <el-button @click="onCancel" style="flex: 1">Cancel</el-button>
+      <el-button type="primary" @click="onSubmit" style="flex: 1">Update</el-button>
     </el-form-item>
     <el-card>
       <el-form-item label="SSID">
