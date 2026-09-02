@@ -3,6 +3,7 @@ name = "openwrt-site-manager"
 dependencies = [
   "alembic>=1.19.1",
   "authlib",
+  "fastapi-cloud-cli>=0.25.0",
   "fastapi[standard]",
   "httpx2",
   "itsdangerous",
