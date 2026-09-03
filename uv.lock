@@ -1254,7 +1254,6 @@ requires-dist = [
 name = "openwrt-controller-workspace"
 source = { virtual = "." }
 dependencies = [
-    { name = "fastapi-cloud-cli" },
     { name = "generate-openapi-spec" },
     { name = "git-semantic-version" },
 ]
@@ -1266,7 +1265,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi-cloud-cli", specifier = ">=0.24.0" },
     { name = "generate-openapi-spec", editable = "tools/generate_openapi_spec" },
     { name = "git-semantic-version", editable = "tools/git_semantic_version" },
 ]

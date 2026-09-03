@@ -1,7 +1,6 @@
 [project]
 name = "openwrt-controller-workspace"
 dependencies = [
-  "fastapi-cloud-cli>=0.24.0",
   "generate-openapi-spec",
   "git-semantic-version",
 ]
