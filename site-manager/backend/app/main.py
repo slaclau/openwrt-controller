@@ -5,8 +5,7 @@ import logging
 import secrets
 
 from alembic import command, config
-from fastapi import APIRouter, FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI
 import logfire
 from sqlmodel import Session, select
 from starlette.middleware.sessions import SessionMiddleware
