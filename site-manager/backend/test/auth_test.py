@@ -1,40 +1,33 @@
 # from pytest_mock import MockFixture
 
 import datetime
-from typing import Annotated, Any
+from typing import Any
 
-from fastapi import Depends, HTTPException, status
-from fastapi.testclient import TestClient
-from httpx2 import Response
 import jwt
-from pwdlib import PasswordHash
-from pwdlib.hashers.argon2 import Argon2Hasher
 import pytest
-from sqlalchemy import Engine
-from sqlmodel import Session, StaticPool, create_engine, SQLModel
-
-from app.main import app
-
-from app.dependencies import SessionDep, get_session
-
 from app.auth import token
 from app.auth.authentication import authenticate_user, password_hash
-from app.auth.main import get_current_user, get_current_active_user
+from app.auth.main import get_current_active_user, get_current_user
+
+# db model imports
 from app.auth.token import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_DAYS,
     create_access_token,
-    public_key,
-    private_key,
     mint_tokens,
-    get_tokens,
+    private_key,
+    public_key,
 )
-
-# db model imports
-from app.auth.oidc import RemoteUser
-from app.auth.token import RefreshTokenData
-from app.sites import Site, SiteAccessRelationship
+from app.dependencies import get_session
+from app.main import app
 from app.users.model import User, UserInDb
+from fastapi import HTTPException, status
+from fastapi.testclient import TestClient
+from httpx2 import Response
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
+from sqlalchemy import Engine
+from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
 NOW = datetime.datetime.now(tz=datetime.timezone.utc)
 print(f"setting NOW to {NOW}")

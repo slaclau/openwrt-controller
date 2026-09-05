@@ -1,20 +1,19 @@
-import typing
 import uuid
 from ipaddress import IPv4Address, IPv4Network
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import ValidationError, computed_field
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Field, SQLModel, Relationship, AutoString
+from sqlmodel import AutoString, Field, Relationship, SQLModel
 
-from .devices import Device
 from ...dependencies import SessionDep
+from .devices import Device
 
 router = APIRouter(prefix="/configuration/networks", tags=["networks"])
 
 
 class IPv4AddressType(AutoString):
-    def process_bind_param(self, value, dialect) -> typing.Optional[str]:
+    def process_bind_param(self, value, dialect) -> str | None:
         if value is None or value == "None":
             return None
 
@@ -27,7 +26,7 @@ class IPv4AddressType(AutoString):
 
         return str(value)
 
-    def process_result_value(self, value, dialect) -> typing.Optional[IPv4Address]:
+    def process_result_value(self, value, dialect) -> IPv4Address | None:
         if value is None or value == "None":
             return None
 

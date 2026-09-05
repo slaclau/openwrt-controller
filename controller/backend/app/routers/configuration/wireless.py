@@ -1,9 +1,9 @@
 from enum import Enum
 
-from fastapi import APIRouter, HTTPException, Response, status
-from pydantic import ValidationError, computed_field, model_validator
+from fastapi import APIRouter, HTTPException, status
+from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import JSON, Column, Field, SQLModel
+from sqlmodel import Field, SQLModel
 
 from ...dependencies import SessionDep
 

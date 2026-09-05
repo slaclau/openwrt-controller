@@ -1,17 +1,14 @@
-import os
+import gzip
+import json
 import pprint
 import time
 from ipaddress import IPv4Address, IPv6Address
 
-import gzip
-import json
-from operator import getitem
-
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
-from sqlalchemy import func
-from sqlmodel import SQLModel, Field, Relationship, and_, desc, asc
 from pydantic_extra_types.mac_address import MacAddress
+from sqlalchemy import func
+from sqlmodel import Field, Relationship, SQLModel, and_, desc
 
 router = APIRouter(prefix="/netify", tags=["netify"])
 
@@ -256,7 +253,7 @@ def get_host_last_hour_stats(session: SessionDep) -> HostTimeStats:
 def get_host_time_stats(
     session: SessionDep, start_time, end_time, transform=True
 ) -> HostTimeStats:
-    t = time.time()
+    time.time()
     identifiers = (
         session.query(
             HostStats.application, HostStats.protocol, HostStats.mac, HostStats.ip
@@ -358,7 +355,7 @@ def get_host_time_stats_from_raw(session: SessionDep, start_time, end_time):
     )
     print(f"sql took {time.time() - t:.3} s")
     flows = [stat.flow for stat in raw]
-    hosts = set([(flow.local_mac, flow.local_ip) for flow in flows if flow])
+    hosts = {(flow.local_mac, flow.local_ip) for flow in flows if flow}
     rtn = {"hosts": [], "categories": []}
     for host in hosts:
         host_stats = [
@@ -368,9 +365,9 @@ def get_host_time_stats_from_raw(session: SessionDep, start_time, end_time):
             and stat.flow.local_mac == host[0]
             and stat.flow.local_ip == host[1]
         ]
-        categories = set(
-            [(stat.flow.application, stat.flow.protocol) for stat in host_stats]
-        )
+        categories = {
+            (stat.flow.application, stat.flow.protocol) for stat in host_stats
+        }
         host_rtn = []
         for category in categories:
             category_stats = [
@@ -412,13 +409,13 @@ def get_host_time_stats_from_raw(session: SessionDep, start_time, end_time):
 
     rtn["hosts"].sort(key=lambda host: host["upload"] + host["download"], reverse=True)
 
-    categories = set(
-        [
+    categories = {
+        
             (category["application"], category["protocol"])
             for host in rtn["hosts"]
             for category in host["stats"]
-        ]
-    )
+        
+    }
     for category in categories:
         stats = [
             stat

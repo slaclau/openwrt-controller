@@ -1,5 +1,7 @@
 import json
+
 from app.main import app
+
 
 def main():
     with open("openapi.json", "w") as f:

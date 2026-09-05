@@ -1,26 +1,25 @@
 import asyncio
-from contextlib import asynccontextmanager
 import importlib.metadata
 import logging
 import pathlib
 import tarfile
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-
 from .dependencies import create_db_and_tables
 from .logging import register_log_filter
+from .routers import netify
 from .routers.configuration import (
     devices,
+    internet,
     networks,
     ports,
     provisioning,
     wireless,
-    internet,
 )
 from .routers.control import inform
 from .routers.status import status
-from .routers import netify
 from .site_manager import manage_site_manager_connection
 from .stun import setup_stun_server
 

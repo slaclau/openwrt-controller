@@ -1,21 +1,21 @@
-from contextlib import asynccontextmanager
-from datetime import datetime
 import importlib.metadata
 import logging
 import secrets
+from contextlib import asynccontextmanager
+from datetime import datetime
 
+import logfire
 from alembic import command, config
 from fastapi import FastAPI
-import logfire
 from sqlmodel import Session, select
 from starlette.middleware.sessions import SessionMiddleware
 
-from .dependencies import create_db_and_tables, get_session
-from .users.router import users
 from .auth import auth
+from .auth.oidc import AuthCode, load_config
 from .auth.token import RefreshTokenData
-from .auth.oidc import load_config, AuthCode
+from .dependencies import get_session
 from .sites import sites
+from .users.router import users
 from .webrtc import webrtc
 
 logger = logging.getLogger(f"uvicorn.{__name__}")

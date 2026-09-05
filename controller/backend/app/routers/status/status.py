@@ -1,6 +1,5 @@
 import datetime
 import time
-from typing import Optional
 import uuid
 from ipaddress import IPv4Address
 
@@ -9,14 +8,13 @@ from pydantic import BaseModel, computed_field
 from pydantic_extra_types.mac_address import MacAddress
 from sqlmodel import Field, Relationship, SQLModel, select
 
-from ..configuration.networks import (
-    get_all_networks,
-    IPv4AddressType,
-    NetworkWithDevices,
-)
 from ...dependencies import SessionDep
 from ..configuration.devices import Device, get_all_devices
-from ..configuration.networks import Network
+from ..configuration.networks import (
+    IPv4AddressType,
+    NetworkWithDevices,
+    get_all_networks,
+)
 
 router = APIRouter(prefix="/status", tags=["status"])
 
@@ -24,10 +22,10 @@ router = APIRouter(prefix="/status", tags=["status"])
 class DeviceStatusBase(SQLModel):
     device_id: uuid.UUID = Field(primary_key=True, foreign_key="device.device_id")
     last_inform: float | None = Field(default=None)
-    last_ip: Optional[IPv4Address] = Field(default=None, sa_type=IPv4AddressType)
+    last_ip: IPv4Address | None = Field(default=None, sa_type=IPv4AddressType)
     boot_time: datetime.datetime | None = Field(default=None)
-    nat_ip: Optional[IPv4Address] = Field(default=None, sa_type=IPv4AddressType)
-    nat_port: Optional[int] = Field(default=None)
+    nat_ip: IPv4Address | None = Field(default=None, sa_type=IPv4AddressType)
+    nat_port: int | None = Field(default=None)
 
     @computed_field  # type: ignore[prop-decorator]
     @property

@@ -5,11 +5,10 @@ import os
 import time
 import uuid
 
-from fastapi import FastAPI
-import httpx
-
 import aiortc
+import httpx
 import websockets
+from fastapi import FastAPI
 
 from .configuration import Protocol
 from .dependencies import get_configuration
@@ -130,7 +129,7 @@ async def listen(websocket: websockets.ClientConnection, app: FastAPI):
 
                         @connections[tuple(message["client"])].on("datachannel")
                         def on_data_channel(channel: aiortc.RTCDataChannel):
-                            logger.info(f"data channel opened")
+                            logger.info("data channel opened")
 
                             @channel.on("message")
                             async def on_message(dc_message):
@@ -202,7 +201,7 @@ async def listen(websocket: websockets.ClientConnection, app: FastAPI):
                     )
                 )
 
-                logger.info(f"Sent WebRTC answer")
+                logger.info("Sent WebRTC answer")
 
             case "ice-candidate":
                 candidate = message["ice-candidate"]

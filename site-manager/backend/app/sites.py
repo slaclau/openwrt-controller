@@ -1,17 +1,17 @@
 import logging
 import time
-from typing import Annotated
 import uuid
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from fastapi.datastructures import Address
 from pydantic import computed_field
 from sqlmodel import Field, Relationship, SQLModel, select
 
+from .auth.main import get_current_active_user
 from .dependencies import SessionDep
 from .links import SiteAccessRelationship
 from .users.model import UserInDb
-from .auth.main import get_current_active_user
 from .webrtc import client_websockets, site_websockets
 
 logger = logging.getLogger(f"uvicorn.{__name__}")

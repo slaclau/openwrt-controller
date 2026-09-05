@@ -12,19 +12,19 @@ from webauthn import (
     verify_registration_response,
 )
 from webauthn.helpers import (
-    options_to_json_dict,
-    bytes_to_base64url,
     base64url_to_bytes,
+    bytes_to_base64url,
+    options_to_json_dict,
 )
 from webauthn.helpers.structs import (
     AuthenticatorSelectionCriteria,
     ResidentKeyRequirement,
 )
 
+from ..dependencies import ConfigurationDep, SessionDep
+from ..users.model import UserFullPublic, UserInDb
 from .main import get_current_active_user
 from .token import Token, get_tokens
-from ..users.model import UserInDb, UserFullPublic
-from ..dependencies import SessionDep, ConfigurationDep
 
 passkeys = APIRouter(prefix="/passkeys")
 

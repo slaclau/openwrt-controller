@@ -3,11 +3,10 @@ from enum import Enum
 from ipaddress import IPv4Address
 from typing import TYPE_CHECKING
 
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import ValidationError, model_validator
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
-
 
 from ...dependencies import SessionDep
 
@@ -16,7 +15,6 @@ router = APIRouter(prefix="/configuration/devices", tags=["devices"])
 if TYPE_CHECKING:
     from ..status.status import DeviceStatus
     from .ports import Port
-    from .internet import Internet
     from .radios import Radio
 
 

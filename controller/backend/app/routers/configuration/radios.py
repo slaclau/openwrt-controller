@@ -1,9 +1,9 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException, Response, status
-from pydantic import ValidationError, model_validator
+from fastapi import APIRouter, HTTPException, status
+from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import JSON, Column, Field, Relationship, SQLModel
+from sqlmodel import JSON, Field, Relationship, SQLModel
 
 from ...dependencies import SessionDep
 from .devices import Device

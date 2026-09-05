@@ -1,7 +1,7 @@
 #!/bin/env python
+import os
 import re
 import sys
-import os
 
 try:
     import git
@@ -59,7 +59,7 @@ def get_version_string(target_dir="."):
                 if line.startswith("Version:"):
                     return line.split(":", 1)[1].strip()
     try:
-        repo = git.Repo(".", search_parent_directories=True)
+        git.Repo(".", search_parent_directories=True)
         return ".".join([str(v) for v in get_version_triplet(target_dir)])
     except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError):
         return "0.0.1"

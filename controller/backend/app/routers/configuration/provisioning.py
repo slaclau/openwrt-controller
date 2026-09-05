@@ -6,11 +6,10 @@ from fastapi.responses import FileResponse, PlainTextResponse, Response
 from netjsonconfig import OpenWrt
 from sqlmodel import select
 
-from . import schema
-
-from .internet import Internet
 from ...dependencies import SessionDep
-from .devices import Device, DeviceRole, AddressProto
+from . import schema
+from .devices import AddressProto, Device, DeviceRole
+from .internet import Internet
 from .networks import Network
 from .radios import Radio
 from .wireless import Wireless
@@ -222,9 +221,9 @@ def make_controller_config(device: Device, session: SessionDep):
             "config_name": "inform",
             "controller_ip": "192.168.122.1",
             "device_id": device.device_id,
-            "management_network": [
+            "management_network": next(
                 network.network_id for network in networks if network.management
-            ][0],
+            ),
         },
         {"config_name": "stun", "stun_interval": 20000, "stun_port": 3478},
     ]

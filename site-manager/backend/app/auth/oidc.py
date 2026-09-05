@@ -1,31 +1,29 @@
-from datetime import datetime, timedelta
 import logging
 import secrets
-from typing import Annotated
+from datetime import datetime, timedelta
 
+from authlib.integrations.starlette_client import OAuth
+from fastapi import APIRouter, Form, HTTPException, Request, Response, status
+from fastapi.responses import RedirectResponse
 from joserfc import jwt
 from joserfc.jwk import KeySet
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
-from fastapi.responses import RedirectResponse
-
+from pydantic import BaseModel, Field, HttpUrl, computed_field
+from sqlmodel import (
+    Field as SQLField,
+)
 from sqlmodel import (
     ForeignKeyConstraint,
     Relationship,
     SQLModel,
     and_,
     select,
-    Field as SQLField,
 )
 
-from authlib.integrations.starlette_client import OAuth
-
-from pydantic import BaseModel, Field, HttpUrl, computed_field
-
-from .authentication import authenticate_user
-from .token import RefreshTokenData, Token, get_tokens
-from ..users.model import UserInDb, UserFullPublic
 from ..configuration import OidcProvider, OidcProviderConfig
 from ..dependencies import ConfigurationDep, SessionDep, get_configuration
+from ..users.model import UserFullPublic, UserInDb
+from .authentication import authenticate_user
+from .token import RefreshTokenData, Token, get_tokens
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
@@ -392,5 +390,5 @@ async def handle_rp_logout(provider: str, request: Request, config: Configuratio
 async def logged_out(provider: str, request: Request, config: ConfigurationDep):
     client = oauth.create_client(provider)
 
-    state_data = await client.validate_logout_response(request)
+    await client.validate_logout_response(request)
     return RedirectResponse(f"{config.frontend.url}login")

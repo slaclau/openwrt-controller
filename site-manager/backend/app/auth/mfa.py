@@ -1,20 +1,20 @@
 import base64
+import datetime
 import logging
 import secrets
 import uuid
-from cryptography.fernet import Fernet
-import datetime
 from typing import Annotated
 
+from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import AnyUrl
 from pyotp import TOTP
-from sqlmodel import Field, Relationship, SQLModel, select, and_
+from sqlmodel import Field, Relationship, SQLModel
 
-from ..dependencies import get_configuration, ConfigurationDep, SessionDep
+from ..dependencies import ConfigurationDep, SessionDep, get_configuration
 from ..users.model import UserInDb
 from . import mfa
-from .main import get_current_active_user, get_token_scope, get_current_user, Token
+from .main import Token, get_current_active_user, get_current_user, get_token_scope
 from .token import get_tokens
 
 logger = logging.getLogger(f"uvicorn.{__name__}")

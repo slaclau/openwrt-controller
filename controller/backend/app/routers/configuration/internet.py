@@ -1,14 +1,11 @@
 import uuid
-from ipaddress import IPv4Address, IPv4Network
 
-from fastapi import APIRouter, HTTPException, Response, status
-from pydantic import ValidationError, computed_field, model_validator
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import JSON, Column, Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel
 
-from .devices import Device
-from .ports import Port, PortRole
 from ...dependencies import SessionDep
+from .ports import Port, PortRole
 
 router = APIRouter(prefix="/configuration/internets", tags=["internets"])
 

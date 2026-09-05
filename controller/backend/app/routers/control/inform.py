@@ -1,25 +1,21 @@
 import datetime
-import pathlib
 import time
-import typing
 import uuid
 from ipaddress import IPv4Address
-from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Request, status as status_codes
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, Request
+from fastapi import status as status_codes
 from pydantic import BaseModel
 from pydantic_extra_types.mac_address import MacAddress
-from sqlmodel import Field, Relationship, select
+from sqlmodel import Field, select
 
-from .command import Command, DeviceCommand
-from ...stun import send_immediate_command
-
-from ..configuration.ports import PortRole, Port
-from ..configuration.radios import Radio
 from ...dependencies import SessionDep
-from ..configuration.devices import Device, AddressProto, DeviceRole
-from ..status.status import DHCPLeaseBase, DHCPLease, DeviceStatus
+from ...stun import send_immediate_command
+from ..configuration.devices import AddressProto, Device, DeviceRole
+from ..configuration.ports import Port, PortRole
+from ..configuration.radios import Radio
+from ..status.status import DeviceStatus, DHCPLease, DHCPLeaseBase
+from .command import Command, DeviceCommand
 
 router = APIRouter(prefix="/control", tags=["control"])
 
@@ -43,11 +39,11 @@ class NatInfo(BaseModel):
 
 
 class InformPayload(BaseModel):
-    device_id: Optional[uuid.UUID] = None
+    device_id: uuid.UUID | None = None
     ip: IPv4Address
     boot_time: datetime.datetime
     iwinfo: list[Iwinfo] = Field(default=[])
-    interface_stats: Optional[dict[str, InterfaceStats]] = Field(default={})
+    interface_stats: dict[str, InterfaceStats] | None = Field(default={})
     model: str | None = None
     ports: dict[str, str] = Field()
     dhcp_leases: list[DHCPLeaseBase] = Field()

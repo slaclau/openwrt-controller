@@ -1,21 +1,21 @@
 import logging
-from typing import TYPE_CHECKING, Annotated
 import uuid
+from typing import Annotated
 
+import jwt
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import (
     APIKeyCookie,
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm,
 )
-import jwt
-from fastapi import Depends, HTTPException, Request, Response, status
 
-from . import auth
 from ..dependencies import ConfigurationDep, SessionDep
-from ..users.model import User, UserInDb, UserFullPublic
+from ..users.model import UserFullPublic, UserInDb
+from . import auth
 from .authentication import authenticate_user
-from .token import get_tokens, public_key, Token, RefreshTokenData
 from .oidc import LogoutUrl, handle_rp_logout
+from .token import RefreshTokenData, Token, get_tokens, public_key
 
 logger = logging.getLogger(f"uvicorn.{__name__}")
 
@@ -164,8 +164,8 @@ def delink_account(
     session: SessionDep,
     current_user: Annotated[UserInDb, Depends(get_current_active_user)],
 ):
-    remote_user = [
+    remote_user = next(
         user for user in current_user.remote_users if user.provider == provider
-    ][0]
+    )
     session.delete(remote_user)
     session.commit()

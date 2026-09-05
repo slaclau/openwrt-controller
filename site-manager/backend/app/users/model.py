@@ -1,18 +1,18 @@
 import datetime
-from typing import TYPE_CHECKING, Annotated
 import uuid
+from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, Field
-from sqlmodel import Field as SQLField, Relationship, SQLModel, select
+from sqlmodel import Field as SQLField
+from sqlmodel import Relationship, SQLModel
 
 from ..links import SiteAccessRelationship
 
 if TYPE_CHECKING:
-    from ..sites import Site
     from ..auth.main import RefreshTokenData
-    from ..auth.oidc import RemoteUser, RemoteUserOut
     from ..auth.mfa import TotpConfiguration
+    from ..auth.oidc import RemoteUser, RemoteUserOut
     from ..auth.passkeys import Passkey
+    from ..sites import Site
 
 
 class User(SQLModel, table=False):

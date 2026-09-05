@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
 
-from .main import get_current_active_user
 from ..users.model import User
+from .main import get_current_active_user
 
 
 class PermissionChecker:

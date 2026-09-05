@@ -1,9 +1,9 @@
 import asyncio
 import enum
-from ipaddress import IPv4Address
 import logging
 import socket
 import uuid
+from ipaddress import IPv4Address
 
 from .routers.control.command import DeviceCommand
 from .routers.status.status import DeviceStatus

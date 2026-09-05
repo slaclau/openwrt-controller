@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import select
 
-from .model import UpdateUserData, User, UserInDb, CreateUserData, UserFullPublic
-from ..auth.main import get_current_active_user
 from ..auth.authentication import password_hash
+from ..auth.main import get_current_active_user
 from ..auth.permissions import PermissionChecker
 from ..dependencies import SessionDep
+from .model import CreateUserData, UpdateUserData, User, UserFullPublic, UserInDb
 
 users = APIRouter(prefix="/users")
 

@@ -9,6 +9,7 @@ dynamic = ["version"]
 [dependency-groups]
 dev = [
   "black>=26.5.1",
+  "ruff>=0.16.6",
 ]
 
 [tool.setuptools]
@@ -20,7 +21,7 @@ package = false
 override-dependencies = ["psycopg2; sys_platform == 'never'"]
 
 [tool.uv.workspace]
-members = ["tools/*", "site-manager/backend", "controller/backend"]
+members = ["tools/*", "site-manager/backend", "controller/backend", "libraries/*/python"]
 
 [tool.uv.sources]
 git-semantic-version = { workspace = true }
