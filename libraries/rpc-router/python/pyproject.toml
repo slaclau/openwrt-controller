@@ -1,0 +1,14 @@
+[project]
+name = "rpc-router"
+dependencies = []
+dynamic = ["version"]
+
+[dependency-groups]
+fastapi = ["fastapi"]
+websockets = ["websockets"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.uv]
+package = true
