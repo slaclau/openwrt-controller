@@ -4,9 +4,16 @@ import logging
 import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any, Optional, Protocol
+
+from .exceptions import ConnectionBrokenException
 
 logger = logging.getLogger(__name__)
+
+
+class SendReceiveHandler(Protocol):
+    def __call__(self, ctx: AbstractDuplexConnection, frame: any) -> any:
+        pass
 
 
 class DuplexRouter:
@@ -15,6 +22,8 @@ class DuplexRouter:
     def __init__(self):
         self.routes: dict[str, Callable] = {}
         self.connect_handler: Callable | None = None
+        self.receive_handlers: list[SendReceiveHandler] = []
+        self.send_handlers: list[SendReceiveHandler] = []
 
     def on(self, name_or_func: str | Callable | None = None):
         if callable(name_or_func):
@@ -32,6 +41,14 @@ class DuplexRouter:
 
     def on_connect(self, func: Callable):
         self.connect_handler = func
+        return func
+
+    def before_receive(self, func: SendReceiveHandler):
+        self.receive_handlers.append(func)
+        return func
+
+    def before_send(self, func: SendReceiveHandler):
+        self.send_handlers.append(func)
         return func
 
 
@@ -112,31 +129,29 @@ class AbstractDuplexConnection(ABC):
 
     async def send(self, method: str, payload: Any = None) -> None:
         if not self.is_alive:
-            raise ConnectionError("Closed")
-        await self._raw_send(
-            json.dumps(
-                {"id": None, "type": "signal", "method": method, "payload": payload}
-            )
-        )
+            raise ConnectionBrokenException
+        frame = {"id": None, "type": "signal", "method": method, "payload": payload}
+        await self._dispatch_frame(frame)
+
+    async def _dispatch_frame(self, frame):
+        logger.debug("Sending %s", frame)
+        for handler in self.router.send_handlers:
+            handler(self, frame=frame)
+        await self._raw_send(json.dumps(frame))
 
     async def call(self, method: str, payload: Any = None, timeout: float = 5.0) -> Any:
         if not self.is_alive:
-            raise ConnectionError("Closed")
+            raise ConnectionBrokenException
         call_id = f"rpc-{uuid.uuid4()}"
         future = asyncio.get_running_loop().create_future()
         self.pending_calls[call_id] = future
-        await self._raw_send(
-            json.dumps(
-                {"id": call_id, "type": "request", "method": method, "payload": payload}
-            )
-        )
+        frame = {"id": call_id, "type": "request", "method": method, "payload": payload}
+        await self._dispatch_frame(frame)
         try:
             return await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError:
             self.pending_calls.pop(call_id, None)
             raise TimeoutError(f"Call to '{method}' timed out")
-
-    # --- 🌟 THE ABSTRACT LIFECYCLE HELPERS ---
 
     async def wait_forever(self) -> None:
         """
@@ -198,6 +213,9 @@ class AbstractDuplexConnection(ABC):
     async def _handle_frame(self, raw_message: str) -> None:
         try:
             frame = json.loads(raw_message)
+            logger.debug("Handling %s", frame)
+            for handler in self.router.receive_handlers:
+                handler(self, frame=frame)
             t, fid, m, p = (
                 frame.get("type"),
                 frame.get("id"),
@@ -218,27 +236,21 @@ class AbstractDuplexConnection(ABC):
                 elif t == "request" and fid:
                     try:
                         res = await handler(self, p)
-                        await self._raw_send(
-                            json.dumps(
-                                {
-                                    "id": fid,
-                                    "type": "response",
-                                    "method": m,
-                                    "payload": res,
-                                }
-                            )
-                        )
+                        frame = {
+                            "id": fid,
+                            "type": "response",
+                            "method": m,
+                            "payload": res,
+                        }
+                        await self._dispatch_frame(frame)
                     except Exception as e:
-                        await self._raw_send(
-                            json.dumps(
-                                {
-                                    "id": fid,
-                                    "type": "response",
-                                    "method": m,
-                                    "payload": None,
-                                    "error": str(e),
-                                }
-                            )
-                        )
+                        frame = {
+                            "id": fid,
+                            "type": "response",
+                            "method": m,
+                            "payload": None,
+                            "error": str(e),
+                        }
+                        await self._dispatch_frame(frame)
         except Exception:
             pass

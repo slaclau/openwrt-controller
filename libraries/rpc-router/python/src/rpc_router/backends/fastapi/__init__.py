@@ -1,1 +1,1 @@
-from .transport import FastAPIServer
+from .transport import FastAPIServer as FastAPIServer

@@ -3,6 +3,7 @@ import logging
 import websockets
 from websockets.protocol import State
 
+from ...exceptions import ConnectionBrokenException, ConnectionRefusedException
 from ...lifecycle import AbstractClient, AbstractServer
 from ...protocol import AbstractDuplexConnection, ConnectionManager, DuplexRouter
 
@@ -25,8 +26,8 @@ class WebsocketsDuplexConnection(AbstractDuplexConnection):
     async def _raw_send(self, payload_str: str) -> None:
         try:
             await self.ws.send(payload_str)
-        except websockets.exceptions.ConnectionClosed:
-            raise ConnectionAbortedError
+        except websockets.exceptions.ConnectionClosed as e:
+            raise ConnectionBrokenException from e
 
     async def _raw_recv(self) -> str | None:
         try:
@@ -79,5 +80,5 @@ class WebsocketClient(AbstractClient):
     async def _create_connection(self) -> WebsocketsDuplexConnection:
         websocket = await websockets.connect(self.target_url)
         if not websocket.state == State.OPEN:
-            raise ConnectionError("Closed")
+            raise ConnectionRefusedException
         return WebsocketsDuplexConnection(websocket, self.router)

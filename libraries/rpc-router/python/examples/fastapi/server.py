@@ -13,13 +13,14 @@ logging.getLogger("rpc_router").setLevel(logging.DEBUG)
 router = DuplexRouter()
 server = FastAPIServer(router=router)
 
+
 async def ping():
     count = 0
     while True:
         count += 1
         await server.manager.broadcast(method="ping", payload={"count": count})
         await asyncio.sleep(10)
-        print("p")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,7 +28,14 @@ async def lifespan(app: FastAPI):
     yield
     await ping_task.cancel()
 
+
 app = FastAPI(lifespan=lifespan)
+
+
+@router.on_connect
+async def on_connect(conn):
+    print(f"server connected to {conn}")
+    raise Exception
 
 
 @router.on("echo")

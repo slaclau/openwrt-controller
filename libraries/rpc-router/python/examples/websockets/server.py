@@ -17,9 +17,15 @@ async def on_connect(conn):
     print(f"server connected to {conn}")
     print(conn.ws.request)
     print(conn.ws.response)
+    # raise Exception
 
+@router.before_receive
+def on_receive(ctx, frame):
+    print(f"receiving {frame}")
 
-#    raise Exception
+@router.before_send
+def on_send(ctx, frame):
+    print(f"sending {frame}")
 
 
 async def main():

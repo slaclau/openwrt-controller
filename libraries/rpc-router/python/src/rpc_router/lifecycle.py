@@ -3,14 +3,22 @@ from abc import ABC, abstractmethod
 from .protocol import AbstractDuplexConnection, ConnectionManager, DuplexRouter
 
 
-class AbstractServer(ABC):
+class AbstractEndpoint(ABC):
+    def __init__(self, router: DuplexRouter):
+        self.router = router
+        self.on_connect = router.on_connect
+        self.before_receive = router.before_receive
+        self.before_send = router.before_send
+
+
+class AbstractServer(AbstractEndpoint):
     """
     Abstract Lifecycle Context Manager for Servers.
     Manages global registries. Subclasses only implement raw boot hooks.
     """
 
     def __init__(self, router: DuplexRouter):
-        self.router = router
+        super().__init__(router=router)
         self.manager = ConnectionManager()
 
     @abstractmethod
@@ -37,14 +45,14 @@ class AbstractServer(ABC):
         await self._raw_stop()
 
 
-class AbstractClient(ABC):
+class AbstractClient(AbstractEndpoint):
     """
     Abstract Lifecycle Context Manager for Clients.
     Subclasses only implement raw socket creation hooks.
     """
 
     def __init__(self, router: DuplexRouter):
-        self.router = router
+        super().__init__(router=router)
         self._conn: AbstractDuplexConnection | None = None
 
     @abstractmethod

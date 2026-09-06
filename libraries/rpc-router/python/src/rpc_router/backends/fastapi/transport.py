@@ -1,5 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect
 
+from ...exceptions import ConnectionBrokenException
 from ...lifecycle import AbstractServer
 from ...protocol import AbstractDuplexConnection, ConnectionManager, DuplexRouter
 
@@ -12,7 +13,8 @@ class FastAPIDuplexConnection(AbstractDuplexConnection):
 
     def __init__(
         self,
-        websocket: WebSocket,*,
+        websocket: WebSocket,
+        *,
         router: DuplexRouter,
         client_id: str | None = None,
         manager: ConnectionManager | None = None,
@@ -22,7 +24,10 @@ class FastAPIDuplexConnection(AbstractDuplexConnection):
 
     async def _raw_send(self, payload_str: str) -> None:
         """Pushes raw text data straight through the FastAPI client pipe."""
-        await self.ws.send_text(payload_str)
+        try:
+            await self.ws.send_text(payload_str)
+        except WebSocketDisconnect:
+            raise ConnectionBrokenException
 
     async def _raw_recv(self) -> str | None:
         """Reads raw text out of FastAPI's incoming stream, catching disconnects safely."""
@@ -56,7 +61,9 @@ class FastAPIServer(AbstractServer):
         Public execution gateway route method.
         Accepts raw incoming websockets and couples them directly to the abstract engine.
         """
-        conn = FastAPIDuplexConnection(websocket, router=self.router, manager=self.manager)
+        conn = FastAPIDuplexConnection(
+            websocket, router=self.router, manager=self.manager
+        )
 
         async with conn:
             await conn.wait_forever()

@@ -17,6 +17,14 @@ async def main():
     logging.getLogger("rpc_router").setLevel(logging.DEBUG)
     client = WebsocketClient(router=router, target_url="ws://localhost:8765")
 
+    @client.before_receive
+    def pre_receive_hook(ctx, frame):
+        print(f"receiving frame: {frame}")
+
+    @client.before_send
+    def pre_send_hook(ctx, frame):
+        print(f"sending frame: {frame}")
+
     async with client as conn:
         print("Say hello to Server")
         reply = await conn.call("echo", "hello")

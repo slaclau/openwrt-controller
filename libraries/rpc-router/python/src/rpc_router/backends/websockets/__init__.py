@@ -1,1 +1,1 @@
-from .transport import WebsocketClient, WebsocketServer
+from .transport import WebsocketClient as WebsocketClient, WebsocketServer as WebsocketServer
