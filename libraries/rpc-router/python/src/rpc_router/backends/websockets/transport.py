@@ -1,7 +1,6 @@
 import logging
 
 import websockets
-from websockets.exceptions import ConnectionClosed
 from websockets.protocol import State
 
 from ...lifecycle import AbstractClient, AbstractServer

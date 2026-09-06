@@ -17,7 +17,9 @@ async def on_connect(conn):
     print(f"server connected to {conn}")
     print(conn.ws.request)
     print(conn.ws.response)
-    raise Exception
+
+
+#    raise Exception
 
 
 async def main():
