@@ -5,6 +5,8 @@ config_roots = [
   "*",
   "controller/*",
   "site-manager/*",
+  "libraries/rpc-router/*",
+  "tools/*",
 ]
 
 [settings]
