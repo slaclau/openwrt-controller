@@ -1,4 +1,4 @@
-name: Deploy
+name: Publish and Deploy
 on:
   push:
     branches: [master]
@@ -16,10 +16,10 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Format
-        run: mise run format-all
+        run: mise run --affected //...:format
       - name: Build
-        run: mise run build-all
+        run: mise run --affected //...:build
       - name: Publish
         run: mise run --affected //...:publish
       - name: Deploy
-        run: mise run deploy-all
+        run: mise run --affected //...:deploy

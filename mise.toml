@@ -25,6 +25,9 @@ run = { task = "//...:clean" }
 [tasks.deploy-all]
 run = { task = "//...:deploy" }
 
+[tasks.publish-all]
+run = { task = "//...:publish" }
+
 [tasks.format-all]
 run = { task = "//...:format" }
 
