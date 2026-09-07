@@ -19,5 +19,7 @@ jobs:
         run: mise run format-all
       - name: Build
         run: mise run build-all
+      - name: Publish
+        run: mise run --affected //...:publish
       - name: Deploy
         run: mise run deploy-all
