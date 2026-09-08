@@ -24,6 +24,7 @@ class DuplexRouter:
         self.connect_handler: Callable | None = None
         self.receive_handlers: list[SendReceiveHandler] = []
         self.send_handlers: list[SendReceiveHandler] = []
+        self.unknown_method_handler = self._default_unknown_method_handler
 
     def on(self, name_or_func: str | Callable | None = None):
         if callable(name_or_func):
@@ -50,6 +51,14 @@ class DuplexRouter:
     def before_send(self, func: SendReceiveHandler):
         self.send_handlers.append(func)
         return func
+
+    @staticmethod
+    def _default_unknown_method_handler(method: str):
+        def handler(ctx: AbstractDuplexConnection, payload):
+            logger.error("Received unknown payload %s on method %s", payload, method)
+            raise RuntimeError
+
+        return handler
 
 
 class ConnectionManager:
@@ -103,6 +112,13 @@ class ConnectionManager:
         if not conn:
             raise RuntimeError("No client with id %s", client_id)
         await conn.send(method=method, payload=payload)
+
+    async def call(self, client_id: str, method: str, payload: Any = None):
+        logger.debug(f"Calling {method}: {payload} on {client_id}")
+        conn = self.active_connections.get(client_id)
+        if not conn:
+            raise RuntimeError("No client with id %s", client_id)
+        return await conn.call(method=method, payload=payload)
 
 
 class AbstractDuplexConnection(ABC):
@@ -239,7 +255,11 @@ class AbstractDuplexConnection(ABC):
                         if frame.get("error")
                         else future.set_result(p)
                     )
-            elif t in ("request", "signal") and (handler := self.router.routes.get(m)):
+            elif t in ("request", "signal") and (
+                handler := self.router.routes.get(
+                    m, self.router.unknown_method_handler(m)
+                )
+            ):
                 if t == "signal":
                     await handler(self, p)
                 elif t == "request" and fid:
