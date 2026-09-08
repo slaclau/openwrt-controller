@@ -185,15 +185,14 @@ async def manage_site_manager_connection(app: FastAPI):
                 ) as conn:
                     assert isinstance(conn, WebsocketsDuplexConnection)
                     while True:
-                        await conn.send(
-                            "heartbeat",
-                            {
-                                "site_id": SITE_ID,
-                                "name": "Test Site",
-                                "time": time.time(),
-                            },
-                        )
-                        logger.info("sent heartbeat")
+                        payload = {
+                            "site_id": SITE_ID,
+                            "name": "Test Site",
+                            "time": time.time(),
+                        }
+
+                        await conn.send("heartbeat", payload)
+                        logger.info("sent heartbeat %s", payload)
                         await asyncio.sleep(10)
             except Exception as e:
                 logger.warning("Exception: %s", e)
