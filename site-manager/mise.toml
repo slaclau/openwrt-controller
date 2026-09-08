@@ -9,4 +9,4 @@ run = [
 
 [tasks.deploy]
 depends = ["pre-deploy", "//:build-all"]
-run = [{ task = "./backend:deploy" }]
+run = [{ task = "./backend:do-deploy" }]
