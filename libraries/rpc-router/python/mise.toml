@@ -3,4 +3,4 @@ run = "rm -rf dist; uv build -o dist"
 
 [tasks.publish]
 depends = ["build"]
-run = "twine upload dist/*"
+run = "uv publish dist/*"
