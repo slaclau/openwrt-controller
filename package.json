@@ -4,7 +4,8 @@
   "description": "",
   "workspaces": [
     "controller/frontend",
-    "site-manager/frontend"
+    "site-manager/frontend",
+    "libraries/rpc-router/ts"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES2022", /* Support modern JS features like crypto.randomUUID */
+        "module": "NodeNext", /* Handles universal ESM/CommonJS mixing perfectly */
+        "moduleResolution": "NodeNext",
+        "declaration": true, /* Generates .d.ts files for other developers */
+        "outDir": "./dist", /* Where compiled JavaScript files go */
+        "rootDir": "./src", /* Put your protocol.ts, types.ts, etc. in a /src folder */
+        "strict": true, /* Enables full type safety checks */
+        "esModuleInterop": true, /* Allows seamless compatibility with non-ESM tools */
+        "skipLibCheck": true, /* Speeds up compilation by skipping external type files */
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
