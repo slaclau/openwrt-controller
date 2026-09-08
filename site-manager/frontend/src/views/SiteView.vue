@@ -88,6 +88,7 @@ async function connect(url: string) {
       if (localCandidate.candidateType === 'host' && remoteCandidate.candidateType === 'host') {
         console.log("Pure direct connection! No STUN or TURN servers used. Requesting local IP from Site");
         const localIp = (await connection.call("report_ips", { site_id: route.params.site_id })).local
+        console.log("Got local IP", localIp)
         switch (localIp.version) {
           case 4:
             controllerClient.setConfig({ fetch: undefined, baseUrl: `http://${localIp.address}:5173/api` })
