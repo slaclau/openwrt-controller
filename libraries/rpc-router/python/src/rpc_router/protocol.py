@@ -66,6 +66,15 @@ class ConnectionManager:
         if self.active_connections.pop(client_id, None):
             logger.debug(f"Unregistered client: {client_id}")
 
+    def change_id(self, client_id: str, connection: "AbstractDuplexConnection") -> None:
+        if connection.client_id == client_id:
+            return
+        if connection.client_id not in self.active_connections:
+            raise RuntimeError("Unregistered connection")
+        self.unregister(connection.client_id)
+        connection.client_id = client_id
+        self.register(client_id=client_id, connection=connection)
+
     def get(self, client_id: str) -> Optional["AbstractDuplexConnection"]:
         conn = self.active_connections.get(client_id)
         return conn if (conn and conn.is_alive) else None
