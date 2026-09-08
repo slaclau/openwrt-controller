@@ -90,10 +90,10 @@ async function connect(url: string) {
         const localIp = (await connection.call("report_ips", { site_id: route.params.site_id })).local
         switch (localIp.version) {
           case 4:
-            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://${localIp}:5173/api` })
+            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://${localIp.address}:5173/api` })
             break
           case 6:
-            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://[${localIp}]:5173/api` })
+            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://[${localIp.address}]:5173/api` })
             break
         }
 
