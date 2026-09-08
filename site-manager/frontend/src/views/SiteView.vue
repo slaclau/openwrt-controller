@@ -91,10 +91,10 @@ async function connect(url: string) {
         console.log("Got local IP", localIp)
         switch (localIp.version) {
           case 4:
-            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://${localIp.address}:5173/api` })
+            controllerClient.setConfig({ fetch: undefined, baseUrl: `https://${localIp.address}:5173/api` })
             break
           case 6:
-            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://[${localIp.address}]:5173/api` })
+            controllerClient.setConfig({ fetch: undefined, baseUrl: `https://[${localIp.address}]:5173/api` })
             break
         }
 

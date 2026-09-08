@@ -1,13 +1,18 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { heyApiPlugin } from '@hey-api/vite-plugin';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools(), heyApiPlugin(),
+  plugins: [
+    basicSsl(),
+    vue(),
+    vueDevTools(),
+    heyApiPlugin(),
   ],
   resolve: {
     alias: {
@@ -15,7 +20,7 @@ export default defineConfig({
     },
   },
   server: {
-    cors: { origin: ["http://localhost:5174"] },
+    cors: { origin: ["http://localhost:5174", "https://openwrt-controller.fastapicloud.dev"] },
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
