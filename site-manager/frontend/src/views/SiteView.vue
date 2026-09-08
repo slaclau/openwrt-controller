@@ -12,6 +12,8 @@ import { useRoute } from 'vue-router'
 
 
 import TabBar from 'openwrt-controller/src/components/TabBar.vue'
+import router from '@/router'
+import { ElMessage } from 'element-plus'
 
 const connected: Ref<boolean> = ref(false)
 const route = useRoute()
@@ -46,7 +48,11 @@ async function connect(url: string) {
   connection = await client.connect()
   state.value = SiteConnectionState.WsConnected
 
-  let res = await connection.call("initiate_webrtc", { site_id: route.params.site_id })
+  let res = await connection.call("initiate_webrtc", { site_id: route.params.site_id }).catch((err) => {
+    console.error("failed to initiate webrtc:", err)
+    router.back()
+    ElMessage.error("Failed to negotiate WebRTC connection")
+  })
   console.log("attempted to initiate webrtc:", res)
 
   const configuration = (await getIceServersIceServersGet()).data
@@ -82,7 +88,15 @@ async function connect(url: string) {
       if (localCandidate.candidateType === 'host' && remoteCandidate.candidateType === 'host') {
         console.log("Pure direct connection! No STUN or TURN servers used. Requesting local IP from Site");
         const localIp = (await connection.call("report_ips", { site_id: route.params.site_id })).local
-        controllerClient.setConfig({ fetch: undefined, baseUrl: `http://${localIp}:5173/api` })
+        switch (localIp.version) {
+          case 4:
+            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://${localIp}:5173/api` })
+            break
+          case 6:
+            controllerClient.setConfig({ fetch: undefined, baseUrl: `http://[${localIp}]:5173/api` })
+            break
+        }
+
         console.log(controllerClient.getConfig())
         console.log("trying direct fetch")
       } else if (localCandidate.candidateType === 'srflx' || remoteCandidate.candidateType === 'srflx') {

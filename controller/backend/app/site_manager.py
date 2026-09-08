@@ -172,7 +172,14 @@ async def add_ice_candidate(ctx, payload):
 
 @ws_router.on
 async def report_ips(ctx, payload):
-    return {"local": ctx.ws.local_address[0]}
+    local_address = ctx.ws.local_address
+    match len(local_address):
+        case 2:
+            return {"local": {"address": local_address[0], "version": 4}}
+        case 4:
+            return {"local": {"address": local_address[0], "version": 6}}
+        case _:
+            raise RuntimeError("Unknown address format %s", local_address)
 
 
 async def manage_site_manager_connection(app: FastAPI):
