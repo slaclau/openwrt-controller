@@ -1,24 +1,18 @@
 [project]
 name = "openwrt-controller"
 dependencies = [
-    "aiortc",
-    "fastapi[standard]",
-    "httpx2",
-    "netjsonconfig",
-    "rpc-router",
-    "sqlmodel",
+  "aiortc",
+  "fastapi[standard]",
+  "httpx2",
+  "netjsonconfig",
+  "rpc-router",
+  "sqlmodel",
 ]
 dynamic = ["version"]
 
+[build-system]
+requires = ["git-semantic-version", "setuptools>=45"]
+build-backend = "setuptools.build_meta"
+
 [tool.fastapi]
 entrypoint = "app.main:app"
-
-[tool.uv.sources]
-rpc-router = { workspace = true }
-
-[build-system]
-build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=45",
-  "git-semantic-version"
-]

@@ -43,6 +43,3 @@ entrypoint = "app.main:app"
 
 [tool.setuptools]
 packages = ["app"]
-
-[tool.uv.sources]
-rpc-router = { workspace = true }
