@@ -23,7 +23,7 @@ function generateId(length = 16) {
   return Array.from(arr, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-function sendRequest(
+export function sendRequest(
   resource: RequestInfo | URL,
   options: RequestInit | undefined,
 ): Promise<Response> {

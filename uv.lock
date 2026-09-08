@@ -1239,6 +1239,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "httpx2" },
     { name = "netjsonconfig" },
+    { name = "rpc-router" },
     { name = "sqlmodel" },
 ]
 
@@ -1248,6 +1249,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"] },
     { name = "httpx2" },
     { name = "netjsonconfig" },
+    { name = "rpc-router", editable = "libraries/rpc-router/python" },
     { name = "sqlmodel" },
 ]
 
@@ -1293,6 +1295,7 @@ dependencies = [
     { name = "pwdlib", extra = ["argon2"] },
     { name = "pyjwt" },
     { name = "pyotp" },
+    { name = "rpc-router" },
     { name = "sqlmodel" },
     { name = "webauthn" },
 ]
@@ -1311,6 +1314,7 @@ requires-dist = [
     { name = "pwdlib", extras = ["argon2"] },
     { name = "pyjwt" },
     { name = "pyotp", specifier = ">=2.10.0" },
+    { name = "rpc-router", editable = "libraries/rpc-router/python" },
     { name = "sqlmodel" },
     { name = "webauthn", specifier = ">=3.0.0" },
 ]

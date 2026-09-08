@@ -5,12 +5,16 @@ dependencies = [
     "fastapi[standard]",
     "httpx2",
     "netjsonconfig",
+    "rpc-router",
     "sqlmodel",
 ]
 dynamic = ["version"]
 
 [tool.fastapi]
 entrypoint = "app.main:app"
+
+[tool.uv.sources]
+rpc-router = { workspace = true }
 
 [build-system]
 build-backend = "setuptools.build_meta"

@@ -13,6 +13,7 @@ dependencies = [
   "pwdlib[argon2]",
   "pyjwt",
   "pyotp>=2.10.0",
+  "rpc-router",
   "sqlmodel",
   "webauthn>=3.0.0",
 ]
@@ -42,3 +43,6 @@ entrypoint = "app.main:app"
 
 [tool.setuptools]
 packages = ["app"]
+
+[tool.uv.sources]
+rpc-router = { workspace = true }
