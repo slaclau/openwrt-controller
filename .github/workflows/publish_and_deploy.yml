@@ -17,10 +17,10 @@ jobs:
           version: 2026.9.2
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Format
-        run: mise run --affected //...:format
+        run: mise run //...:format
       - name: Build
-        run: mise run --affected //...:build
+        run: mise run //...:build
       - name: Publish
-        run: mise run --affected //...:publish
+        run: mise run //...:publish
       - name: Deploy
-        run: mise run --affected //...:deploy
+        run: mise run //...:deploy
