@@ -23,6 +23,6 @@ jobs:
       - name: Build
         run: mise run //...:build
       - name: Publish
-        run: mise run //...:publish
+        run: mise run --affected //...:publish
       - name: Deploy
         run: mise run //...:deploy
