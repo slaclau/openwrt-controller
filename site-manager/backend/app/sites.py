@@ -94,6 +94,7 @@ def handle_heartbeat(ctx: FastAPIDuplexConnection, data):
         site = Site(
             site_id=uuid.UUID(hex=data["site_id"]), name=data["name"], last_heartbeat=0
         )
+        session.add(site)
         logger.info("New site %s", site)
     if site.site_id not in server.manager.active_connections:
         server.manager.change_id(connection=ctx, client_id=f"site:{site.site_id}")
