@@ -2,6 +2,8 @@ name: Publish and Deploy
 on:
   push:
     branches: [master]
+permissions:
+  id-token: write
 env:
   FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
   FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
