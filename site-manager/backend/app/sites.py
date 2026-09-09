@@ -90,15 +90,14 @@ def handle_heartbeat(ctx: FastAPIDuplexConnection, data):
     logger.info("Received heartbeat %s from site %s", data, data.get("site_id"))
     site = session.get(Site, uuid.UUID(hex=data["site_id"]))
 
-    if site.site_id not in server.manager.active_connections:
-        server.manager.change_id(connection=ctx, client_id=f"site:{site.site_id}")
-        logger.debug("Updated connection id to site id")
-
     if not site:
         site = Site(
             site_id=uuid.UUID(hex=data["site_id"]),
             name=data["name"],
         )
+    if site.site_id not in server.manager.active_connections:
+        server.manager.change_id(connection=ctx, client_id=f"site:{site.site_id}")
+        logger.debug("Updated connection id to site id")
     if not site.up:
         outage = Outage(
             site_id=site.site_id,
