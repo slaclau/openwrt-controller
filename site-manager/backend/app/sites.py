@@ -160,7 +160,7 @@ async def add_ice_candidate(ctx: FastAPIDuplexConnection, payload):
     logger.info(
         "forward ice candidate %s to site %s", payload["candidate"], payload["site_id"]
     )
-    await server.manager.call(
+    await server.manager.send_to(
         client_id=f"site:{payload.get("site_id")}",
         method="add_ice_candidate",
         payload={"client": ctx.client_id, "candidate": payload["candidate"]},

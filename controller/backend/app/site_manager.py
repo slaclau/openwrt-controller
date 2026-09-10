@@ -145,7 +145,8 @@ async def webrtc_offer(ctx, payload):
 
 @ws_router.on
 async def add_ice_candidate(ctx, payload):
-    candidate = payload["ice-candidate"]
+    candidate = payload["candidate"]
+    logger.info("Received WebRTC ICE Candidate %s", candidate)
     if not (candidate and len(candidate["candidate"].split(" ")) > 7):
         raise RuntimeError("Invalid ICE candidate %s", candidate)
     ip = candidate["candidate"].split(" ")[4]
