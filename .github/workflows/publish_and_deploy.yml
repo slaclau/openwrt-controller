@@ -20,6 +20,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install podman
         run: sudo apt-get update && sudo apt-get install -y podman
+      - name: Start Podman Socket
+        run: |
+          systemctl --user enable --now podman.socket
+          # Point your environment variables to the created socket if needed
+          echo "DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock" >> $GITHUB_ENV
       - name: Format
         run: mise run //...:format
       - name: Build
