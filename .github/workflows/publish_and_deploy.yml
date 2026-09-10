@@ -4,6 +4,8 @@ on:
     branches: [master]
 permissions:
   id-token: write
+  contents: read
+  packages: write
 env:
   FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
   FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
