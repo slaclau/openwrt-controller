@@ -9,6 +9,9 @@ permissions:
 env:
   FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
   FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
+  REGISTRY_USER: ${{ github.actor }}
+  REGISTRY_PASSWORD: ${{ github.token }}
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 jobs:
   publish_and_deploy:
     runs-on: ubuntu-latest
@@ -27,6 +30,12 @@ jobs:
             BEFORE_SHA=$(git rev-parse HEAD~1)
           fi
           echo "before=$BEFORE_SHA" >> $GITHUB_OUTPUT
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ env.IMAGE_REGISTRY }}
       - uses: jdx/mise-action@v4
         with:
           version: 2026.9.2
