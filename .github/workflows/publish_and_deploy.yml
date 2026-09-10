@@ -41,6 +41,6 @@ jobs:
       - name: Build
         run: mise run //...:build
       - name: Publish
-        run: mise run --affected --affected-base=${{ steps.sha.outputs.before }} //...:publish
+        run: mise run --continue-on-error //...:publish
       - name: Deploy
         run: mise run //...:deploy
