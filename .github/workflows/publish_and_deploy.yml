@@ -23,6 +23,6 @@ jobs:
       - name: Build
         run: mise run //...:build
       - name: Publish
-        run: mise run --affected //...:publish
+        run: mise run --affected --affected-base=${{ github.event.before }} //...:publish
       - name: Deploy
         run: mise run //...:deploy

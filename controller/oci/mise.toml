@@ -1,0 +1,16 @@
+[tasks.docker-build]
+depends = ["//controller/backend:build", "//controller/frontend:build"]
+run = [
+  "cp -r ../frontend/dist ../backend/",
+]
+
+[tasks.build]
+run = "podman-remote build -t openwrt-controller:latest -t ghcr.io/slaclau/openwrt-controller:latest --build-context manifests=. --build-context src=.  -f Containerfile ../.."
+
+[tasks.publish]
+depends = ["build"]
+run = "podman-remote push ghcr.io/slaclau/openwrt-controller:latest"
+
+[tasks.run]
+depends = ["build"]
+run = "podman-remote run -p 8000:8000 openwrt-controller:latest"

@@ -1,0 +1,41 @@
+FROM ubuntu:24.04 AS manifest-extractor
+WORKDIR /scratch
+
+RUN --mount=from=manifests,target=/mnt,relabel=shared \
+    cp -r /mnt/* . && \
+    find . -type f ! -name "mise.toml" ! -name "package.json" ! -name "pyproject.toml" ! -name "uv.lock" ! -name "package-lock.json" -delete && \
+    find . -type d -empty -delete
+
+FROM ubuntu:24.04 AS builder
+WORKDIR /monorepo
+
+COPY --from=manifest-extractor /scratch /monorepo
+
+RUN apt-get update && apt-get install -y curl git libatomic1 \
+     && rm -rf /var/lib/apt/lists/*
+
+ENV MISE_DATA_DIR="/mise"
+ENV MISE_CONFIG_DIR="/mise"
+ENV MISE_CACHE_DIR="/mise/cache"
+ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
+ENV PATH="/mise/shims:$PATH"
+RUN /bin/bash -c "curl -L https://mise.run | sh"
+#ENV PATH="/root/.local/bin:$PATH"
+
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/root/.cache/uv \
+    mise trust && mise install
+
+RUN --mount=from=src,source=.,target=/mnt \
+    cp -r /mnt/* /monorepo
+RUN mise deps
+RUN mise run //controller/oci:docker-build
+
+WORKDIR /app
+ENV PATH="/app/.venv/bin:$PATH"
+RUN cp -r /monorepo/.venv /app/.venv
+RUN cp -r /monorepo/controller/backend/app /app/
+RUN cp -r /monorepo/controller/device_files /
+
+CMD ["fastapi", "run"]
+LABEL org.opencontainers.image.source=https://github.com/slaclau/openwrt-controller

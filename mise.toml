@@ -16,6 +16,7 @@ python.uv_venv_auto = "create|source"
 
 [tools]
 node = "latest"
+podman = { version = "latest" }
 python = "latest"
 uv = "latest"
 
