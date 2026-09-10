@@ -36,6 +36,15 @@ jobs:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
           registry: ${{ env.IMAGE_REGISTRY }}
+      - name: Disable Cross-Repository Blob Mounts
+        run: |
+          mkdir -p ~/.config/containers
+          cat <<EOF > ~/.config/containers/registries.conf
+          [[registry]]
+          location = "ghcr.io"
+          blocked = false
+          # Forcing standard compression disables remote layer linking
+          EOF
       - uses: jdx/mise-action@v4
         with:
           version: 2026.9.2
