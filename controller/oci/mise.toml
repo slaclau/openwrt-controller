@@ -5,7 +5,7 @@ run = [
 ]
 
 [tasks.build]
-run = "podman-remote build -t openwrt-controller:latest -t ghcr.io/slaclau/openwrt-controller:latest --build-context manifests=. --build-context src=.  -f Containerfile ../.."
+run = "podman-remote build -t openwrt-controller:latest -t ghcr.io/slaclau/openwrt-controller:latest --build-context manifests=../.. --build-context src=../..  -f Containerfile ../.."
 
 [tasks.publish]
 depends = ["build"]
