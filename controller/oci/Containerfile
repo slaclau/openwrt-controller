@@ -36,5 +36,5 @@ RUN cp -r /monorepo/.venv /app/.venv
 RUN cp -r /monorepo/controller/backend/app /app/
 RUN cp -r /monorepo/controller/device_files /
 
-CMD ["fastapi", "run"]
 LABEL org.opencontainers.image.source=https://github.com/slaclau/openwrt-controller
+CMD ["fastapi", "run"]
